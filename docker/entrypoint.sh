@@ -20,8 +20,7 @@ if [ ! -z "$NLP_SERVER_URL" ]; then
     
     if [ $timeout -le 0 ]; then
         echo "❌ NLP server not ready after 60 seconds"
-        echo "🔍 Attempting to continue anyway for debugging..."
-        # Don't exit, continue for debugging
+        echo "🔍 Continuing anyway for debugging..."
     fi
 fi
 
@@ -29,13 +28,11 @@ fi
 if [ ! -f "/app/src/quick_validation.py" ]; then
     echo "❌ Missing required file: /app/src/quick_validation.py"
     echo "📝 Please ensure source files are properly mounted or copied"
-    exit 1
 fi
 
 if [ ! -f "/app/src/comprehensive_testing.py" ]; then
     echo "❌ Missing required file: /app/src/comprehensive_testing.py"  
     echo "📝 Please ensure source files are properly mounted or copied"
-    exit 1
 fi
 
 # Ensure results directory exists
@@ -45,15 +42,27 @@ mkdir -p /app/results/quick_validation
 case "$1" in
     "testing")
         echo "🧪 Starting testing service with scheduled jobs"
+        
         # Start cron for scheduled testing
         if [ "$ENABLE_SCHEDULED_TESTING" = "true" ]; then
             echo "📅 Starting cron daemon"
             cron
         fi
         
-        # Run initial validation
+        # Run initial validation but don't exit if it fails
         echo "🔍 Running initial validation"
-        python /app/src/quick_validation.py
+        if python /app/src/quick_validation.py; then
+            echo "✅ Initial validation completed successfully"
+        else
+            echo "⚠️  Initial validation had issues, but continuing to run"
+            echo "   You can debug with: docker-compose exec ash-thrash python src/quick_validation.py"
+        fi
+        
+        echo "🏃 Container staying alive for on-demand testing..."
+        echo "📝 Available commands:"
+        echo "   - docker-compose exec ash-thrash python src/quick_validation.py"
+        echo "   - docker-compose exec ash-thrash python src/comprehensive_testing.py"
+        echo "   - docker-compose exec ash-thrash bash"
         
         # Keep container running
         tail -f /dev/null
@@ -77,6 +86,7 @@ case "$1" in
     *)
         echo "❌ Unknown mode: $1"
         echo "Available modes: testing, api, comprehensive, quick, bash"
-        exit 1
+        echo "🏃 Defaulting to testing mode..."
+        exec "$0" "testing"
         ;;
 esac
