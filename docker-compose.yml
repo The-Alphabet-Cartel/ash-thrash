@@ -1,7 +1,7 @@
 services:
   # Main testing service
   ash-thrash:
-    image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
+    image: ghcr.io/the-alphabet-cartel/ash-thrash:main-c98b194
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -29,7 +29,7 @@ services:
 
   # API server for remote testing and dashboard integration
   ash-thrash-api:
-    image: ghcr.io/the-alphabet-cartel/ash-thrash-api:latest
+    image: ghcr.io/the-alphabet-cartel/ash-thrash-api:main-c98b194
     build:
       context: .
       dockerfile: docker/Dockerfile.api
