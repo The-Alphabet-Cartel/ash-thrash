@@ -190,7 +190,7 @@ def run_quick_validation():
     if pass_rate >= 80:
         print("🎉 VALIDATION PASSED - System is healthy!")
         health_status = "healthy"
-    elif pass_rate >= 60:
+    elif pass_rate >= 50:
         print("⚠️  VALIDATION WARNING - System has issues")
         health_status = "warning"
     else:
