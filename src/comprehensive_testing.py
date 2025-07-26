@@ -145,7 +145,8 @@ def evaluate_result(phrase_data, result):
         return create_error_result(phrase_data, "No response from server")
     
     expected = phrase_data["expected_priority"]
-    actual = result.get("priority", "unknown").lower()
+    # Try both 'priority' and 'crisis_level' fields (NLP server might use either)
+    actual = result.get("priority", result.get("crisis_level", "unknown")).lower()
     phrase = phrase_data["phrase"]
     category = phrase_data["category"]
     
@@ -179,7 +180,7 @@ def evaluate_result(phrase_data, result):
         "success": success,
         "message": message,
         "response_time_ms": result.get("response_time_ms", 0),
-        "confidence": result.get("confidence", 0),
+        "confidence": result.get("confidence_score", result.get("confidence", 0)),
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
