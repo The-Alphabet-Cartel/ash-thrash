@@ -60,9 +60,9 @@ services:
     container_name: ash-thrash-db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=ash_testing
-      - POSTGRES_USER=ash_test
-      - POSTGRES_PASSWORD=change_this_password
+      - POSTGRES_DB=${POSTGRES_DB:-ash_testing}
+      - POSTGRES_USER=${POSTGRES_USER:-ash_test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ash_thrash_db_data:/var/lib/postgresql/data
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
