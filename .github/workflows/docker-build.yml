@@ -100,8 +100,8 @@ jobs:
         
     - name: Test main image
       run: |
-        docker run --rm ${{ env.REGISTRY }}/${{ steps.repo-name.outputs.main-image }}:latest python --version
+        docker run --rm --entrypoint python ${{ env.REGISTRY }}/${{ steps.repo-name.outputs.main-image }}:latest --version
         
     - name: Test API image
       run: |
-        docker run --rm ${{ env.REGISTRY }}/${{ steps.repo-name.outputs.api-image }}:latest python --version
+        docker run --rm --entrypoint python ${{ env.REGISTRY }}/${{ steps.repo-name.outputs.api-image }}:latest --version
