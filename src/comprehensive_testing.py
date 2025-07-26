@@ -218,17 +218,18 @@ def run_category_tests(category_name, phrases, max_workers=5):
             result = future.result()
             results.append(result)
             
-            # Show detailed progress with phrase text
+            # Show detailed progress with phrase text and confidence
             phrase_text = result["phrase"]
             # Truncate long phrases for cleaner display
-            display_phrase = phrase_text[:60] + "..." if len(phrase_text) > 60 else phrase_text
+            display_phrase = phrase_text[:50] + "..." if len(phrase_text) > 50 else phrase_text
+            confidence = result.get("confidence", 0)
             
             if result["success"]:
-                print(f"   ✅ {len(results)}/{len(phrase_data_list)}: \"{display_phrase}\" → {result['actual_priority']}")
+                print(f"   ✅ {len(results)}/{len(phrase_data_list)}: \"{display_phrase}\" → {result['actual_priority']} (conf: {confidence:.3f})")
             else:
-                print(f"   ❌ {len(results)}/{len(phrase_data_list)}: \"{display_phrase}\" → {result['message']}")
-    
-    return results
+                print(f"   ❌ {len(results)}/{len(phrase_data_list)}: \"{display_phrase}\" → {result['actual_priority']} (conf: {confidence:.3f}) - {result['message']}")
+        
+        return results
 
 def calculate_category_metrics(results, category_info):
     """Calculate metrics for a category."""
@@ -311,10 +312,22 @@ def run_comprehensive_test(categories=None):
         if failures:
             print(f"   🔍 Sample failures:")
             for i, failure in enumerate(failures[:3]):  # Show first 3 failures
-                phrase_text = failure["phrase"][:50] + "..." if len(failure["phrase"]) > 50 else failure["phrase"]
-                print(f"      {i+1}. \"{phrase_text}\" → {failure['message']}")
+                phrase_text = failure["phrase"][:45] + "..." if len(failure["phrase"]) > 45 else failure["phrase"]
+                confidence = failure.get("confidence", 0)
+                expected = failure["expected_priority"]
+                actual = failure["actual_priority"]
+                print(f"      {i+1}. \"{phrase_text}\"")
+                print(f"         Expected: {expected} | Got: {actual} | Confidence: {confidence:.3f}")
             if len(failures) > 3:
                 print(f"      ... and {len(failures) - 3} more failures")
+        
+        # Show confidence distribution for this category
+        confidences = [r.get("confidence", 0) for r in category_results if r.get("confidence", 0) > 0]
+        if confidences:
+            avg_confidence = sum(confidences) / len(confidences)
+            min_confidence = min(confidences)
+            max_confidence = max(confidences)
+            print(f"   📈 Confidence stats: avg={avg_confidence:.3f}, min={min_confidence:.3f}, max={max_confidence:.3f}")
         
         print()  # Add spacing between categories
     
@@ -331,6 +344,17 @@ def run_comprehensive_test(categories=None):
     overall_pass_rate = (total_passed / total_tests) * 100 if total_tests > 0 else 0
     avg_response_time = sum(r["response_time_ms"] for r in all_test_results) / total_tests if total_tests > 0 else 0
     
+    # Calculate confidence statistics
+    all_confidences = [r.get("confidence", 0) for r in all_test_results if r.get("confidence", 0) > 0]
+    avg_confidence = sum(all_confidences) / len(all_confidences) if all_confidences else 0
+    
+    # Confidence by success/failure
+    success_confidences = [r.get("confidence", 0) for r in all_test_results if r["success"] and r.get("confidence", 0) > 0]
+    failure_confidences = [r.get("confidence", 0) for r in all_test_results if not r["success"] and r.get("confidence", 0) > 0]
+    
+    avg_success_confidence = sum(success_confidences) / len(success_confidences) if success_confidences else 0
+    avg_failure_confidence = sum(failure_confidences) / len(failure_confidences) if failure_confidences else 0
+    
     # Results summary
     print("\n" + "=" * 60)
     print("📊 COMPREHENSIVE TEST RESULTS")
@@ -339,6 +363,9 @@ def run_comprehensive_test(categories=None):
     print(f"⏱️  Total Time: {total_time:.1f}s")
     print(f"📈 Avg Response Time: {avg_response_time:.0f}ms")
     print(f"🔧 Tests per Second: {total_tests/total_time:.1f}")
+    print(f"🎯 Overall Confidence: {avg_confidence:.3f}")
+    print(f"   ✅ Success Confidence: {avg_success_confidence:.3f}")
+    print(f"   ❌ Failure Confidence: {avg_failure_confidence:.3f}")
     print()
     
     # Category breakdown
