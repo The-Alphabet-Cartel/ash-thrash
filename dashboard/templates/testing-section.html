@@ -1,0 +1,516 @@
+<!--
+  Testing Section Template for Ash-Dash Integration
+  
+  This HTML template provides the testing metrics display section
+  for integration with the ash-dash analytics dashboard.
+  
+  Repository: https://github.com/The-Alphabet-Cartel/ash-thrash
+  Discord: https://discord.gg/alphabetcartel
+-->
+
+<div class="testing-dashboard" id="testing-dashboard">
+    <!-- Header Section -->
+    <div class="testing-header">
+        <div>
+            <h2 class="testing-title">🧪 Crisis Detection Testing</h2>
+            <p class="testing-subtitle">Real-time monitoring of Ash NLP Server accuracy and performance</p>
+        </div>
+        <div class="testing-controls">
+            <button class="refresh-btn" id="refresh-testing-btn" title="Refresh Testing Data">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button class="test-trigger-btn" id="trigger-test-btn">
+                <i class="fas fa-play"></i> Run Quick Test
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" id="testing-loading" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Loading testing metrics...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-message" id="testing-error" style="display: none;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="testing-error-message">Failed to load testing data</span>
+    </div>
+
+    <!-- Main Content -->
+    <div id="testing-content" style="display: none;">
+        <!-- Status Row -->
+        <div class="testing-status-row">
+            <div class="status-card">
+                <div>
+                    <span class="status-indicator" id="overall-status-indicator"></span>
+                    <span class="status-title">Overall Health</span>
+                </div>
+                <p class="status-value" id="overall-health">Unknown</p>
+            </div>
+            <div class="status-card">
+                <div>
+                    <span class="status-indicator status-info"></span>
+                    <span class="status-title">Last Test</span>
+                </div>
+                <p class="status-value" id="last-test-time">Never</p>
+            </div>
+            <div class="status-card">
+                <div>
+                    <span class="status-indicator status-healthy"></span>
+                    <span class="status-title">Tests Today</span>
+                </div>
+                <p class="status-value" id="tests-today">0</p>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="testing-metrics">
+            <div class="metric-card" id="pass-rate-card">
+                <div class="metric-header">
+                    <h3 class="metric-title">Overall Pass Rate</h3>
+                    <span class="metric-trend" id="pass-rate-trend">Stable</span>
+                </div>
+                <p class="metric-value" id="overall-pass-rate">0%</p>
+                <p class="metric-subtitle">Target: 95%+ for safety-critical detection</p>
+            </div>
+            
+            <div class="metric-card" id="goal-achievement-card">
+                <div class="metric-header">
+                    <h3 class="metric-title">Goal Achievement</h3>
+                    <span class="metric-trend" id="goal-trend">Stable</span>
+                </div>
+                <p class="metric-value" id="goal-achievement-rate">0%</p>
+                <p class="metric-subtitle">Categories meeting target thresholds</p>
+            </div>
+            
+            <div class="metric-card info">
+                <div class="metric-header">
+                    <h3 class="metric-title">Response Time</h3>
+                    <span class="metric-trend trend-stable">Stable</span>
+                </div>
+                <p class="metric-value" id="avg-response-time">0ms</p>
+                <p class="metric-subtitle">Average NLP processing time</p>
+            </div>
+            
+            <div class="metric-card info">
+                <div class="metric-header">
+                    <h3 class="metric-title">Total Tests</h3>
+                    <span class="metric-trend trend-stable">Stable</span>
+                </div>
+                <p class="metric-value" id="total-tests">0</p>
+                <p class="metric-subtitle"><span id="tests-passed">0</span> passed, <span id="tests-failed">0</span> failed</p>
+            </div>
+        </div>
+
+        <!-- Testing Goals Section -->
+        <div class="testing-goals">
+            <div class="goals-header">
+                <h3 class="goals-title">🎯 Testing Goals</h3>
+                <span class="overall-achievement" id="overall-achievement">0% Achieved</span>
+            </div>
+            <div id="goals-list">
+                <!-- Goals will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Category Results -->
+        <div class="category-results" id="category-results">
+            <!-- Category cards will be populated dynamically -->
+        </div>
+
+        <!-- Alerts Section -->
+        <div class="testing-alerts" id="testing-alerts" style="display: none;">
+            <h3 style="color: white; margin-bottom: 1rem;">⚠️ Active Alerts</h3>
+            <div id="alerts-list">
+                <!-- Alerts will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Testing Dashboard -->
+<script>
+/**
+ * Testing Dashboard JavaScript
+ * Handles data fetching, display updates, and user interactions
+ */
+
+class TestingDashboard {
+    constructor() {
+        this.apiBaseUrl = '/api/testing';
+        this.refreshInterval = 60000; // 1 minute
+        this.refreshTimer = null;
+        this.isLoading = false;
+        
+        this.init();
+    }
+    
+    init() {
+        this.bindEvents();
+        this.loadTestingData();
+        this.startAutoRefresh();
+    }
+    
+    bindEvents() {
+        const refreshBtn = document.getElementById('refresh-testing-btn');
+        const triggerBtn = document.getElementById('trigger-test-btn');
+        
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.loadTestingData(true);
+            });
+        }
+        
+        if (triggerBtn) {
+            triggerBtn.addEventListener('click', () => {
+                this.triggerTest();
+            });
+        }
+    }
+    
+    async loadTestingData(forceRefresh = false) {
+        if (this.isLoading && !forceRefresh) return;
+        
+        this.isLoading = true;
+        this.showLoading();
+        
+        try {
+            const [statusResponse, goalsResponse] = await Promise.all([
+                fetch(`${this.apiBaseUrl}/status`),
+                fetch(`${this.apiBaseUrl}/goals`)
+            ]);
+            
+            if (!statusResponse.ok || !goalsResponse.ok) {
+                throw new Error('Failed to fetch testing data');
+            }
+            
+            const statusData = await statusResponse.json();
+            const goalsData = await goalsResponse.json();
+            
+            this.updateDisplay(statusData.data, goalsData.data);
+            this.hideLoading();
+            
+        } catch (error) {
+            console.error('Error loading testing data:', error);
+            this.showError(error.message);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+    
+    updateDisplay(statusData, goalsData) {
+        // Update status indicators
+        this.updateStatusRow(statusData.testing_status);
+        
+        // Update key metrics
+        this.updateMetrics(statusData.metrics);
+        
+        // Update goals
+        this.updateGoals(goalsData);
+        
+        // Update categories
+        this.updateCategories(statusData.categories);
+        
+        // Update alerts
+        this.updateAlerts(statusData.alerts);
+        
+        // Update timestamps
+        this.updateTimestamps(statusData.timestamp);
+    }
+    
+    updateStatusRow(testingStatus) {
+        const healthElement = document.getElementById('overall-health');
+        const statusIndicator = document.getElementById('overall-status-indicator');
+        const lastTestElement = document.getElementById('last-test-time');
+        const testsTodayElement = document.getElementById('tests-today');
+        
+        if (healthElement) {
+            healthElement.textContent = testingStatus.overall_health || 'Unknown';
+        }
+        
+        if (statusIndicator) {
+            statusIndicator.className = 'status-indicator';
+            switch (testingStatus.overall_health) {
+                case 'healthy':
+                    statusIndicator.classList.add('status-healthy');
+                    break;
+                case 'warning':
+                    statusIndicator.classList.add('status-warning');
+                    break;
+                case 'error':
+                    statusIndicator.classList.add('status-error');
+                    break;
+                default:
+                    statusIndicator.classList.add('status-unknown');
+            }
+        }
+        
+        if (lastTestElement) {
+            lastTestElement.textContent = testingStatus.last_test_time ? 
+                this.formatTime(testingStatus.last_test_time) : 'Never';
+        }
+        
+        if (testsTodayElement) {
+            testsTodayElement.textContent = testingStatus.total_tests_today || '0';
+        }
+    }
+    
+    updateMetrics(metrics) {
+        const elements = {
+            'overall-pass-rate': `${Math.round(metrics.overall_pass_rate || 0)}%`,
+            'goal-achievement-rate': `${Math.round(metrics.goal_achievement_rate || 0)}%`,
+            'avg-response-time': `${Math.round(metrics.avg_response_time || 0)}ms`,
+            'total-tests': metrics.total_tests || 0,
+            'tests-passed': metrics.tests_passed || 0,
+            'tests-failed': metrics.tests_failed || 0
+        };
+        
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+        
+        // Update card colors based on pass rate
+        const passRateCard = document.getElementById('pass-rate-card');
+        if (passRateCard) {
+            passRateCard.className = 'metric-card';
+            const passRate = metrics.overall_pass_rate || 0;
+            if (passRate >= 95) {
+                passRateCard.classList.add('success');
+            } else if (passRate >= 80) {
+                passRateCard.classList.add('warning');
+            } else {
+                passRateCard.classList.add('danger');
+            }
+        }
+        
+        // Update goal achievement card
+        const goalCard = document.getElementById('goal-achievement-card');
+        if (goalCard) {
+            goalCard.className = 'metric-card';
+            const goalRate = metrics.goal_achievement_rate || 0;
+            if (goalRate >= 80) {
+                goalCard.classList.add('success');
+            } else if (goalRate >= 60) {
+                goalCard.classList.add('warning');
+            } else {
+                goalCard.classList.add('danger');
+            }
+        }
+    }
+    
+    updateGoals(goalsData) {
+        const goalsList = document.getElementById('goals-list');
+        const overallAchievement = document.getElementById('overall-achievement');
+        
+        if (overallAchievement) {
+            overallAchievement.textContent = `${Math.round(goalsData.overall_achievement || 0)}% Achieved`;
+        }
+        
+        if (goalsList && goalsData.categories) {
+            goalsList.innerHTML = '';
+            
+            goalsData.categories.forEach(goal => {
+                const goalItem = document.createElement('div');
+                goalItem.className = 'goal-item';
+                
+                const progressClass = goal.achieved ? 'progress-success' : 
+                                    (goal.current >= goal.target * 0.8 ? 'progress-warning' : 'progress-danger');
+                
+                goalItem.innerHTML = `
+                    <div class="goal-info">
+                        <h4 class="goal-name">${goal.name}</h4>
+                        <p class="goal-description">Target: ${goal.target}%</p>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill ${progressClass}" style="width: ${Math.min(goal.current, 100)}%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span>Current: ${Math.round(goal.current)}%</span>
+                            <span>Target: ${goal.target}%</span>
+                        </div>
+                    </div>
+                    <div class="goal-status ${goal.achieved ? 'goal-achieved' : 'goal-not-achieved'}">
+                        <i class="fas ${goal.achieved ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                        ${goal.achieved ? 'Achieved' : 'Not Met'}
+                    </div>
+                `;
+                
+                goalsList.appendChild(goalItem);
+            });
+        }
+    }
+    
+    updateCategories(categories) {
+        const categoryResults = document.getElementById('category-results');
+        
+        if (categoryResults && categories) {
+            categoryResults.innerHTML = '';
+            
+            Object.entries(categories).forEach(([key, category]) => {
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+                
+                const badgeClass = category.priority === 'high' ? 'badge-high' : 
+                                 category.priority === 'medium' ? 'badge-medium' : 'badge-low';
+                
+                categoryCard.innerHTML = `
+                    <div class="category-header">
+                        <h4 class="category-name">${category.display_name || key}</h4>
+                        <span class="category-badge ${badgeClass}">${category.priority || 'Unknown'}</span>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill ${category.goal_met ? 'progress-success' : 'progress-danger'}" 
+                                 style="width: ${Math.min(category.pass_rate || 0, 100)}%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span>${Math.round(category.pass_rate || 0)}% Pass Rate</span>
+                            <span>Target: ${category.target_rate || 0}%</span>
+                        </div>
+                    </div>
+                    <div class="category-stats">
+                        <div class="stat-item">
+                            <p class="stat-value">${category.passed_tests || 0}</p>
+                            <p class="stat-label">Passed</p>
+                        </div>
+                        <div class="stat-item">
+                            <p class="stat-value">${category.total_tests || 0}</p>
+                            <p class="stat-label">Total</p>
+                        </div>
+                    </div>
+                `;
+                
+                categoryResults.appendChild(categoryCard);
+            });
+        }
+    }
+    
+    updateAlerts(alerts) {
+        const alertsSection = document.getElementById('testing-alerts');
+        const alertsList = document.getElementById('alerts-list');
+        
+        if (alerts && alerts.length > 0) {
+            alertsSection.style.display = 'block';
+            alertsList.innerHTML = '';
+            
+            alerts.forEach(alert => {
+                const alertItem = document.createElement('div');
+                alertItem.className = `alert-item alert-${alert.severity || 'info'}`;
+                
+                alertItem.innerHTML = `
+                    <div class="alert-header">
+                        <h4 class="alert-title">${alert.title || 'Alert'}</h4>
+                        <span class="alert-time">${this.formatTime(alert.timestamp)}</span>
+                    </div>
+                    <p class="alert-message">${alert.message || 'No details available'}</p>
+                `;
+                
+                alertsList.appendChild(alertItem);
+            });
+        } else {
+            alertsSection.style.display = 'none';
+        }
+    }
+    
+    async triggerTest() {
+        const triggerBtn = document.getElementById('trigger-test-btn');
+        
+        if (triggerBtn) {
+            triggerBtn.disabled = true;
+            triggerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+        }
+        
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/trigger`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ test_type: 'quick' })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to trigger test');
+            }
+            
+            const result = await response.json();
+            
+            // Refresh data after a short delay
+            setTimeout(() => {
+                this.loadTestingData(true);
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Error triggering test:', error);
+            this.showError('Failed to trigger test: ' + error.message);
+        } finally {
+            if (triggerBtn) {
+                triggerBtn.disabled = false;
+                triggerBtn.innerHTML = '<i class="fas fa-play"></i> Run Quick Test';
+            }
+        }
+    }
+    
+    showLoading() {
+        document.getElementById('testing-loading').style.display = 'block';
+        document.getElementById('testing-content').style.display = 'none';
+        document.getElementById('testing-error').style.display = 'none';
+    }
+    
+    hideLoading() {
+        document.getElementById('testing-loading').style.display = 'none';
+        document.getElementById('testing-content').style.display = 'block';
+        document.getElementById('testing-error').style.display = 'none';
+    }
+    
+    showError(message) {
+        document.getElementById('testing-loading').style.display = 'none';
+        document.getElementById('testing-content').style.display = 'none';
+        document.getElementById('testing-error').style.display = 'block';
+        document.getElementById('testing-error-message').textContent = message;
+    }
+    
+    formatTime(timestamp) {
+        if (!timestamp) return 'Unknown';
+        
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+        return `${Math.floor(diffMins / 1440)}d ago`;
+    }
+    
+    startAutoRefresh() {
+        this.refreshTimer = setInterval(() => {
+            this.loadTestingData();
+        }, this.refreshInterval);
+    }
+    
+    stopAutoRefresh() {
+        if (this.refreshTimer) {
+            clearInterval(this.refreshTimer);
+            this.refreshTimer = null;
+        }
+    }
+    
+    destroy() {
+        this.stopAutoRefresh();
+    }
+}
+
+// Initialize the testing dashboard when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('testing-dashboard')) {
+        new TestingDashboard();
+    }
+});
+</script>
