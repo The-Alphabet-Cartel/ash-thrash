@@ -1,0 +1,17 @@
+# Ash-Thrash Scheduled Testing
+# Repository: https://github.com/The-Alphabet-Cartel/ash-thrash
+
+# Run comprehensive testing every 6 hours
+0 */6 * * * /usr/local/bin/python /app/src/comprehensive_testing.py >> /var/log/cron.log 2>&1
+
+# Run quick validation every hour
+0 * * * * /usr/local/bin/python /app/src/quick_validation.py >> /var/log/cron.log 2>&1
+
+# Generate weekly performance report every Sunday at 6 AM
+0 6 * * 0 /usr/local/bin/python /app/scripts/generate_report.py --weekly >> /var/log/cron.log 2>&1
+
+# Cleanup old results every day at 2 AM (keep last 30 days)
+0 2 * * * /app/scripts/cleanup_old_results.sh 30 >> /var/log/cron.log 2>&1
+
+# Health check every 15 minutes
+*/15 * * * * /usr/local/bin/python -c "import requests; requests.get('http://localhost:8884/health')" >> /var/log/cron.log 2>&1

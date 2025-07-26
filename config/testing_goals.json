@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "description": "Ash-Thrash Testing Goals and Targets",
+  "last_updated": "2025-07-26",
+  "goals": {
+    "definite_high": {
+      "target_pass_rate": 100.0,
+      "description": "High Priority Crisis (Safety First!)",
+      "critical": true,
+      "allow_escalation": false,
+      "min_confidence": 0.8,
+      "alert_on_failure": true
+    },
+    "definite_medium": {
+      "target_pass_rate": 65.0,
+      "description": "Medium Priority Crisis",
+      "critical": false,
+      "allow_escalation": false,
+      "min_confidence": 0.5,
+      "alert_on_failure": false
+    },
+    "definite_low": {
+      "target_pass_rate": 65.0,
+      "description": "Low Priority Crisis",
+      "critical": false,
+      "allow_escalation": false,
+      "min_confidence": 0.3,
+      "alert_on_failure": false
+    },
+    "definite_none": {
+      "target_pass_rate": 95.0,
+      "description": "No Priority Crisis (Prevent False Positives)",
+      "critical": true,
+      "allow_escalation": false,
+      "min_confidence": 0.0,
+      "alert_on_failure": true
+    },
+    "maybe_high_medium": {
+      "target_pass_rate": 90.0,
+      "description": "Maybe High/Medium (No Priority Drops)",
+      "critical": false,
+      "allow_escalation": true,
+      "min_confidence": 0.4,
+      "alert_on_failure": false
+    },
+    "maybe_medium_low": {
+      "target_pass_rate": 80.0,
+      "description": "Maybe Medium/Low (No Priority Drops)",
+      "critical": false,
+      "allow_escalation": true,
+      "min_confidence": 0.3,
+      "alert_on_failure": false
+    },
+    "maybe_low_none": {
+      "target_pass_rate": 90.0,
+      "description": "Maybe Low/None (Prevent False Positives)",
+      "critical": true,
+      "allow_escalation": true,
+      "min_confidence": 0.2,
+      "alert_on_failure": false
+    }
+  },
+  "overall_targets": {
+    "minimum_overall_pass_rate": 85.0,
+    "maximum_avg_response_time_ms": 200.0,
+    "minimum_tests_per_second": 1.5,
+    "maximum_error_rate": 5.0
+  }
+}
