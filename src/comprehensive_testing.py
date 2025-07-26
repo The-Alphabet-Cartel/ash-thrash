@@ -218,11 +218,15 @@ def run_category_tests(category_name, phrases, max_workers=5):
             result = future.result()
             results.append(result)
             
-            # Show progress
+            # Show detailed progress with phrase text
+            phrase_text = result["phrase"]
+            # Truncate long phrases for cleaner display
+            display_phrase = phrase_text[:60] + "..." if len(phrase_text) > 60 else phrase_text
+            
             if result["success"]:
-                print(f"   ✅ {len(results)}/{len(phrase_data_list)}")
+                print(f"   ✅ {len(results)}/{len(phrase_data_list)}: \"{display_phrase}\" → {result['actual_priority']}")
             else:
-                print(f"   ❌ {len(results)}/{len(phrase_data_list)}: {result['message']}")
+                print(f"   ❌ {len(results)}/{len(phrase_data_list)}: \"{display_phrase}\" → {result['message']}")
     
     return results
 
@@ -301,6 +305,18 @@ def run_comprehensive_test(categories=None):
             print(f"   ✅ Meets target: {metrics['target_pass_rate']:.1f}%")
         else:
             print(f"   ❌ Below target: {metrics['target_pass_rate']:.1f}%")
+        
+        # Show examples of failures for debugging
+        failures = [r for r in category_results if not r["success"]]
+        if failures:
+            print(f"   🔍 Sample failures:")
+            for i, failure in enumerate(failures[:3]):  # Show first 3 failures
+                phrase_text = failure["phrase"][:50] + "..." if len(failure["phrase"]) > 50 else failure["phrase"]
+                print(f"      {i+1}. \"{phrase_text}\" → {failure['message']}")
+            if len(failures) > 3:
+                print(f"      ... and {len(failures) - 3} more failures")
+        
+        print()  # Add spacing between categories
     
     # Calculate overall metrics
     end_time = time.time()
@@ -330,6 +346,44 @@ def run_comprehensive_test(categories=None):
     for category, metrics in category_metrics.items():
         status = "✅" if metrics['meets_target'] else "❌"
         print(f"{status} {category}: {metrics['pass_rate']:.1f}% (target: {metrics['target_pass_rate']:.1f}%)")
+    
+    print()
+    
+    # Show detailed failure analysis
+    all_failures = []
+    for category_results in all_results.values():
+        all_failures.extend([r for r in category_results if not r["success"]])
+    
+    if all_failures:
+        print("🔍 DETAILED FAILURE ANALYSIS:")
+        print(f"   Total failures: {len(all_failures)}")
+        
+        # Group failures by type
+        priority_mismatches = [f for f in all_failures if "Priority mismatch" in f["message"]]
+        escalation_issues = [f for f in all_failures if "de-escalation" in f["message"]]
+        errors = [f for f in all_failures if f["actual_priority"] == "error"]
+        
+        if priority_mismatches:
+            print(f"\n   📊 Priority Mismatches ({len(priority_mismatches)}):")
+            for i, failure in enumerate(priority_mismatches[:5]):  # Show top 5
+                phrase_text = failure["phrase"][:60] + "..." if len(failure["phrase"]) > 60 else failure["phrase"]
+                print(f"      {i+1}. \"{phrase_text}\"")
+                print(f"         Expected: {failure['expected_priority']} | Got: {failure['actual_priority']} | Confidence: {failure['confidence']:.3f}")
+            if len(priority_mismatches) > 5:
+                print(f"      ... and {len(priority_mismatches) - 5} more")
+        
+        if escalation_issues:
+            print(f"\n   ⚠️  De-escalation Issues ({len(escalation_issues)}):")
+            for i, failure in enumerate(escalation_issues[:3]):  # Show top 3
+                phrase_text = failure["phrase"][:60] + "..." if len(failure["phrase"]) > 60 else failure["phrase"]
+                print(f"      {i+1}. \"{phrase_text}\"")
+                print(f"         {failure['message']} | Confidence: {failure['confidence']:.3f}")
+        
+        if errors:
+            print(f"\n   💥 API/Connection Errors ({len(errors)}):")
+            for i, error in enumerate(errors[:3]):  # Show top 3
+                phrase_text = error["phrase"][:60] + "..." if len(error["phrase"]) > 60 else error["phrase"]
+                print(f"      {i+1}. \"{phrase_text}\" → {error['message']}")
     
     print()
     
