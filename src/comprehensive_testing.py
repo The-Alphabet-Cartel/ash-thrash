@@ -89,9 +89,11 @@ def test_nlp_server_health(url):
 
 def analyze_phrase(phrase_data, test_id=None):
     """Send a phrase to the NLP server for analysis."""
-    phrase = phrase_data["phrase"]
+    # Handle the actual data format from our test data module
+    phrase = phrase_data.get("phrase", phrase_data.get("message", ""))
     expected = phrase_data["expected_priority"]
-    category = phrase_data["category"]
+    # Category might not be in the data, so we'll pass it from the calling function
+    category = phrase_data.get("category", "unknown")
     
     url = get_nlp_server_url()
     
@@ -127,16 +129,18 @@ def analyze_phrase(phrase_data, test_id=None):
 def create_error_result(phrase_data, error_message):
     """Create an error result for failed requests."""
     return {
-        "phrase": phrase_data["phrase"],
+        "phrase": phrase_data.get("phrase", phrase_data.get("message", "")),
         "expected_priority": phrase_data["expected_priority"],
         "actual_priority": "error",
-        "category": phrase_data["category"],
+        "category": phrase_data.get("category", "unknown"),
         "success": False,
         "message": f"❌ {error_message}",
         "response_time_ms": 0,
         "confidence": 0,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "error": error_message
+        "error": error_message,
+        "subcategory": phrase_data.get("subcategory", ""),
+        "description": phrase_data.get("description", "")
     }
 
 def evaluate_result(phrase_data, result):
@@ -147,8 +151,8 @@ def evaluate_result(phrase_data, result):
     expected = phrase_data["expected_priority"]
     # Try both 'priority' and 'crisis_level' fields (NLP server might use either)
     actual = result.get("priority", result.get("crisis_level", "unknown")).lower()
-    phrase = phrase_data["phrase"]
-    category = phrase_data["category"]
+    phrase = phrase_data.get("phrase", phrase_data.get("message", ""))
+    category = phrase_data.get("category", "unknown")
     
     # Define priority mappings
     priority_map = {"high": 3, "medium": 2, "low": 1, "none": 0}
@@ -181,7 +185,9 @@ def evaluate_result(phrase_data, result):
         "message": message,
         "response_time_ms": result.get("response_time_ms", 0),
         "confidence": result.get("confidence_score", result.get("confidence", 0)),
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "subcategory": phrase_data.get("subcategory", ""),
+        "description": phrase_data.get("description", "")
     }
 
 def run_category_tests(category_name, phrases, max_workers=5):
@@ -189,21 +195,13 @@ def run_category_tests(category_name, phrases, max_workers=5):
     print(f"\n🧪 Testing Category: {category_name.upper()}")
     print(f"   📝 {len(phrases)} phrases")
     
-    # Prepare phrase data
+    # Add category info to each phrase data
     phrase_data_list = []
-    for phrase in phrases:
-        if isinstance(phrase, str):
-            # Convert string to full phrase data
-            priority = "high" if "definite_high" in category_name else \
-                      "medium" if "medium" in category_name else \
-                      "low" if "low" in category_name else "none"
-            phrase_data_list.append({
-                "phrase": phrase,
-                "expected_priority": priority,
-                "category": category_name
-            })
-        else:
-            phrase_data_list.append(phrase)
+    for phrase_data in phrases:
+        # Create a copy and ensure it has the category field
+        updated_phrase_data = phrase_data.copy()
+        updated_phrase_data["category"] = category_name
+        phrase_data_list.append(updated_phrase_data)
     
     results = []
     
