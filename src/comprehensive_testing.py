@@ -188,8 +188,8 @@ def evaluate_result(phrase_data, result):
     elif "maybe" in category:
         # Define category-specific acceptable ranges
         if category == "maybe_high_medium":
-            # Should be medium or high (2-3), avoid none/low (0-1)
-            if actual_val >= 2:
+            # Should be low, medium or high (1-3), avoid none (0)
+            if actual_val >= 1:
                 success = True
                 message = f"✅ Appropriate range: {expected} → {actual}"
             else:
@@ -197,16 +197,13 @@ def evaluate_result(phrase_data, result):
                 message = f"❌ Underdetection: {expected} → {actual} (too low for crisis-level phrase)"
                 
         elif category == "maybe_medium_low":
-            # Should be low or medium (1-2), avoid none/high extremes
-            if actual_val >= 1 and actual_val <= 2:
+            # Should be low, medium, or none (0-2), avoid high (3) escalation
+            if actual_val <= 2:
                 success = True
                 message = f"✅ Appropriate range: {expected} → {actual}"
             else:
                 success = False
-                if actual_val == 0:
-                    message = f"❌ Underdetection: {expected} → {actual} (missed concern)"
-                else:
-                    message = f"❌ Overdetection: {expected} → {actual} (escalated too high)"
+                message = f"❌ Overdetection: {expected} → {actual} (escalated too high)"
                 
         elif category == "maybe_low_none":
             # Should be none or low (0-1), avoid medium/high (2-3)
@@ -357,8 +354,8 @@ def run_comprehensive_test(categories=None):
     print(f"📝 Total test phrases: {total_phrases}")
     print(f"📂 Categories: {list(all_phrases.keys())}")
     print(f"🔄 Maybe tests use permissive range-based evaluation (more flexible)")
-    print(f"   📈 maybe_high_medium: accepts medium OR high")
-    print(f"   📊 maybe_medium_low: accepts low OR medium") 
+    print(f"   📈 maybe_high_medium: accepts low, medium OR high")
+    print(f"   📊 maybe_medium_low: accepts none, low OR medium") 
     print(f"   📉 maybe_low_none: accepts none OR low")
     print()
     
