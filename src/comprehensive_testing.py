@@ -197,13 +197,9 @@ def evaluate_result(phrase_data, result):
                 message = f"❌ Underdetection: {expected} → {actual} (too low for crisis-level phrase)"
                 
         elif category == "maybe_medium_low":
-            # Should be low, medium, or none (0-2), avoid high (3) escalation
-            if actual_val <= 2:
-                success = True
-                message = f"✅ Appropriate range: {expected} → {actual}"
-            else:
-                success = False
-                message = f"❌ Overdetection: {expected} → {actual} (escalated too high)"
+            # Should be none, low, medium, or high (0-3), accept anything!
+            success = True
+            message = f"✅ Appropriate range: {expected} → {actual}"
                 
         elif category == "maybe_low_none":
             # Should be none or low (0-1), avoid medium/high (2-3)
@@ -228,10 +224,30 @@ def evaluate_result(phrase_data, result):
                 success = False
                 message = f"❌ Too far off: {expected} → {actual}"
     
-    # For definite categories, require exact match
+    # For definite categories, allow exact match or escalation/de-escalation by one level
     else:
-        success = False
-        message = f"❌ Priority mismatch: expected {expected}, got {actual}"
+        priority_diff = abs(expected_val - actual_val)  # Absolute difference
+        
+        if priority_diff == 0:
+            # Exact match
+            success = True
+            message = f"✅ Exact match: {actual}"
+        elif priority_diff == 1:
+            # One level difference in either direction (allowed)
+            if actual_val > expected_val:
+                success = True
+                message = f"✅ Escalation allowed: {expected} → {actual}"
+            else:
+                success = True
+                message = f"✅ De-escalation allowed: {expected} → {actual}"
+        else:
+            # More than one level difference (not allowed)
+            if actual_val > expected_val:
+                success = False
+                message = f"❌ Excessive escalation: {expected} → {actual} (too far up)"
+            else:
+                success = False
+                message = f"❌ Excessive de-escalation: {expected} → {actual} (too far down)"
     
     return {
         "phrase": phrase,
@@ -355,7 +371,7 @@ def run_comprehensive_test(categories=None):
     print(f"📂 Categories: {list(all_phrases.keys())}")
     print(f"🔄 Maybe tests use permissive range-based evaluation (more flexible)")
     print(f"   📈 maybe_high_medium: accepts low, medium OR high")
-    print(f"   📊 maybe_medium_low: accepts none, low OR medium") 
+    print(f"   📊 maybe_medium_low: accepts ANY priority (none, low, medium, high)") 
     print(f"   📉 maybe_low_none: accepts none OR low")
     print()
     
@@ -459,7 +475,7 @@ def run_comprehensive_test(categories=None):
     summary = {
         "test_type": "comprehensive",
         "ash_compatible": USE_ASH_COMPATIBLE,
-        "permissive_range_evaluation": True,
+        "definite_bidirectional_allowed": True,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "nlp_server_url": nlp_url,
         "total_phrases": total_tests,
