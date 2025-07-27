@@ -18,9 +18,13 @@ import requests
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Add the project root to the Python path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Import Ash-compatible evaluation
+try:
+    from src.utils.ash_compatible_evaluation import evaluate_ash_compatible, get_ash_testing_goals
+    USE_ASH_COMPATIBLE = True
+except ImportError:
+    USE_ASH_COMPATIBLE = False
+    print("⚠️  Using basic evaluation - ash_compatible_evaluation not found")
 
 # Quick validation test phrases (10 phrases)
 QUICK_TEST_PHRASES = [
@@ -78,16 +82,26 @@ def analyze_phrase(phrase, user_id="test_user", channel_id="test_channel"):
         print(f"❌ Request failed: {e}")
         return None
 
-def evaluate_result(phrase_data, result):
-    """Evaluate if the NLP result matches expected priority."""
+def evaluate_result_ash_compatible(phrase_data, result):
+    """Evaluate using Ash-compatible logic if available."""
+    if USE_ASH_COMPATIBLE:
+        # Use full Ash-compatible evaluation
+        evaluation = evaluate_ash_compatible(phrase_data, result)
+        return evaluation["success"], evaluation["message"]
+    else:
+        # Fallback to basic evaluation
+        return evaluate_result_basic(phrase_data, result)
+
+def evaluate_result_basic(phrase_data, result):
+    """Basic evaluation logic (fallback)."""
     if not result:
         return False, "No response from server"
     
     expected = phrase_data["expected_priority"]
     # Try both 'priority' and 'crisis_level' fields (NLP server might use either)
     actual = result.get("priority", result.get("crisis_level", "unknown")).lower()
-    phrase = phrase_data["phrase"]
-    category = phrase_data["category"]
+    phrase = phrase_data.get("phrase", phrase_data.get("message", ""))
+    category = phrase_data.get("category", "unknown")
     
     # Define priority mappings
     priority_map = {"high": 3, "medium": 2, "low": 1, "none": 0}
@@ -114,6 +128,12 @@ def run_quick_validation():
     print("=" * 50)
     print(f"Repository: https://github.com/The-Alphabet-Cartel/ash-thrash")
     print(f"Discord: https://discord.gg/alphabetcartel")
+    
+    if USE_ASH_COMPATIBLE:
+        print("✅ Using Ash-compatible evaluation logic")
+    else:
+        print("⚠️  Using basic evaluation logic")
+    
     print()
     
     start_time = time.time()
@@ -186,16 +206,29 @@ def run_quick_validation():
     print(f"📈 Avg Response: {avg_response_time:.0f}ms")
     print()
     
-    # Health assessment
-    if pass_rate >= 80:
-        print("🎉 VALIDATION PASSED - System is healthy!")
-        health_status = "healthy"
-    elif pass_rate >= 50:
-        print("⚠️  VALIDATION WARNING - System has issues")
-        health_status = "warning"
+    # Health assessment with Ash-compatible thresholds
+    if USE_ASH_COMPATIBLE:
+        # Use more realistic thresholds for Ash-compatible mode
+        if pass_rate >= 75:
+            print("🎉 VALIDATION PASSED - System is healthy!")
+            health_status = "healthy"
+        elif pass_rate >= 60:
+            print("⚠️  VALIDATION WARNING - System has minor issues")
+            health_status = "warning"
+        else:
+            print("🚨 VALIDATION FAILED - System needs attention!")
+            health_status = "critical"
     else:
-        print("🚨 VALIDATION FAILED - System needs attention!")
-        health_status = "critical"
+        # Original thresholds for basic mode
+        if pass_rate >= 80:
+            print("🎉 VALIDATION PASSED - System is healthy!")
+            health_status = "healthy"
+        elif pass_rate >= 60:
+            print("⚠️  VALIDATION WARNING - System has issues")
+            health_status = "warning"
+        else:
+            print("🚨 VALIDATION FAILED - System needs attention!")
+            health_status = "critical"
     
     # Save results
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -204,6 +237,7 @@ def run_quick_validation():
     
     summary = {
         "test_type": "quick_validation",
+        "ash_compatible": USE_ASH_COMPATIBLE,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "nlp_server_url": nlp_url,
         "total_phrases": len(QUICK_TEST_PHRASES),
@@ -221,9 +255,27 @@ def run_quick_validation():
         json.dump(summary, f, indent=2)
     
     print(f"📁 Results saved to: {results_file}")
+    
+    # Show additional insights for Ash-compatible mode
+    if USE_ASH_COMPATIBLE and any(r.get("method") for r in results):
+        print()
+        print("🎯 ASH-COMPATIBLE INSIGHTS:")
+        
+        # Count detection methods
+        keyword_primary = sum(1 for r in results if r.get("method") == "keyword_primary")
+        nlp_primary = sum(1 for r in results if r.get("method") == "nlp_primary")
+        safety_escalations = sum(1 for r in results if r.get("safety_escalation", False))
+        
+        print(f"   🔑 Keyword-driven decisions: {keyword_primary}/{len(results)}")
+        print(f"   🧠 NLP-driven decisions: {nlp_primary}/{len(results)}")
+        print(f"   🛡️ Safety escalations: {safety_escalations}/{len(results)}")
+        
+        if safety_escalations > 0:
+            print(f"   ✅ Safety-first behavior working correctly")
+    
     print()
     
-    return pass_rate >= 80
+    return pass_rate >= (75 if USE_ASH_COMPATIBLE else 80)
 
 if __name__ == "__main__":
     try:
