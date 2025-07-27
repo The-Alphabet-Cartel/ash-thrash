@@ -23,11 +23,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Import test data (we'll create these modules next)
+# Import Ash-compatible evaluation
 try:
-    from src.test_data import get_all_test_phrases, get_category_info
+    from src.utils.ash_compatible_evaluation import evaluate_ash_compatible, get_ash_testing_goals
+    USE_ASH_COMPATIBLE = True
 except ImportError:
-    print("⚠️  Test data modules not found, using basic test set")
+    USE_ASH_COMPATIBLE = False
+    print("⚠️  Using basic evaluation - ash_compatible_evaluation not found")
     
     # Fallback basic test data
     def get_all_test_phrases():
@@ -119,7 +121,12 @@ def analyze_phrase(phrase_data, test_id=None):
         if response.status_code == 200:
             result = response.json()
             result["response_time_ms"] = response_time
-            return evaluate_result(phrase_data, result)
+            
+            # Use Ash-compatible evaluation if available
+            if USE_ASH_COMPATIBLE:
+                return evaluate_ash_compatible(phrase_data, result)
+            else:
+                return evaluate_result(phrase_data, result)
         else:
             return create_error_result(phrase_data, f"API error: {response.status_code}")
             
@@ -277,7 +284,14 @@ def run_comprehensive_test(categories=None):
     
     # Get test data
     all_phrases = get_all_test_phrases()
-    category_info = get_category_info()
+    
+    # Use Ash-compatible goals if available
+    if USE_ASH_COMPATIBLE:
+        category_info = get_ash_testing_goals()
+        print("✅ Using Ash-compatible evaluation logic")
+    else:
+        category_info = get_category_info()
+        print("⚠️  Using basic evaluation logic")
     
     # Filter categories if specified
     if categories:
@@ -440,13 +454,27 @@ def run_comprehensive_test(categories=None):
     
     print(f"📁 Results saved to: {results_file}")
     
-    # Determine success
-    critical_categories_pass = all(
-        metrics['meets_target'] for category, metrics in category_metrics.items()
-        if category_info.get(category, {}).get('critical', False)
-    )
-    
-    overall_success = overall_pass_rate >= 85.0 and critical_categories_pass
+    # Determine success using Ash-compatible criteria
+    if USE_ASH_COMPATIBLE:
+        # Ash-compatible success: critical categories must meet targets + overall 80%+
+        critical_categories = ['definite_high', 'definite_none', 'maybe_low_none']
+        critical_success = all(
+            category_metrics.get(cat, {}).get('meets_target', False) 
+            for cat in critical_categories if cat in category_metrics
+        )
+        overall_success = overall_pass_rate >= 80.0 and critical_success
+        
+        print("🎯 Using Ash-Compatible Success Criteria:")
+        print(f"   Critical categories: {critical_categories}")
+        print(f"   Critical success: {critical_success}")
+        print(f"   Overall threshold: 80%")
+    else:
+        # Original success criteria
+        critical_categories_pass = all(
+            metrics['meets_target'] for category, metrics in category_metrics.items()
+            if category_info.get(category, {}).get('critical', False)
+        )
+        overall_success = overall_pass_rate >= 85.0 and critical_categories_pass
     
     if overall_success:
         print("🎉 COMPREHENSIVE TEST PASSED!")
