@@ -39,3 +39,6 @@ gunicorn>=21.0.0
 click>=8.1.0
 tqdm>=4.65.0
 rich>=13.0.0
+
+# System monitoring (for health checks)
+psutil>=5.9.0
