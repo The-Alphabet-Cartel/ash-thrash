@@ -69,9 +69,27 @@ case "$1" in
         ;;
     "api")
         echo "🌐 Starting API server"
-        # Change working directory and run as module to fix relative imports
         cd /app
-        python -m src.api.server
+        
+        # Check if we should use development or production server
+        if [ "$API_DEBUG" = "true" ]; then
+            echo "🔧 Running in development mode with Flask dev server"
+            python -m src.api.server
+        else
+            echo "🚀 Running in production mode with Gunicorn"
+            # Use Gunicorn for production
+            gunicorn --bind 0.0.0.0:8884 \
+                     --workers 4 \
+                     --worker-class sync \
+                     --timeout 120 \
+                     --keepalive 2 \
+                     --max-requests 1000 \
+                     --max-requests-jitter 100 \
+                     --access-logfile - \
+                     --error-logfile - \
+                     --log-level info \
+                     "src.api.server:create_app()"
+        fi
         ;;
     "comprehensive")
         echo "🧪 Running comprehensive test"
