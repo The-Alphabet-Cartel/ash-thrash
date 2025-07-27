@@ -259,7 +259,10 @@ def calculate_category_metrics(results, category_info):
     passed = sum(1 for r in results if r["success"])
     total = len(results)
     pass_rate = (passed / total) * 100
-    avg_response_time = sum(r["response_time_ms"] for r in results) / total
+    
+    # Safely calculate average response time
+    response_times = [r.get("response_time_ms", 0) for r in results]
+    avg_response_time = sum(response_times) / total if total > 0 else 0
     
     return {
         "pass_rate": pass_rate,
@@ -369,7 +372,10 @@ def run_comprehensive_test(categories=None):
     total_passed = sum(1 for r in all_test_results if r["success"])
     total_tests = len(all_test_results)
     overall_pass_rate = (total_passed / total_tests) * 100 if total_tests > 0 else 0
-    avg_response_time = sum(r["response_time_ms"] for r in all_test_results) / total_tests if total_tests > 0 else 0
+    
+    # Safely calculate average response time
+    response_times = [r.get("response_time_ms", 0) for r in all_test_results]
+    avg_response_time = sum(response_times) / total_tests if total_tests > 0 else 0
     
     # Calculate confidence statistics
     all_confidences = [r.get("confidence", 0) for r in all_test_results if r.get("confidence", 0) > 0]
