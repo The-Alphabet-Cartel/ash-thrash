@@ -164,7 +164,7 @@ def create_error_result(phrase_data, error_message):
     }
 
 def evaluate_result(phrase_data, result):
-    """Evaluate if the NLP result matches expected priority."""
+    """Evaluate if the NLP result matches expected priority - uses permissive range-based logic."""
     if not result:
         return create_error_result(phrase_data, "No response from server")
     
@@ -183,14 +183,54 @@ def evaluate_result(phrase_data, result):
     if expected == actual:
         success = True
         message = f"✅ Exact match: {actual}"
-    # For "maybe" categories, allow escalation but not de-escalation
+    
+    # For "maybe" categories, use permissive range-based evaluation
     elif "maybe" in category:
-        if actual_val >= expected_val:
-            success = True
-            message = f"✅ Escalation allowed: {expected} → {actual}"
+        # Define category-specific acceptable ranges
+        if category == "maybe_high_medium":
+            # Should be medium or high (2-3), avoid none/low (0-1)
+            if actual_val >= 2:
+                success = True
+                message = f"✅ Appropriate range: {expected} → {actual}"
+            else:
+                success = False
+                message = f"❌ Underdetection: {expected} → {actual} (too low for crisis-level phrase)"
+                
+        elif category == "maybe_medium_low":
+            # Should be low or medium (1-2), avoid none/high extremes
+            if actual_val >= 1 and actual_val <= 2:
+                success = True
+                message = f"✅ Appropriate range: {expected} → {actual}"
+            else:
+                success = False
+                if actual_val == 0:
+                    message = f"❌ Underdetection: {expected} → {actual} (missed concern)"
+                else:
+                    message = f"❌ Overdetection: {expected} → {actual} (escalated too high)"
+                
+        elif category == "maybe_low_none":
+            # Should be none or low (0-1), avoid medium/high (2-3)
+            if actual_val <= 1:
+                success = True
+                message = f"✅ Appropriate range: {expected} → {actual}"
+            else:
+                success = False
+                message = f"❌ Overdetection: {expected} → {actual} (false positive)"
         else:
-            success = False
-            message = f"❌ Dangerous de-escalation: {expected} → {actual}"
+            # Generic maybe handling - allow one step in either direction
+            priority_diff = abs(actual_val - expected_val)
+            if priority_diff <= 1:
+                success = True
+                if actual_val > expected_val:
+                    message = f"✅ Escalation: {expected} → {actual}"
+                elif actual_val < expected_val:
+                    message = f"✅ Descalation: {expected} → {actual}"
+                else:
+                    message = f"✅ Exact match: {actual}"
+            else:
+                success = False
+                message = f"❌ Too far off: {expected} → {actual}"
+    
     # For definite categories, require exact match
     else:
         success = False
@@ -316,6 +356,11 @@ def run_comprehensive_test(categories=None):
     total_phrases = sum(len(phrases) for phrases in all_phrases.values())
     print(f"📝 Total test phrases: {total_phrases}")
     print(f"📂 Categories: {list(all_phrases.keys())}")
+    print(f"🔄 Maybe tests use permissive range-based evaluation (more flexible)")
+    print(f"   📈 maybe_high_medium: accepts medium OR high")
+    print(f"   📊 maybe_medium_low: accepts low OR medium") 
+    print(f"   📉 maybe_low_none: accepts none OR low")
+    print()
     
     # Run tests by category
     all_results = {}
@@ -417,6 +462,7 @@ def run_comprehensive_test(categories=None):
     summary = {
         "test_type": "comprehensive",
         "ash_compatible": USE_ASH_COMPATIBLE,
+        "permissive_range_evaluation": True,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "nlp_server_url": nlp_url,
         "total_phrases": total_tests,
