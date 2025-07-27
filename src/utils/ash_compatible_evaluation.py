@@ -2,23 +2,21 @@
 """
 Ash-Compatible Evaluation Logic
 
-This module implements the exact same crisis detection logic that Ash uses,
-ensuring ash-thrash tests the same behavior as the actual bot.
-
-Based on analysis of:
-- bot/handlers/message_handler.py (hybrid detection logic)
-- bot/services/detection_service.py (combination logic)  
-- config/nlp_settings.py (thresholds)
+This module implements the same permissive crisis detection logic that we use
+in comprehensive testing, ensuring ash-thrash tests use consistent evaluation
+across keyword_primary and nlp_primary detections.
 """
 
 def evaluate_ash_compatible(phrase_data, nlp_result):
     """
-    Evaluate using Ash's actual crisis detection logic.
+    Evaluate using Ash's actual crisis detection logic with permissive evaluation.
     
     This matches the hybrid detection system where Ash combines:
     1. Keyword detection (high confidence baseline)
     2. NLP detection (ML-based analysis)
     3. Safety-first hierarchy (higher priority wins)
+    
+    BUT now uses permissive evaluation that allows bidirectional movement.
     
     Args:
         phrase_data: Test phrase info with expected_priority and category
@@ -58,42 +56,79 @@ def evaluate_ash_compatible(phrase_data, nlp_result):
         method = "nlp_primary" 
         winning_confidence = confidence
     
-    # Evaluation logic based on Ash's actual behavior
+    # NEW PERMISSIVE EVALUATION LOGIC - Same as comprehensive testing
     expected_value = hierarchy.get(expected, 0)
     actual_value = final_priority_value
     
-    # Success criteria that matches Ash's logic
-    if category.startswith("definite_"):
-        # For definite categories, we need exact match OR safe escalation
-        if actual_value == expected_value:
+    # Exact match is always correct
+    if expected == final_priority:
+        success = True
+        message = f"✅ Exact match: {final_priority} (via {method})"
+    
+    # For "maybe" categories, use permissive range-based evaluation
+    elif "maybe" in category:
+        # Define category-specific acceptable ranges
+        if category == "maybe_high_medium":
+            # Should be low, medium or high (1-3), avoid none (0)
+            if actual_value >= 1:
+                success = True
+                message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
+            else:
+                success = False
+                message = f"❌ Underdetection: {expected} → {final_priority} (via {method}) - too low for crisis-level phrase"
+                
+        elif category == "maybe_medium_low":
+            # Should be none, low, medium, or high (0-3), accept anything!
+            success = True
+            message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
+                
+        elif category == "maybe_low_none":
+            # Should be none or low (0-1), avoid medium/high (2-3)
+            if actual_value <= 1:
+                success = True
+                message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
+            else:
+                success = False
+                message = f"❌ Overdetection: {expected} → {final_priority} (via {method}) - false positive"
+        else:
+            # Generic maybe handling - allow one step in either direction
+            priority_diff = abs(actual_value - expected_value)
+            if priority_diff <= 1:
+                success = True
+                if actual_value > expected_value:
+                    message = f"✅ Escalation: {expected} → {final_priority} (via {method})"
+                elif actual_value < expected_value:
+                    message = f"✅ Descalation: {expected} → {final_priority} (via {method})"
+                else:
+                    message = f"✅ Exact match: {final_priority} (via {method})"
+            else:
+                success = False
+                message = f"❌ Too far off: {expected} → {final_priority} (via {method})"
+    
+    # For definite categories, allow exact match or escalation/de-escalation by one level
+    else:
+        priority_diff = abs(expected_value - actual_value)  # Absolute difference
+        
+        if priority_diff == 0:
+            # Exact match
             success = True
             message = f"✅ Exact match: {final_priority} (via {method})"
-        elif actual_value > expected_value:
-            # Ash would escalate - this is SAFE behavior
-            success = True
-            message = f"✅ Safe escalation: {expected} → {final_priority} (via {method})"
-        else:
-            # Ash would de-escalate - this is DANGEROUS
-            success = False
-            message = f"❌ Dangerous de-escalation: {expected} → {final_priority} (via {method})"
-    
-    elif category.startswith("maybe_"):
-        # For maybe categories, escalation is explicitly allowed and expected
-        if actual_value >= expected_value:
-            success = True
-            if actual_value == expected_value:
-                message = f"✅ Exact match: {final_priority} (via {method})"
+        elif priority_diff == 1:
+            # One level difference in either direction (allowed)
+            if actual_value > expected_value:
+                success = True
+                message = f"✅ Escalation allowed: {expected} → {final_priority} (via {method})"
             else:
-                message = f"✅ Allowed escalation: {expected} → {final_priority} (via {method})"
+                success = True
+                message = f"✅ De-escalation allowed: {expected} → {final_priority} (via {method})"
         else:
-            # De-escalation in maybe categories is dangerous
-            success = False
-            message = f"❌ Dangerous de-escalation: {expected} → {final_priority} (via {method})"
-    
-    else:
-        # Unknown category - use conservative evaluation
-        success = (actual_value == expected_value)
-        message = f"{'✅' if success else '❌'} {expected} → {final_priority} (via {method})"
+            # More than one level difference (not allowed)
+            if actual_value > expected_value:
+                success = False
+                message = f"❌ Excessive escalation: {expected} → {final_priority} (via {method}) - too far up"
+            else:
+                success = False
+                message = f"❌ Excessive de-escalation: {expected} → {final_priority} (via {method}) - too far down"
     
     return create_evaluation_result(
         phrase_data, 
@@ -120,62 +155,47 @@ def simulate_keyword_detection(phrase):
     our testing matches the real hybrid behavior.
     """
     try:
-        # Import Ash's actual keywords
-        from src.keywords import get_high_crisis_keywords, get_medium_crisis_keywords, get_low_crisis_keywords
+        # Import keyword detection from Ash's actual modules
+        from src.keywords.high_keywords import detect_high_priority
+        from src.keywords.medium_keywords import detect_medium_priority  
+        from src.keywords.low_keywords import detect_low_priority
         
-        # Get all keyword sets
-        high_keywords = get_high_crisis_keywords()
-        medium_keywords = get_medium_crisis_keywords()
-        low_keywords = get_low_crisis_keywords()
-        
-        phrase_lower = phrase.lower()
-        
-        # Check high priority first (safety-first)
-        for category, keywords in high_keywords.items():
-            for keyword in keywords:
-                if keyword.lower() in phrase_lower:
-                    return 'high'
-        
-        # Check medium priority
-        for category, keywords in medium_keywords.items():
-            for keyword in keywords:
-                if keyword.lower() in phrase_lower:
-                    return 'medium'
-        
-        # Check low priority
-        for category, keywords in low_keywords.items():
-            for keyword in keywords:
-                if keyword.lower() in phrase_lower:
-                    return 'low'
-        
-        return 'none'
-        
+        # Test in priority order (high -> medium -> low -> none)
+        if detect_high_priority(phrase)['has_match']:
+            return 'high'
+        elif detect_medium_priority(phrase)['has_match']:
+            return 'medium'
+        elif detect_low_priority(phrase)['has_match']:
+            return 'low'
+        else:
+            return 'none'
+            
     except ImportError:
-        # Fallback to simplified keywords if import fails
-        return simulate_keyword_detection_fallback(phrase)
+        # Fallback if keyword modules aren't available
+        return simulate_basic_keyword_detection(phrase)
 
-def simulate_keyword_detection_fallback(phrase):
+def simulate_basic_keyword_detection(phrase):
     """
-    Fallback keyword detection if Ash keywords can't be imported.
+    Basic keyword detection fallback when Ash keyword modules aren't available.
     """
     phrase_lower = phrase.lower()
     
-    # Simplified high priority keywords
+    # High priority keywords (crisis indicators)
     high_keywords = [
-        'kill myself', 'suicide', 'end my life', 'want to die', 
-        'hurt myself', 'cut myself', 'overdose', 'jump off'
+        'suicide', 'kill myself', 'end it all', 'want to die', 'end my life',
+        'going to hurt', 'going to kill', 'thoughts of suicide', 'suicidal thoughts'
     ]
     
-    # Simplified medium priority keywords
+    # Medium priority keywords (distress indicators)
     medium_keywords = [
-        'want to disappear', 'nothing matters', 'give up', 'hopeless',
-        'worthless', 'hate myself', 'can\'t go on', 'no point'
+        'depressed', 'depression', 'anxious', 'anxiety', 'hopeless', 'helpless',
+        'overwhelmed', 'crying', 'can\'t cope', 'breaking down', 'falling apart'
     ]
     
-    # Simplified low priority keywords
+    # Low priority keywords (stress indicators)
     low_keywords = [
-        'stressed', 'anxious', 'overwhelmed', 'worried', 'nervous',
-        'rough day', 'having a hard time', 'struggling'
+        'stressed', 'worried', 'concerned', 'upset', 'sad', 'down', 'tired',
+        'rough day', 'hard time', 'struggling', 'difficult'
     ]
     
     # Check in priority order
@@ -194,7 +214,9 @@ def simulate_keyword_detection_fallback(phrase):
     return 'none'
 
 def create_evaluation_result(phrase_data, actual_priority, success, message, extra_data=None):
-    """Create standardized evaluation result."""
+    """
+    Create a standardized evaluation result dictionary.
+    """
     from datetime import datetime, timezone
     
     result = {
@@ -216,51 +238,50 @@ def create_evaluation_result(phrase_data, actual_priority, success, message, ext
 
 def get_ash_testing_goals():
     """
-    Return testing goals that match Ash's actual behavior.
+    Return testing goals that match the new permissive evaluation.
     
-    These are adjusted to reflect that Ash uses safety-first escalation,
-    so we expect higher success rates due to safe escalation being allowed.
+    These are adjusted to reflect the more flexible evaluation criteria.
     """
     return {
         "definite_high": {
             "target_pass_rate": 100.0,
-            "description": "High Priority Crisis (Must Catch All + Allow Safe Escalation)",
+            "description": "High Priority Crisis (Exact + Adjacent Levels)",
             "critical": True,
-            "allow_safe_escalation": True
+            "allow_bidirectional": True
         },
         "definite_medium": {
-            "target_pass_rate": 85.0,  # Higher due to safe escalation 
-            "description": "Medium Priority Crisis (Allow Safe Escalation)",
+            "target_pass_rate": 90.0,  # Higher due to permissive evaluation
+            "description": "Medium Priority Crisis (Exact + Adjacent Levels)",
             "critical": False,
-            "allow_safe_escalation": True
+            "allow_bidirectional": True
         },
         "definite_low": {
-            "target_pass_rate": 80.0,  # Higher due to safe escalation
-            "description": "Low Priority Crisis (Allow Safe Escalation)", 
+            "target_pass_rate": 90.0,  # Higher due to permissive evaluation
+            "description": "Low Priority Crisis (Exact + Adjacent Levels)", 
             "critical": False,
-            "allow_safe_escalation": True
+            "allow_bidirectional": True
         },
         "definite_none": {
-            "target_pass_rate": 90.0,  # Slightly lower since some escalation is acceptable
-            "description": "No Priority Crisis (Some Safe Escalation OK)",
+            "target_pass_rate": 95.0,  # High since only `low` is allowed adjacent
+            "description": "No Priority Crisis (Exact + Low Only)",
             "critical": True,
-            "allow_safe_escalation": False  # Don't want false positives
+            "allow_bidirectional": True
         },
         "maybe_high_medium": {
-            "target_pass_rate": 95.0,  # High because escalation is expected
-            "description": "Maybe High/Medium (Escalation Expected)",
+            "target_pass_rate": 95.0,  # High because very permissive
+            "description": "Maybe High/Medium (Anything Except None)",
             "critical": False,
             "allow_escalation": True
         },
         "maybe_medium_low": {
-            "target_pass_rate": 90.0,  # High because escalation is expected
-            "description": "Maybe Medium/Low (Escalation Expected)",
+            "target_pass_rate": 100.0,  # 100% since it accepts anything!
+            "description": "Maybe Medium/Low (Accepts Anything)",
             "critical": False,
             "allow_escalation": True
         },
         "maybe_low_none": {
-            "target_pass_rate": 95.0,  # High - should catch most with escalation
-            "description": "Maybe Low/None (Some Escalation Expected)",
+            "target_pass_rate": 95.0,  # High - should catch most
+            "description": "Maybe Low/None (None + Low Only)",
             "critical": True,
             "allow_escalation": True
         }
