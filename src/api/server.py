@@ -66,44 +66,42 @@ def create_app(config: Dict[str, Any] = None) -> Flask:
     # Root endpoint
     @app.route('/')
     def root():
+        """API root endpoint with service information"""
         return jsonify({
             'service': 'ash-thrash-api',
+            'status': 'running',
             'version': '1.0.0',
-            'description': 'Comprehensive Crisis Detection Testing API',
+            'description': 'Ash Crisis Detection Testing API',
             'repository': 'https://github.com/The-Alphabet-Cartel/ash-thrash',
+            'discord': 'https://discord.gg/alphabetcartel',
             'endpoints': {
                 'health': '/health',
                 'testing': '/api/test/*',
-                'results': '/api/results/*'
+                'results': '/api/results/*',
+                'docs': '/api/docs'
             },
             'timestamp': datetime.now().isoformat()
         })
     
-    # API documentation endpoint
     @app.route('/api/docs')
     def api_docs():
+        """API documentation endpoint"""
         return jsonify({
             'title': 'Ash-Thrash Testing API',
             'version': '1.0.0',
-            'description': 'REST API for comprehensive crisis detection testing',
+            'description': 'API for testing Ash Crisis Detection System',
             'endpoints': {
-                'health': {
-                    'GET /health': 'Service health check'
-                },
-                'testing': {
-                    'GET /api/test/status': 'Get current testing status',
-                    'POST /api/test/run': 'Trigger comprehensive test',
-                    'POST /api/test/quick': 'Run quick validation test',
-                    'GET /api/test/running': 'Check if test is currently running'
-                },
-                'results': {
-                    'GET /api/results/latest': 'Get latest test results',
-                    'GET /api/results/history': 'Get historical results',
-                    'GET /api/results/download/<filename>': 'Download specific result file',
-                    'GET /api/results/summary': 'Get results summary'
-                }
+                'GET /health': 'Service health check',
+                'GET /health/detailed': 'Detailed health information',
+                'GET /api/test/status': 'Current testing status',
+                'POST /api/test/run': 'Start new test run',
+                'GET /api/test/stop': 'Stop current test',
+                'GET /api/results/latest': 'Latest test results',
+                'GET /api/results/history': 'Historical test data',
+                'GET /api/results/download/<test_id>': 'Download specific results'
             },
-            'repository': 'https://github.com/The-Alphabet-Cartel/ash-thrash'
+            'repository': 'https://github.com/The-Alphabet-Cartel/ash-thrash',
+            'discord': 'https://discord.gg/alphabetcartel'
         })
     
     # Error handlers
@@ -165,3 +163,13 @@ def run_server():
 
 if __name__ == '__main__':
     run_server()
+
+
+def main():
+    """Main entry point for module execution"""
+    run_server()
+
+
+# Support for python -m execution
+if __name__ == '__main__':
+    main()
