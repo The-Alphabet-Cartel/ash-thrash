@@ -4,7 +4,7 @@
 
 **Repository:** https://github.com/The-Alphabet-Cartel/ash-thrash  
 **Discord:** https://discord.gg/alphabetcartel  
-**Version:** 1.0+  
+**Version:** 2.1+  
 **Last Updated:** July 26, 2025
 
 ---

@@ -787,5 +787,5 @@ Write-Host "Diagnostic package created: $diagPath.zip"
 
 *Built with 🖤 for The Alphabet Cartel community*
 
-**Troubleshooting Guide v1.0**  
+**Troubleshooting Guide v2.1**  
 Last updated: July 26, 2025

@@ -3,7 +3,7 @@
 > **RESTful API for Crisis Detection Testing Operations**
 
 **Base URL:** `http://10.20.30.16:8884`  
-**API Version:** v1.0  
+**API Version:** v2.1  
 **Repository:** https://github.com/The-Alphabet-Cartel/ash-thrash  
 **Discord:** https://discord.gg/alphabetcartel
 
@@ -50,7 +50,7 @@ GET /health
 {
   "status": "healthy",
   "timestamp": "2025-07-26T10:30:00Z",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "services": {
     "api": "running",
     "nlp_server": "connected",
@@ -934,5 +934,5 @@ def create_session_with_retries():
 
 *Built with 🖤 for The Alphabet Cartel community*
 
-**API Documentation v1.0**  
+**API Documentation v2.1**  
 Last updated: July 26, 2025
