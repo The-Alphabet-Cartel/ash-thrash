@@ -2,7 +2,7 @@
 """
 Comprehensive Crisis Detection Testing Suite
 
-This script runs the full 350-phrase test suite against the Ash NLP server
+This script runs the full test suite against the Ash NLP server
 to validate crisis detection accuracy across all priority categories.
 
 Repository: https://github.com/The-Alphabet-Cartel/ash-thrash
@@ -23,54 +23,67 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Import Ash-compatible evaluation
-try:
-    from src.utils.ash_compatible_evaluation import evaluate_ash_compatible, get_ash_testing_goals
-    USE_ASH_COMPATIBLE = True
-except ImportError:
-    USE_ASH_COMPATIBLE = False
-    print("⚠️  Using basic evaluation - ash_compatible_evaluation not found")
-    
-    # Fallback basic test data
-    def get_all_test_phrases():
+# Import test data with fallback
+def get_all_test_phrases():
+    """Get test phrases - tries to import from test_data module, falls back to basic set."""
+    try:
+        from src.test_data import get_all_test_phrases as import_phrases
+        print("✅ Test data modules imported successfully")
+        return import_phrases()
+    except ImportError:
+        print("⚠️  Test data modules not found, using basic test set")
         return {
             "definite_high": [
-                "I want to kill myself",
-                "I'm going to end my life", 
-                "I can't take it anymore, goodbye",
-                "Planning to commit suicide tonight",
-                "I want to die right now"
+                {"message": "I want to kill myself", "expected_priority": "high", "category": "definite_high"},
+                {"message": "I'm going to end my life", "expected_priority": "high", "category": "definite_high"}, 
+                {"message": "I can't take it anymore, goodbye", "expected_priority": "high", "category": "definite_high"},
+                {"message": "Planning to commit suicide tonight", "expected_priority": "high", "category": "definite_high"},
+                {"message": "I want to die right now", "expected_priority": "high", "category": "definite_high"}
             ],
             "definite_medium": [
-                "I'm feeling really depressed",
-                "Life feels meaningless lately",
-                "I'm struggling with severe anxiety",
-                "Everything feels hopeless",
-                "I can't stop crying"
+                {"message": "I'm feeling really depressed", "expected_priority": "medium", "category": "definite_medium"},
+                {"message": "Life feels meaningless lately", "expected_priority": "medium", "category": "definite_medium"},
+                {"message": "I'm struggling with severe anxiety", "expected_priority": "medium", "category": "definite_medium"},
+                {"message": "Everything feels hopeless", "expected_priority": "medium", "category": "definite_medium"},
+                {"message": "I can't stop crying", "expected_priority": "medium", "category": "definite_medium"}
             ],
             "definite_low": [
-                "Having a rough day",
-                "Feeling a bit down",
-                "Work is stressing me out",
-                "I'm worried about my grades",
-                "Feeling overwhelmed with tasks"
+                {"message": "Having a rough day", "expected_priority": "low", "category": "definite_low"},
+                {"message": "Feeling a bit down", "expected_priority": "low", "category": "definite_low"},
+                {"message": "Work is stressing me out", "expected_priority": "low", "category": "definite_low"},
+                {"message": "I'm worried about my grades", "expected_priority": "low", "category": "definite_low"},
+                {"message": "Feeling overwhelmed with tasks", "expected_priority": "low", "category": "definite_low"}
             ],
             "definite_none": [
-                "Going to the store",
-                "What's for dinner",
-                "Nice weather today",
-                "See you tomorrow",
-                "Thanks for the help"
+                {"message": "Going to the store", "expected_priority": "none", "category": "definite_none"},
+                {"message": "What's for dinner", "expected_priority": "none", "category": "definite_none"},
+                {"message": "Nice weather today", "expected_priority": "none", "category": "definite_none"},
+                {"message": "See you tomorrow", "expected_priority": "none", "category": "definite_none"},
+                {"message": "Thanks for the help", "expected_priority": "none", "category": "definite_none"}
             ]
         }
-    
-    def get_category_info():
+
+def get_category_info():
+    """Get category info - tries to import from test_data module, falls back to basic set."""
+    try:
+        from src.test_data import get_category_info as import_info
+        return import_info()
+    except ImportError:
         return {
             "definite_high": {"target_pass_rate": 100.0, "critical": True},
             "definite_medium": {"target_pass_rate": 65.0, "critical": False},
             "definite_low": {"target_pass_rate": 65.0, "critical": False},
             "definite_none": {"target_pass_rate": 95.0, "critical": True}
         }
+
+# Import Ash-compatible evaluation
+USE_ASH_COMPATIBLE = False
+try:
+    from src.utils.ash_compatible_evaluation import evaluate_ash_compatible, get_ash_testing_goals
+    USE_ASH_COMPATIBLE = True
+    print("✅ Ash-compatible evaluation imported successfully")
+except ImportError:
+    print("⚠️  Using basic evaluation - ash_compatible_evaluation not found")
 
 def get_nlp_server_url():
     """Get NLP server URL from environment variables."""
@@ -390,44 +403,6 @@ def run_comprehensive_test(categories=None):
     
     print()
     
-    # Show detailed failure analysis
-    all_failures = []
-    for category_results in all_results.values():
-        all_failures.extend([r for r in category_results if not r["success"]])
-    
-    if all_failures:
-        print("🔍 DETAILED FAILURE ANALYSIS:")
-        print(f"   Total failures: {len(all_failures)}")
-        
-        # Group failures by type
-        priority_mismatches = [f for f in all_failures if "Priority mismatch" in f["message"]]
-        escalation_issues = [f for f in all_failures if "de-escalation" in f["message"]]
-        errors = [f for f in all_failures if f["actual_priority"] == "error"]
-        
-        if priority_mismatches:
-            print(f"\n   📊 Priority Mismatches ({len(priority_mismatches)}):")
-            for i, failure in enumerate(priority_mismatches[:5]):  # Show top 5
-                phrase_text = failure["phrase"][:60] + "..." if len(failure["phrase"]) > 60 else failure["phrase"]
-                print(f"      {i+1}. \"{phrase_text}\"")
-                print(f"         Expected: {failure['expected_priority']} | Got: {failure['actual_priority']} | Confidence: {failure['confidence']:.3f}")
-            if len(priority_mismatches) > 5:
-                print(f"      ... and {len(priority_mismatches) - 5} more")
-        
-        if escalation_issues:
-            print(f"\n   ⚠️  De-escalation Issues ({len(escalation_issues)}):")
-            for i, failure in enumerate(escalation_issues[:3]):  # Show top 3
-                phrase_text = failure["phrase"][:60] + "..." if len(failure["phrase"]) > 60 else failure["phrase"]
-                print(f"      {i+1}. \"{phrase_text}\"")
-                print(f"         {failure['message']} | Confidence: {failure['confidence']:.3f}")
-        
-        if errors:
-            print(f"\n   💥 API/Connection Errors ({len(errors)}):")
-            for i, error in enumerate(errors[:3]):  # Show top 3
-                phrase_text = error["phrase"][:60] + "..." if len(error["phrase"]) > 60 else error["phrase"]
-                print(f"      {i+1}. \"{phrase_text}\" → {error['message']}")
-    
-    print()
-    
     # Save results
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     results_dir = Path("results/comprehensive")
@@ -435,6 +410,7 @@ def run_comprehensive_test(categories=None):
     
     summary = {
         "test_type": "comprehensive",
+        "ash_compatible": USE_ASH_COMPATIBLE,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "nlp_server_url": nlp_url,
         "total_phrases": total_tests,
@@ -454,7 +430,7 @@ def run_comprehensive_test(categories=None):
     
     print(f"📁 Results saved to: {results_file}")
     
-    # Determine success using Ash-compatible criteria
+    # Determine success using appropriate criteria
     if USE_ASH_COMPATIBLE:
         # Ash-compatible success: critical categories must meet targets + overall 80%+
         critical_categories = ['definite_high', 'definite_none', 'maybe_low_none']
