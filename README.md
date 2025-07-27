@@ -2,26 +2,26 @@
 
 > *Thrashing the system to find failures before they find you*
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/Docker-Supported-blue.svg)](https://www.docker.com/)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-green.svg)](https://www.python.org/)
+[![Windows 11](https://img.shields.io/badge/Windows-11-blue.svg)](https://www.microsoft.com/windows)
+[![API](https://img.shields.io/badge/API-REST-green.svg)](http://localhost:8884/api/docs)
+
 ## What is Ash-Thrash?
 
 Ash-Thrash is a comprehensive testing framework designed specifically for **The Alphabet Cartel's** [Ash Discord Bot](https://github.com/The-Alphabet-Cartel/ash) NLP crisis detection system. It systematically tests crisis detection accuracy and speed using **350 carefully crafted test phrases** across **7 priority categories**.
 
-**Repository:** https://github.com/The-Alphabet-Cartel/ash-thrash  
-**Main Ash Bot:** https://github.com/The-Alphabet-Cartel/ash  
-**NLP Server:** https://github.com/The-Alphabet-Cartel/ash-nlp  
-**Dashboard:** https://github.com/The-Alphabet-Cartel/ash-dash  
-**Discord:** https://discord.gg/alphabetcartel
+**🎯 Why This Matters:** Crisis detection systems save lives, but they need to be **thoroughly tested** to ensure they work when it matters most. Ash-Thrash provides continuous automated validation to maintain system reliability.
 
-## 🎯 Why Ash-Thrash?
+---
 
-Crisis detection systems save lives, but they need to be **thoroughly tested** to ensure they work when it matters most. Ash-Thrash provides:
-
-- **Comprehensive Testing** - 350 phrases covering every crisis scenario
-- **Safety-First Validation** - 100% catch rate for high-priority crises  
-- **False Positive Prevention** - 95% accuracy for non-crisis messages
-- **Performance Monitoring** - Speed and accuracy metrics over time
-- **Dashboard Integration** - Real-time results in ash-dash
-- **Automated Scheduling** - Continuous testing without manual intervention
+**🔗 Ecosystem Links:**
+- **Main Bot:** [github.com/The-Alphabet-Cartel/ash](https://github.com/The-Alphabet-Cartel/ash)
+- **NLP Server:** [github.com/The-Alphabet-Cartel/ash-nlp](https://github.com/The-Alphabet-Cartel/ash-nlp)  
+- **Dashboard:** [github.com/The-Alphabet-Cartel/ash-dash](https://github.com/The-Alphabet-Cartel/ash-dash)
+- **Testing Suite:** [github.com/The-Alphabet-Cartel/ash-thrash](https://github.com/The-Alphabet-Cartel/ash-thrash) *(You are here)*
+- **Community:** [discord.gg/alphabetcartel](https://discord.gg/alphabetcartel)
 
 ---
 
@@ -104,6 +104,80 @@ python src/quick_validation.py
 - **View Results:** `./results/comprehensive/` directory
 - **API Access:** http://localhost:8884/api/test/status
 - **Health Check:** http://localhost:8884/health
+
+---
+
+## 📋 Usage Examples
+
+### Basic Testing Commands
+
+```bash
+# Full comprehensive test (350 phrases)
+python src/comprehensive_testing.py
+
+# Quick health check (10 phrases)  
+python src/quick_validation.py
+
+# Test specific category only
+python src/comprehensive_testing.py --category definite_high
+
+# Generate performance report
+python scripts/generate_report.py --days 7 --format html
+```
+
+### Docker Operations
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Run comprehensive test in container
+docker-compose exec ash-thrash python src/comprehensive_testing.py
+
+# Run quick validation
+docker-compose exec ash-thrash python src/quick_validation.py
+
+# View real-time logs
+docker-compose logs -f ash-thrash
+
+# Restart services
+docker-compose restart
+
+# Stop all services
+docker-compose down
+```
+
+### API Testing & Integration
+
+```bash
+# Check system health
+curl http://localhost:8884/health
+
+# Get current testing status
+curl http://localhost:8884/api/test/status
+
+# Trigger new comprehensive test
+curl -X POST http://localhost:8884/api/test/run \
+  -H "Content-Type: application/json" \
+  -d '{"priority": "comprehensive"}'
+
+# Get latest test results
+curl http://localhost:8884/api/test/results/latest | jq '.'
+```
+
+### Advanced Usage
+
+**Custom Test Configuration:**
+```bash
+# Test with custom concurrency
+MAX_CONCURRENT_TESTS=10 python src/comprehensive_testing.py
+
+# Test with detailed logging
+ENABLE_DETAILED_LOGGING=true python src/comprehensive_testing.py
+
+# Test specific server
+NLP_SERVER_URL=http://dev-server:8881 python src/comprehensive_testing.py
+```
 
 ---
 
@@ -201,223 +275,44 @@ Customize your testing targets:
   "definite_high": {
     "target_pass_rate": 100.0,
     "description": "High Priority Crisis (Safety First!)",
-    "critical": true,
-    "alert_on_failure": true
+    "critical": true
   },
   "definite_none": {
     "target_pass_rate": 95.0,
-    "description": "No Priority Crisis (Prevent False Positives)",  
-    "critical": true,
-    "alert_on_failure": true
-  }
-}
-```
-
-### Server Configuration (config/server_config.json)
-
-Fine-tune connection settings:
-
-```json
-{
-  "nlp_servers": {
-    "primary": {
-      "host": "10.20.30.16",
-      "port": 8881,
-      "timeout": 10,
-      "retry_attempts": 3
-    }
-  },
-  "performance": {
-    "max_concurrent_tests": 5,
-    "connection_pool_size": 10
+    "description": "False Positive Prevention",
+    "critical": true
   }
 }
 ```
 
 ---
 
-## 📈 Features & Capabilities
+## 📈 Results & Analytics
 
-### 🧪 **Comprehensive Testing Engine**
-- **350 Unique Test Phrases** - Carefully crafted for every crisis scenario
-- **7 Priority Categories** - From high-crisis to non-crisis validation
-- **Concurrent Execution** - 5 parallel requests for faster testing
-- **Real-time Progress** - Live updates on test execution and failures
-- **Detailed Metrics** - Speed, accuracy, confidence, and error analysis
+### Understanding Test Results
 
-### 📊 **Advanced Performance Analysis**  
-- **Goal Achievement Tracking** - Monitor progress against your specific targets
-- **Category-Level Breakdown** - See performance for each priority level
-- **Historical Trend Analysis** - Track improvements and regressions over time
-- **Confidence Distribution** - Understand model certainty patterns
-- **Response Time Monitoring** - Identify performance bottlenecks
-
-### 🔄 **Automated Testing & Monitoring**
-- **Scheduled Comprehensive Tests** - Run full 350-phrase suite every 6 hours
-- **Quick Health Checks** - 10-phrase validation every hour  
-- **Automated Result Storage** - JSON files ready for dashboard integration
-- **Health Monitoring** - Service availability and performance checks
-- **Cleanup & Maintenance** - Automatic old result removal
-
-### 🎛️ **Dashboard & Integration**
-- **Seamless ash-dash Integration** - Drop-in components for existing dashboard
-- **Standalone API Server** - Independent testing interface
-- **Real-time Result Display** - Live updates in dashboard
-- **Visual Goal Tracking** - Progress bars and achievement status
-- **One-Click Manual Testing** - Trigger tests from web interface
-
-### 🐳 **Production-Ready Deployment**
-- **Docker-First Design** - Consistent environment across systems
-- **Health Checks & Auto-restart** - Robust service management
-- **Configurable Scheduling** - Customizable test frequency
-- **Resource Management** - Controlled concurrent execution
-- **Database Integration** - Optional PostgreSQL for historical data
-
-### 🔍 **Safety & Reliability Focus**
-- **Safety-First Testing** - 100% catch rate required for high-priority crises
-- **False Positive Prevention** - 95% accuracy for non-crisis messages
-- **Edge Case Coverage** - "Maybe" categories test borderline scenarios
-- **Escalation Safety** - Allow priority increases but prevent dangerous decreases
-- **Community Language Adapted** - Real-world phrases from LGBTQIA+ community
-
----
-
-## 📋 Usage Examples
-
-### Basic Testing Commands
-
-```bash
-# Full comprehensive test (350 phrases)
-python src/comprehensive_testing.py
-
-# Quick health check (10 phrases)  
-python src/quick_validation.py
-
-# Test specific category only
-python src/comprehensive_testing.py --category definite_high
-
-# Generate performance report
-python scripts/generate_report.py --days 7 --format html
-```
-
-### Docker Operations
-
-```bash
-# Start all services
-docker-compose up -d
-
-# Run comprehensive test in container
-docker-compose exec ash-thrash python src/comprehensive_testing.py
-
-# Run quick validation
-docker-compose exec ash-thrash python src/quick_validation.py
-
-# View real-time logs
-docker-compose logs -f ash-thrash
-
-# Restart services
-docker-compose restart
-
-# Stop all services
-docker-compose down
-```
-
-### API Testing & Integration
-
-```bash
-# Check system health
-curl http://localhost:8884/health
-
-# Get current testing status
-curl http://localhost:8884/api/test/status
-
-# Trigger new comprehensive test
-curl -X POST http://localhost:8884/api/test/run \
-  -H "Content-Type: application/json" \
-  -d '{"priority": "comprehensive"}'
-
-# Get latest test results
-curl http://localhost:8884/api/test/results/latest | jq '.'
-
-# Get performance trends (last 30 days)
-curl "http://localhost:8884/api/test/history?days=30" | jq '.trends'
-
-# Download specific result file
-curl -O http://localhost:8884/api/test/results/download/comprehensive_test_results_1690380000.json
-```
-
-### Advanced Configuration
-
-```bash
-# Run with custom NLP server
-NLP_SERVER_URL=http://192.168.1.100:8881 python src/comprehensive_testing.py
-
-# Run with increased concurrency
-MAX_CONCURRENT_TESTS=10 python src/comprehensive_testing.py
-
-# Run with custom timeout
-TEST_TIMEOUT_SECONDS=15 python src/comprehensive_testing.py
-
-# Generate detailed report with charts
-python scripts/generate_report.py --days 30 --include-charts --output-dir ./reports/
-```
-
----
-
-## 📁 Results & Data Management
-
-### Result Storage Structure
-
-```
-results/
-├── comprehensive/          # Full 350-phrase test results
-│   ├── comprehensive_test_results_1690380000.json
-│   ├── comprehensive_test_results_1690402800.json
-│   └── ...
-├── quick_validation/       # Quick 10-phrase health checks
-│   ├── quick_validation_1690380600.json
-│   └── ...
-├── reports/               # Generated performance reports
-│   ├── weekly_report_2025-07-26.html
-│   ├── monthly_trends_2025-07.json
-│   └── ...
-└── backups/              # Automated result backups
-    └── backup_2025-07-26.tar.gz
-```
-
-### Result Format & Schema
-
-**Comprehensive Test Results:**
+**Sample API Response:**
 ```json
 {
-  "test_metadata": {
-    "timestamp": "2025-07-26T10:30:00Z",
-    "total_phrases_tested": 350,
-    "test_type": "comprehensive_350_phrase_suite",
-    "nlp_server_url": "http://10.20.30.16:8881",
-    "total_execution_time_seconds": 87.3
+  "test_id": "test_20250726_090000",
+  "summary": {
+    "total_phrases": 350,
+    "passed": 298,
+    "failed": 52,
+    "pass_rate": 85.1,
+    "avg_response_time": 1.34
   },
-  "overall_results": {
-    "total_passed": 298,
-    "total_failed": 52,
-    "total_errors": 0,
-    "overall_pass_rate": 85.1,
-    "avg_response_time_ms": 145.2,
-    "avg_processing_time_ms": 89.7
+  "goals_assessment": {
+    "goals_met": 6,
+    "total_goals": 7,
+    "achievement_rate": 85.7,
+    "overall_status": "⚠️ 6/7 GOALS MET"
   },
-  "goal_achievement": {
-    "summary": {
-      "goals_achieved": 6,
-      "total_goals": 7,
-      "achievement_rate": 85.7,
-      "overall_status": "⚠️ 6/7 GOALS MET"
-    },
-    "definite_high": {
-      "target_rate": 100.0,
-      "actual_rate": 98.0,
-      "goal_met": false,
-      "status": "❌ MISSED"
-    }
+  "definite_high": {
+    "target_rate": 100.0,
+    "actual_rate": 98.0,
+    "goal_met": false,
+    "status": "❌ MISSED"
   },
   "category_results": {
     "definite_high": {
@@ -489,31 +384,6 @@ NLP_SERVER_URL=http://ash-nlp-dev:8881     # Development
 NLP_SERVER_URL=http://ash-nlp-prod:8881    # Production
 ```
 
-### Ash-Dash Integration
-
-**Option 1: Full Integration (Recommended)**
-```bash
-# Copy components to your ash-dash repository
-cp dashboard/routes.js ../ash-dash/routes/testing.js
-cp dashboard/styles/testing-dashboard.css ../ash-dash/public/css/
-cp dashboard/templates/testing-section.html ../ash-dash/views/partials/
-
-# Add to ash-dash server.js
-echo 'const testingRoutes = require("./routes/testing");' >> ../ash-dash/server.js
-echo 'app.use("/api/testing", testingRoutes);' >> ../ash-dash/server.js
-```
-
-**Option 2: API Integration Only**
-```javascript
-// Add to your ash-dash JavaScript
-const testingApiUrl = 'http://localhost:8884';
-
-// Fetch testing status
-fetch(`${testingApiUrl}/api/test/status`)
-  .then(response => response.json())
-  .then(data => updateTestingDisplay(data));
-```
-
 ### Multi-Environment Testing
 
 ```bash
@@ -557,235 +427,16 @@ jobs:
           path: results/comprehensive/
 ```
 
-### Data Export for External Tools
-
-```bash
-# Export to Grafana/Prometheus
-python scripts/export_metrics.py --format prometheus --output metrics.txt
-
-# Export to ELK Stack
-python scripts/export_logs.py --format elasticsearch --days 30
-
-# Export to Datadog
-python scripts/export_metrics.py --format datadog --api-key $DD_API_KEY
-
-# Export to Google Sheets/Excel
-python scripts/export_to_spreadsheet.py --format xlsx --output testing_results.xlsx
-```
-
----
-
-## 🛠️ Development & Customization
-
-### Project Structure
-
-```
-ash-thrash/
-├── src/                           # Core source code
-│   ├── comprehensive_testing.py   # Main 350-phrase test suite
-│   ├── quick_validation.py       # Quick health checks
-│   ├── test_data/                # Test phrase collections
-│   │   ├── high_priority.py      # High priority phrases
-│   │   ├── medium_priority.py    # Medium priority phrases
-│   │   ├── low_priority.py       # Low priority phrases  
-│   │   ├── none_priority.py      # Non-crisis phrases
-│   │   ├── maybe_high_medium.py  # Edge case phrases
-│   │   ├── maybe_medium_low.py   # Borderline phrases
-│   │   └── maybe_low_none.py     # Minimal concern phrases
-│   ├── utils/                    # Utility modules
-│   │   ├── api_client.py         # NLP server communication
-│   │   ├── results_processor.py  # Results analysis
-│   │   ├── report_generator.py   # Report generation
-│   │   └── dashboard_integration.py # Dashboard helpers
-│   └── api/                      # Testing API server
-│       ├── server.py             # Flask API server
-│       └── routes/               # API endpoints
-├── config/                       # Configuration files
-├── dashboard/                    # Dashboard integration
-├── docker/                       # Docker configurations
-├── scripts/                      # Utility scripts
-└── docs/                         # Documentation
-```
-
-### Adding New Test Categories
-
-1. **Create Test Data Module:**
-```python
-# src/test_data/new_category.py
-def get_new_category_phrases():
-    return [
-        {
-            "message": "Your test phrase here",
-            "expected_priority": "medium",
-            "description": "Description of what this tests",
-            "subcategory": "specific_scenario"
-        },
-        # ... more phrases
-    ]
-```
-
-2. **Update Main Testing Script:**
-```python
-# src/comprehensive_testing.py
-from test_data.new_category import get_new_category_phrases
-
-# Add to _load_test_phrases method
-new_category_phrases = get_new_category_phrases()
-for phrase_data in new_category_phrases:
-    phrases.append(TestPhrase(
-        message=phrase_data["message"],
-        expected_priority=phrase_data["expected_priority"],
-        category="new_category",
-        # ... other parameters
-    ))
-```
-
-3. **Update Configuration:**
-```json
-// config/testing_goals.json
-{
-  "new_category": {
-    "target_pass_rate": 75.0,
-    "description": "New Category Description",
-    "critical": false,
-    "allow_escalation": false
-  }
-}
-```
-
-### Customizing Testing Logic
-
-**Custom Evaluation Logic:**
-```python
-# src/utils/custom_evaluator.py
-def custom_evaluation_logic(phrase, detected_priority):
-    """Custom logic for evaluating test results"""
-    
-    # Example: Allow certain phrases to have flexible evaluation
-    if phrase.category == "flexible_category":
-        return flexible_evaluation(phrase, detected_priority)
-    
-    # Default evaluation
-    return standard_evaluation(phrase, detected_priority)
-```
-
-**Custom Reporting:**
-```python
-# src/utils/custom_reporter.py
-def generate_custom_report(results):
-    """Generate custom format reports"""
-    
-    # Example: Generate Slack-formatted report
-    slack_report = format_for_slack(results)
-    
-    # Example: Generate email-formatted report  
-    email_report = format_for_email(results)
-    
-    return {
-        'slack': slack_report,
-        'email': email_report
-    }
-```
-
-### Contributing Guidelines
-
-1. **Fork the Repository**
-```bash
-git fork https://github.com/The-Alphabet-Cartel/ash-thrash.git
-git clone https://github.com/YourUsername/ash-thrash.git
-cd ash-thrash
-git remote add upstream https://github.com/The-Alphabet-Cartel/ash-thrash.git
-```
-
-2. **Create Feature Branch**
-```bash
-git checkout -b feature/your-feature-name
-```
-
-3. **Development Setup**
-```bash
-# Install development dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# Install pre-commit hooks
-pre-commit install
-
-# Run tests
-pytest tests/
-
-# Run linting
-black src/
-flake8 src/
-```
-
-4. **Testing Your Changes**
-```bash
-# Test your changes don't break existing functionality
-python src/comprehensive_testing.py --quick-test
-
-# Test specific components
-pytest tests/test_your_feature.py
-
-# Integration test
-docker-compose up -d
-docker-compose exec ash-thrash python src/comprehensive_testing.py
-```
-
-5. **Submit Pull Request**
-```bash
-git add .
-git commit -m "feat: add your feature description"
-git push origin feature/your-feature-name
-# Create PR on GitHub
-```
-
-### Advanced Configuration
-
-**Custom NLP Server Integration:**
-```python
-# src/utils/custom_nlp_client.py
-class CustomNLPClient:
-    def __init__(self, base_url, custom_headers=None):
-        self.base_url = base_url
-        self.headers = custom_headers or {}
-    
-    def analyze_message(self, message, user_id, channel_id):
-        # Custom integration logic
-        return custom_analysis_result
-```
-
-**Performance Optimization:**
-```python
-# config/performance_config.json
-{
-  "concurrent_tests": 10,
-  "batch_size": 50,
-  "connection_pooling": true,
-  "caching": {
-    "enabled": true,
-    "ttl_seconds": 300
-  },
-  "retry_policy": {
-    "max_retries": 3,
-    "backoff_factor": 2
-  }
-}
-```
-
 ---
 
 ## 📚 Documentation & Resources
 
 ### Complete Documentation
 
-- **[📖 Setup Guide](docs/setup.md)** - Detailed installation and configuration
-- **[🚀 Usage Guide](docs/usage.md)** - Complete command reference and examples  
-- **[🔌 API Documentation](docs/api.md)** - REST API endpoint reference
-- **[🔧 Integration Guide](docs/integration.md)** - Dashboard and CI/CD integration
-- **[🐛 Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
-- **[⚙️ Configuration Reference](docs/configuration.md)** - All settings explained
-- **[📊 Performance Tuning](docs/performance.md)** - Optimization guidelines
+- **[👥 Team Member Guide](docs/TEAM_GUIDE.md)** - Operations guide for Crisis Response teams
+- **[🔧 Implementation Guide](docs/IMPLEMENTATION_GUIDE.md)** - Technical setup and deployment
+- **[🔌 API Documentation](docs/API.md)** - Complete REST API reference
+- **[🐛 Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ### Quick Reference
 
@@ -843,48 +494,136 @@ ls -la results/comprehensive/
 4. **Results** are stored and made available to **Ash-Dash**
 5. **Dashboard** displays real-time testing metrics and trends
 
-### Community & Support
+---
 
-**Getting Help:**
-- 🐛 **GitHub Issues** - Bug reports and feature requests
-- 💬 **Discord Community** - Real-time help and discussions: https://discord.gg/alphabetcartel
-- 📧 **Email Support** - Direct contact for urgent issues
-- 📖 **Documentation** - Comprehensive guides and references
+## 🧪 Testing Framework Details
 
-**Community Resources:**
-- 🎥 **Video Tutorials** - Setup and usage walkthroughs  
-- 📝 **Blog Posts** - Best practices and case studies
-- 🛠️ **Community Tools** - User-contributed utilities and extensions
-- 📊 **Performance Benchmarks** - Community testing results
+### Automated Test Suite
 
-**Contributing:**
-- 🤝 **Code Contributions** - Features, bug fixes, improvements
-- 📚 **Documentation** - Help improve guides and references
-- 🧪 **Test Phrase Contributions** - Add more community-specific phrases
-- 🎨 **Dashboard Components** - UI/UX improvements
-- 🐛 **Bug Reports** - Help identify and fix issues
+```bash
+# Run comprehensive detection tests
+python tests/crisis_detection_test.py
+
+# Test API endpoints
+python tests/api_integration_test.py
+
+# Verify dashboard integration
+python tests/dashboard_integration_test.py
+
+# Test performance under load
+python tests/performance_test.py
+```
+
+### Manual Testing Scenarios
+
+- **High Crisis**: Test with actual crisis language patterns
+- **Context Detection**: Verify humor/movie/game context filtering
+- **Edge Cases**: Borderline phrases that test detection boundaries
+- **Performance**: Load testing with concurrent requests
+- **Integration**: Verify communication with NLP server and dashboard
 
 ---
 
-## 🤝 Support & Community
+## 🔄 Deployment & Updates
 
-### Getting Help & Support
+### Production Deployment
 
-**Primary Support Channels:**
-- 🐛 **[GitHub Issues](https://github.com/The-Alphabet-Cartel/ash-thrash/issues)** - Bug reports, feature requests, and technical questions
-- 💬 **[The Alphabet Cartel Discord](https://discord.gg/alphabetcartel)** - Community support, real-time help, and development discussions
-- 📖 **[Documentation Wiki](https://github.com/The-Alphabet-Cartel/ash-thrash/wiki)** - Comprehensive guides, tutorials, and FAQs
-- 📧 **Direct Contact** - For urgent issues or private concerns
+```bash
+# Production deployment with Docker
+git clone https://github.com/The-Alphabet-Cartel/ash-thrash.git
+cd ash-thrash
+cp .env.template .env
+# Configure production settings
+docker-compose -f docker-compose.prod.yml up -d
+```
 
-**Community Resources:**
-- 🎥 **Video Tutorials** - Setup walkthroughs and usage demonstrations
-- 📝 **Best Practices Guide** - Community-tested optimization strategies  
-- 🛠️ **Community Tools** - User-contributed utilities and extensions
-- 📊 **Benchmark Results** - Performance comparisons and testing outcomes
+### Update Process
 
-### Contributing to Ash-Thrash
+1. **Backup Current State**
+   ```bash
+   docker-compose exec ash-thrash tar -czf backup.tar.gz /app/results/
+   ```
 
-We welcome contributions from the community! Here's how you can help:
+2. **Pull Updates**
+   ```bash
+   git pull origin main
+   docker-compose pull
+   ```
+
+3. **Deploy**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Verify**
+   ```bash
+   curl http://localhost:8884/health
+   docker-compose exec ash-thrash python src/quick_validation.py
+   ```
+
+### Rollback Procedure
+
+```bash
+# Rollback to previous version
+docker-compose down
+docker image tag ghcr.io/the-alphabet-cartel/ash-thrash:v1.0 ghcr.io/the-alphabet-cartel/ash-thrash:latest
+docker-compose up -d
+
+# Restore results if needed
+docker-compose exec ash-thrash tar -xzf backup.tar.gz -C /app/
+```
+
+---
+
+## 🤝 Contributing
+
+### Development Setup
+
+```bash
+# Fork and clone
+git clone https://github.com/YourUsername/ash-thrash.git
+cd ash-thrash
+
+# Set up development environment
+bash setup.sh
+pip install -r requirements-dev.txt
+pre-commit install
+
+# Make your changes
+git checkout -b feature/your-amazing-feature
+
+# Test your changes
+pytest tests/
+docker-compose up -d && docker-compose exec ash-thrash python src/comprehensive_testing.py
+
+# Submit for review
+git push origin feature/your-amazing-feature
+# Create pull request on GitHub
+```
+
+### Code Standards
+
+- Follow PEP 8 style guidelines
+- Include comprehensive tests for new features
+- Update documentation for any API changes
+- Ensure Docker compatibility
+- Add logging for debugging purposes
+
+### Testing Your Changes
+
+```bash
+# Test your changes don't break existing functionality
+python src/comprehensive_testing.py --quick-test
+
+# Test specific components
+pytest tests/test_your_feature.py
+
+# Integration test
+docker-compose up -d
+docker-compose exec ash-thrash python src/comprehensive_testing.py
+```
+
+### Contributing Areas
 
 **🔧 Code Contributions:**
 - Bug fixes and performance improvements
@@ -914,37 +653,87 @@ We welcome contributions from the community! Here's how you can help:
 - Accessibility improvements
 - Mobile-responsive design
 
-### Development Guidelines
+---
 
-**Getting Started:**
-```bash
-# Fork and clone
-git clone https://github.com/YourUsername/ash-thrash.git
-cd ash-thrash
+## 🛣️ Roadmap
 
-# Set up development environment
-bash setup.sh
-pip install -r requirements-dev.txt
-pre-commit install
+### Current Version (v1.0)
+- ✅ 350-phrase comprehensive testing suite
+- ✅ 7 priority categories with safety-first design
+- ✅ Docker-based deployment
+- ✅ REST API with real-time status
+- ✅ Ash-dash dashboard integration
+- ✅ Automated scheduling and cleanup
 
-# Make your changes
-git checkout -b feature/your-amazing-feature
+### Upcoming Features (v1.1)
+- 🔄 **Enhanced Analytics** - Advanced failure pattern analysis
+- 🔄 **Multi-Language Support** - Testing in multiple languages
+- 🔄 **Performance Benchmarking** - Historical performance comparisons
+- 🔄 **Advanced Reporting** - PDF and Excel report generation
 
-# Test your changes
-pytest tests/
-docker-compose up -d && docker-compose exec ash-thrash python src/comprehensive_testing.py
+### Future Vision (v2.0)
+- 🚀 **Machine Learning Integration** - AI-powered test phrase generation
+- 🚀 **Real-time Monitoring** - Live community phrase analysis
+- 🚀 **Advanced Integrations** - Slack, Teams, and webhook notifications
+- 🚀 **Distributed Testing** - Multi-server testing coordination
 
-# Submit for review
-git push origin feature/your-amazing-feature
-# Create pull request on GitHub
-```
+---
 
-**Code Standards:**
-- Follow PEP 8 style guidelines
-- Include comprehensive tests for new features
-- Update documentation for any API changes
-- Ensure Docker compatibility
-- Add logging for debugging purposes
+## 📞 Support & Community
+
+### Getting Help & Support
+
+**Primary Support Channels:**
+- 🐛 **[GitHub Issues](https://github.com/The-Alphabet-Cartel/ash-thrash/issues)** - Bug reports, feature requests, and technical questions
+- 💬 **[The Alphabet Cartel Discord](https://discord.gg/alphabetcartel)** - Community support, real-time help, and development discussions
+- 📖 **[Documentation](docs/)** - Comprehensive guides, tutorials, and references
+- 📧 **Direct Contact** - For urgent issues or private concerns
+
+**Community Resources:**
+- 🎥 **Video Tutorials** - Setup walkthroughs and usage demonstrations
+- 📝 **Best Practices Guide** - Community-tested optimization strategies  
+- 🛠️ **Community Tools** - User-contributed utilities and extensions
+- 📊 **Benchmark Results** - Performance comparisons and testing outcomes
+
+### Community & Support
+
+**Getting Help:**
+- 🐛 **GitHub Issues** - Bug reports and feature requests
+- 💬 **Discord Community** - Real-time help and discussions: https://discord.gg/alphabetcartel
+- 📧 **Email Support** - Direct contact for urgent issues
+- 📖 **Documentation** - Comprehensive guides and references
+
+**Community Resources:**
+- 🎥 **Video Tutorials** - Setup and usage walkthroughs  
+- 📝 **Blog Posts** - Best practices and case studies
+- 🛠️ **Community Tools** - User-contributed utilities and extensions
+- 📊 **Performance Benchmarks** - Community testing results
+
+**Contributing:**
+- 🤝 **Code Contributions** - Features, bug fixes, improvements
+- 📚 **Documentation** - Help improve guides and references
+- 🧪 **Test Phrase Contributions** - Add more community-specific phrases
+- 🎨 **Dashboard Components** - UI/UX improvements
+- 🐛 **Bug Reports** - Help identify and fix issues
+
+---
+
+## 🙏 Acknowledgments
+
+### Technical Contributors
+- **Anthropic** - Claude 4 Sonnet API and exceptional documentation
+- **Discord.py Community** - Excellent library and slash command guidance
+- **Open Source Community** - Libraries and tools that make this possible
+
+### Community Contributors
+- **The Alphabet Cartel Crisis Response Team** - Extensive testing, feedback, and validation
+- **Community Members** - Language pattern identification and real-world testing
+- **Beta Testers** - Early adopters who refined the testing framework
+
+### Research Partners
+- **AI/ML Research Community** - Foundational work in depression detection and natural language processing
+- **Crisis Intervention Specialists** - Insights into effective mental health crisis response
+- **LGBTQIA+ Advocacy Groups** - Guidance on community-specific language and cultural sensitivity
 
 ---
 
@@ -952,87 +741,31 @@ git push origin feature/your-amazing-feature
 
 This project is part of **The Alphabet Cartel's** Ash ecosystem and is available under the MIT License. See the [LICENSE](LICENSE) file for complete details.
 
-**Third-Party Acknowledgments:**
-- Flask and related libraries for API framework
-- Docker for containerization platform
-- PostgreSQL for optional data storage
-- Chart.js for dashboard visualizations
+**Usage Rights:**
+- ✅ Commercial use
+- ✅ Modification
+- ✅ Distribution
+- ✅ Private use
+
+**Limitations:**
+- ❌ Liability
+- ❌ Warranty
 
 ---
 
-## 🙏 Acknowledgments & Credits
-
-### Core Development Team
-- **The Alphabet Cartel Development Team** - Primary development and maintenance
-- **Community Contributors** - Features, bug fixes, and improvements
-- **Testing Team** - Quality assurance and validation
-
-### Community Support
-- **The Alphabet Cartel Crisis Response Team** - Real-world testing feedback and validation
-- **LGBTQIA+ Community Members** - Language pattern identification and cultural context guidance  
-- **Mental Health Professionals** - Clinical guidance on crisis detection best practices
-- **Beta Testing Community** - Early adoption feedback and system refinement
-
-### Technical Acknowledgments
-- **Ash Bot Community** - Integration testing and ecosystem validation
-- **Discord.py Community** - Bot framework guidance and best practices
-- **Docker Community** - Containerization patterns and deployment strategies
-- **Open Source Contributors** - Libraries, tools, and frameworks that make this possible
-
-### Research & Validation Partners
-- **AI/ML Research Community** - Foundational work in depression detection and NLP
-- **Crisis Intervention Specialists** - Evidence-based practices for mental health crisis response
-- **Mental Health Informatics** - Research into AI applications for crisis detection
-- **LGBTQIA+ Advocacy Groups** - Community-specific language and cultural sensitivity guidance
-
----
-
-## 🚀 What's Next?
-
-### Planned Features
-
-**📈 Enhanced Analytics (v2.0)**
-- Machine learning-powered trend analysis
-- Predictive failure detection
-- Advanced performance correlation analysis
-- Custom alerting and notification systems
-
-**🔧 Integration Expansions (v2.1)**
-- Slack integration for team notifications
-- Webhook support for external systems
-- GitHub Actions templates for CI/CD
-- Prometheus/Grafana metrics export
-
-**🧪 Advanced Testing (v2.2)**
-- A/B testing capabilities for model comparisons
-- Load testing for performance validation
-- Chaos testing for reliability verification
-- Multi-language testing support
-
-**🎛️ Enhanced Dashboard (v2.3)**
-- Real-time WebSocket updates
-- Interactive performance tuning
-- Custom test scenario builder
-- Advanced visualization options
-
-### Roadmap
-
-- **Q3 2025:** Enhanced analytics and machine learning insights
-- **Q4 2025:** Advanced integration ecosystem and webhook support
-- **Q1 2026:** Multi-language and international community support
-- **Q2 2026:** Advanced AI-powered testing and optimization features
-
----
-
-**Built with 🖤 for comprehensive crisis detection testing.**
+**💡 Quick Start Summary:**
+1. Clone repository: `git clone https://github.com/The-Alphabet-Cartel/ash-thrash.git`
+2. Setup environment: `bash setup.sh`
+3. Start services: `docker-compose up -d`
+4. Run first test: `docker-compose exec ash-thrash python src/comprehensive_testing.py`
+5. Check results: `curl http://localhost:8884/api/test/status`
 
 *"Thrashing the system so it never fails when it matters most."*
 
 ---
 
-**🔗 Ecosystem Links:**
-- **Main Bot:** [github.com/The-Alphabet-Cartel/ash](https://github.com/The-Alphabet-Cartel/ash)
-- **NLP Server:** [github.com/The-Alphabet-Cartel/ash-nlp](https://github.com/The-Alphabet-Cartel/ash-nlp)  
-- **Dashboard:** [github.com/The-Alphabet-Cartel/ash-dash](https://github.com/The-Alphabet-Cartel/ash-dash)
-- **Testing Suite:** [github.com/The-Alphabet-Cartel/ash-thrash](https://github.com/The-Alphabet-Cartel/ash-thrash) *(You are here)*
-- **Community:** [discord.gg/alphabetcartel](https://discord.gg/alphabetcartel)
+*Built with 🖤 for chosen family support*
+
+**The Alphabet Cartel** - Crisis Detection Testing Team  
+**Repository:** https://github.com/The-Alphabet-Cartel/ash-thrash  
+**Community:** https://discord.gg/alphabetcartel
