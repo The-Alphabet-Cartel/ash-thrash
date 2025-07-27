@@ -82,7 +82,7 @@ case "$1" in
                      --workers 4 \
                      --worker-class sync \
                      --timeout 120 \
-                     --keepalive 2 \
+                     --keep-alive 2 \
                      --max-requests 1000 \
                      --max-requests-jitter 100 \
                      --access-logfile - \
