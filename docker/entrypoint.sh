@@ -69,7 +69,9 @@ case "$1" in
         ;;
     "api")
         echo "🌐 Starting API server"
-        python /app/src/api/server.py
+        # Change working directory and run as module to fix relative imports
+        cd /app
+        python -m src.api.server
         ;;
     "comprehensive")
         echo "🧪 Running comprehensive test"
