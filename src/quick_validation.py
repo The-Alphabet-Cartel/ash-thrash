@@ -18,6 +18,10 @@ import requests
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Add the project root to the Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 # Import Ash-compatible evaluation
 try:
     from src.utils.ash_compatible_evaluation import evaluate_ash_compatible, get_ash_testing_goals
@@ -121,6 +125,11 @@ def evaluate_result_basic(phrase_data, result):
     
     # For definite categories, require exact match
     return False, f"❌ Priority mismatch: expected {expected}, got {actual}"
+
+# Legacy function for backward compatibility
+def evaluate_result(phrase_data, result):
+    """Legacy function - redirects to ash_compatible evaluation."""
+    return evaluate_result_ash_compatible(phrase_data, result)
 
 def run_quick_validation():
     """Run the quick validation test."""
