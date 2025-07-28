@@ -40,7 +40,7 @@ ADD COLUMN IF NOT EXISTS expected_confidence_range DECIMAL(4,3)[];
 CREATE TABLE IF NOT EXISTS test_environments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     environment_name VARCHAR(50) NOT NULL UNIQUE,
-    nlp_server_url VARCHAR(255) NOT NULL,
+    GLOBAL_NLP_API_URL VARCHAR(255) NOT NULL,
     description TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     configuration JSONB,
@@ -82,7 +82,7 @@ CREATE TRIGGER update_test_schedules_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert default environments
-INSERT INTO test_environments (environment_name, nlp_server_url, description, configuration) VALUES
+INSERT INTO test_environments (environment_name, GLOBAL_NLP_API_URL, description, configuration) VALUES
 ('production', 'http://10.20.30.253:8881', 'Production NLP server environment', '{"timeout": 10, "retries": 3}'),
 ('development', 'http://localhost:8881', 'Local development environment', '{"timeout": 5, "retries": 1}'),
 ('staging', 'http://10.20.30.17:8881', 'Staging environment for testing', '{"timeout": 8, "retries": 2}')
@@ -92,7 +92,7 @@ ON CONFLICT (environment_name) DO NOTHING;
 CREATE OR REPLACE VIEW environment_performance AS
 SELECT 
     te.environment_name,
-    te.nlp_server_url,
+    te.GLOBAL_NLP_API_URL,
     COUNT(tr.id) as total_tests,
     AVG(tr.overall_pass_rate) as avg_pass_rate,
     AVG(tr.goal_achievement_rate) as avg_goal_achievement,
@@ -103,7 +103,7 @@ SELECT
 FROM test_environments te
 LEFT JOIN test_runs tr ON te.environment_name = tr.environment
 WHERE te.is_active = TRUE
-GROUP BY te.environment_name, te.nlp_server_url
+GROUP BY te.environment_name, te.GLOBAL_NLP_API_URL
 ORDER BY avg_pass_rate DESC;
 
 -- Function to get environment comparison

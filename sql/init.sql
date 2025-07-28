@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS test_runs (
     avg_processing_time_ms DECIMAL(8,2),
     execution_time_seconds DECIMAL(8,2),
     goal_achievement_rate DECIMAL(5,2) CHECK (goal_achievement_rate >= 0 AND goal_achievement_rate <= 100),
-    nlp_server_url VARCHAR(255),
+    GLOBAL_NLP_API_URL VARCHAR(255),
     results_file_path TEXT,
     test_status VARCHAR(20) NOT NULL DEFAULT 'running' CHECK (test_status IN ('running', 'completed', 'failed', 'cancelled')),
     error_message TEXT,
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS system_performance (
 CREATE TABLE IF NOT EXISTS test_configurations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     test_run_id UUID NOT NULL REFERENCES test_runs(id) ON DELETE CASCADE,
-    nlp_server_url VARCHAR(255) NOT NULL,
+    GLOBAL_NLP_API_URL VARCHAR(255) NOT NULL,
     max_concurrent_tests INTEGER DEFAULT 5,
     timeout_seconds INTEGER DEFAULT 300,
     retry_attempts INTEGER DEFAULT 3,
@@ -325,7 +325,7 @@ $$ LANGUAGE plpgsql;
 -- Insert default testing goals configuration
 INSERT INTO test_configurations (
     test_run_id,
-    nlp_server_url,
+    GLOBAL_NLP_API_URL,
     testing_goals,
     ash_thrash_version
 ) VALUES (

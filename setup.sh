@@ -85,60 +85,60 @@ if [ ! -f .env ]; then
 # =============================================================================
 # NLP Server Configuration (Ash NLP Server)
 # =============================================================================
-NLP_SERVER_HOST=10.20.30.253
-NLP_SERVER_PORT=8881
-NLP_SERVER_URL=http://10.20.30.253:8881
+GLOBAL_NLP_API_HOST=10.20.30.253
+GLOBAL_NLP_API_PORT=8881
+GLOBAL_NLP_API_URL=http://10.20.30.253:8881
 
 # =============================================================================
 # Testing Configuration
 # =============================================================================
-MAX_CONCURRENT_TESTS=5
-TEST_TIMEOUT_SECONDS=10
-RESULTS_RETENTION_DAYS=30
-ENABLE_DETAILED_LOGGING=true
+THRASH_MAX_CONCURRENT_TESTS=5
+THRASH_TEST_TIMEOUT_SECONDS=10
+THRASH_RESULTS_RETENTION_DAYS=30
+THRASH_ENABLE_DETAILED_LOGGING=true
 
 # =============================================================================
 # API Server Configuration
 # =============================================================================
-API_PORT=8884
-API_HOST=0.0.0.0
-API_DEBUG=false
+GLOBAL_THRASH_API_PORT=8884
+THRASH_API_HOST=0.0.0.0
+THRASH_API_DEBUG=false
 
 # =============================================================================
 # Database Configuration (Optional)
 # =============================================================================
-ENABLE_DATABASE=false
-DATABASE_URL=postgresql://ash_test:change_this_password@localhost:5432/ash_testing
-DATABASE_POOL_SIZE=5
+THRASH_ENABLE_DATABASE=false
+THRASH_DATABASE_URL=postgresql://ash_test:change_this_password@localhost:5432/ash_testing
+THRASH_DATABASE_POOL_SIZE=5
 
 # =============================================================================
 # Scheduled Testing Configuration
 # =============================================================================
-ENABLE_SCHEDULED_TESTING=true
-COMPREHENSIVE_TEST_SCHEDULE=0 */6 * * *    # Every 6 hours
-QUICK_VALIDATION_SCHEDULE=0 * * * *        # Every hour
+THRASH_ENABLE_SCHEDULED_TESTING=true
+THRASH_COMPREHENSIVE_TEST_SCHEDULE=0 */6 * * *    # Every 6 hours
+THRASH_QUICK_VALIDATION_SCHEDULE=0 * * * *        # Every hour
 
 # =============================================================================
 # Dashboard Integration
 # =============================================================================
-ENABLE_DASHBOARD_INTEGRATION=true
-DASHBOARD_API_URL=http://localhost:8883
-DASHBOARD_UPDATE_INTERVAL=120              # Seconds
+THRASH_ENABLE_DASHBOARD_INTEGRATION=true
+THRASH_DASHBOARD_API_URL=http://localhost:8883
+THRASH_DASHBOARD_UPDATE_INTERVAL=120              # Seconds
 
 # =============================================================================
 # Alert Configuration
 # =============================================================================
-ENABLE_ALERTS=false
-ALERT_WEBHOOK_URL=
-CRITICAL_FAILURE_THRESHOLD=80              # Alert if high priority detection < 80%
-FALSE_POSITIVE_THRESHOLD=15                # Alert if false positive rate > 15%
+THRASH_ENABLE_ALERTS=false
+THRASH_ALERT_WEBHOOK_URL=
+THRASH_CRITICAL_FAILURE_THRESHOLD=80              # Alert if high priority detection < 80%
+THRASH_FALSE_POSITIVE_THRESHOLD=15                # Alert if false positive rate > 15%
 
 # =============================================================================
 # Development Configuration
 # =============================================================================
-DEVELOPMENT_MODE=false
-LOG_LEVEL=INFO
-ENABLE_PROFILING=false
+THRASH_DEVELOPMENT_MODE=false
+GLOBAL_LOG_LEVEL=INFO
+THRASH_ENABLE_PROFILING=false
 EOF
     echo -e "${GREEN}✅ Created .env file${NC}"
 else
@@ -279,11 +279,11 @@ services:
     container_name: ash-thrash
     restart: unless-stopped
     environment:
-      - NLP_SERVER_URL=${NLP_SERVER_URL}
-      - MAX_CONCURRENT_TESTS=${MAX_CONCURRENT_TESTS}
-      - ENABLE_SCHEDULED_TESTING=${ENABLE_SCHEDULED_TESTING}
-      - COMPREHENSIVE_TEST_SCHEDULE=${COMPREHENSIVE_TEST_SCHEDULE}
-      - QUICK_VALIDATION_SCHEDULE=${QUICK_VALIDATION_SCHEDULE}
+      - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL}
+      - THRASH_MAX_CONCURRENT_TESTS=${THRASH_MAX_CONCURRENT_TESTS}
+      - THRASH_ENABLE_SCHEDULED_TESTING=${THRASH_ENABLE_SCHEDULED_TESTING}
+      - THRASH_COMPREHENSIVE_TEST_SCHEDULE=${THRASH_COMPREHENSIVE_TEST_SCHEDULE}
+      - THRASH_QUICK_VALIDATION_SCHEDULE=${THRASH_QUICK_VALIDATION_SCHEDULE}
     volumes:
       - ./results:/app/results
       - ./config:/app/config
@@ -306,12 +306,12 @@ services:
     container_name: ash-thrash-api
     restart: unless-stopped
     ports:
-      - "${API_PORT:-8884}:8884"
+      - "${GLOBAL_THRASH_API_PORT:-8884}:8884"
     environment:
-      - NLP_SERVER_URL=${NLP_SERVER_URL}
-      - API_HOST=${API_HOST}
-      - API_PORT=8884
-      - API_DEBUG=${API_DEBUG}
+      - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL}
+      - THRASH_API_HOST=${THRASH_API_HOST}
+      - GLOBAL_THRASH_API_PORT=8884
+      - THRASH_API_DEBUG=${THRASH_API_DEBUG}
     volumes:
       - ./results:/app/results
       - ./config:/app/config
@@ -330,9 +330,9 @@ services:
     container_name: ash-thrash-db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=ash_testing
-      - POSTGRES_USER=ash_test
-      - POSTGRES_PASSWORD=change_this_password
+      - GLOBAL_POSTGRES_DB=ash_testing
+      - GLOBAL_POSTGRES_USER=ash_test
+      - GLOBAL_POSTGRES_PASSWORD=change_this_password
     volumes:
       - ash_thrash_db_data:/var/lib/postgresql/data
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -456,11 +456,11 @@ echo "🧪 Starting Ash-Thrash Container"
 echo "Mode: $1"
 
 # Wait for NLP server if URL is provided
-if [ ! -z "$NLP_SERVER_URL" ]; then
-    echo "⏳ Waiting for NLP server at $NLP_SERVER_URL..."
+if [ ! -z "$GLOBAL_NLP_API_URL" ]; then
+    echo "⏳ Waiting for NLP server at $GLOBAL_NLP_API_URL..."
     timeout=60
     while [ $timeout -gt 0 ]; do
-        if curl -s --fail "$NLP_SERVER_URL/health" >/dev/null 2>&1; then
+        if curl -s --fail "$GLOBAL_NLP_API_URL/health" >/dev/null 2>&1; then
             echo "✅ NLP server is ready"
             break
         fi
@@ -479,7 +479,7 @@ case "$1" in
     "testing")
         echo "🧪 Starting testing service with scheduled jobs"
         # Start cron for scheduled testing
-        if [ "$ENABLE_SCHEDULED_TESTING" = "true" ]; then
+        if [ "$THRASH_ENABLE_SCHEDULED_TESTING" = "true" ]; then
             echo "📅 Starting cron daemon"
             cron
         fi
@@ -862,7 +862,7 @@ def sample_test_results():
 def test_config():
     """Test configuration"""
     return {
-        "nlp_server_url": "http://localhost:8881",
+        "GLOBAL_NLP_API_URL": "http://localhost:8881",
         "max_concurrent_tests": 2,
         "test_timeout": 5
     }
@@ -1693,7 +1693,7 @@ echo "   🔧 Utility scripts (scripts/)"
 echo ""
 echo -e "${BLUE}🚀 Next Steps:${NC}"
 echo "   1. Review and customize .env file"
-echo "   2. Verify NLP server URL (currently: ${NLP_SERVER_URL:-http://10.20.30.253:8881})"
+echo "   2. Verify NLP server URL (currently: ${GLOBAL_NLP_API_URL:-http://10.20.30.253:8881})"
 echo "   3. Build and start services: ${YELLOW}docker-compose up -d${NC}"
 echo "   4. Run initial test: ${YELLOW}docker-compose exec ash-thrash python src/comprehensive_testing.py${NC}"
 echo ""

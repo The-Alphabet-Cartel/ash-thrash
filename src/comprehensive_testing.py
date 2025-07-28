@@ -85,13 +85,13 @@ try:
 except ImportError:
     print("⚠️  Using basic evaluation - ash_compatible_evaluation not found")
 
-def get_nlp_server_url():
+def get_GLOBAL_NLP_API_URL():
     """Get NLP server URL from environment variables."""
-    return os.getenv('NLP_SERVER_URL', 'http://10.20.30.253:8881')
+    return os.getenv('GLOBAL_NLP_API_URL', 'http://10.20.30.253:8881')
 
 def get_max_concurrent_tests():
     """Get maximum concurrent tests from environment."""
-    return int(os.getenv('MAX_CONCURRENT_TESTS', '5'))
+    return int(os.getenv('THRASH_MAX_CONCURRENT_TESTS', '5'))
 
 def test_nlp_server_health(url):
     """Test if NLP server is responding."""
@@ -110,7 +110,7 @@ def analyze_phrase(phrase_data, test_id=None):
     # Category might not be in the data, so we'll pass it from the calling function
     category = phrase_data.get("category", "unknown")
     
-    url = get_nlp_server_url()
+    url = get_GLOBAL_NLP_API_URL()
     
     try:
         start_time = time.time()
@@ -336,7 +336,7 @@ def run_comprehensive_test(categories=None):
     print()
     
     start_time = time.time()
-    nlp_url = get_nlp_server_url()
+    nlp_url = get_GLOBAL_NLP_API_URL()
     max_workers = get_max_concurrent_tests()
     
     print(f"🎯 Testing NLP Server: {nlp_url}")
@@ -477,7 +477,7 @@ def run_comprehensive_test(categories=None):
         "ash_compatible": USE_ASH_COMPATIBLE,
         "definite_bidirectional_allowed": True,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "nlp_server_url": nlp_url,
+        "GLOBAL_NLP_API_URL": nlp_url,
         "total_phrases": total_tests,
         "passed": total_passed,
         "failed": total_tests - total_passed,
@@ -535,7 +535,7 @@ def main():
     
     # Override server URL if provided
     if args.server:
-        os.environ['NLP_SERVER_URL'] = args.server
+        os.environ['GLOBAL_NLP_API_URL'] = args.server
     
     # Determine categories to test
     categories = None

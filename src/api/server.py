@@ -35,10 +35,10 @@ def create_app(config: Dict[str, Any] = None) -> Flask:
     
     # Default configuration
     app.config.update({
-        'HOST': os.environ.get('API_HOST', '0.0.0.0'),
-        'PORT': int(os.environ.get('API_PORT', 8884)),
-        'DEBUG': os.environ.get('API_DEBUG', 'false').lower() == 'true',
-        'NLP_SERVER_URL': os.environ.get('NLP_SERVER_URL', 'http://10.20.30.253:8881'),
+        'HOST': os.environ.get('THRASH_API_HOST', '0.0.0.0'),
+        'PORT': int(os.environ.get('GLOBAL_THRASH_API_PORT', 8884)),
+        'DEBUG': os.environ.get('THRASH_API_DEBUG', 'false').lower() == 'true',
+        'GLOBAL_NLP_API_URL': os.environ.get('GLOBAL_NLP_API_URL', 'http://10.20.30.253:8881'),
         'RESULTS_DIR': os.environ.get('RESULTS_DIR', 'results'),
         'MAX_WORKERS': int(os.environ.get('MAX_WORKERS', 5)),
         'TESTING_TIMEOUT': int(os.environ.get('TESTING_TIMEOUT', 300))

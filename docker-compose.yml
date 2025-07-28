@@ -8,11 +8,11 @@ services:
     container_name: ash-thrash
     restart: unless-stopped
     environment:
-      - NLP_SERVER_URL=${NLP_SERVER_URL}
-      - MAX_CONCURRENT_TESTS=${MAX_CONCURRENT_TESTS}
-      - ENABLE_SCHEDULED_TESTING=${ENABLE_SCHEDULED_TESTING}
-      - COMPREHENSIVE_TEST_SCHEDULE=${COMPREHENSIVE_TEST_SCHEDULE}
-      - QUICK_VALIDATION_SCHEDULE=${QUICK_VALIDATION_SCHEDULE}
+      - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL}
+      - THRASH_MAX_CONCURRENT_TESTS=${THRASH_MAX_CONCURRENT_TESTS}
+      - THRASH_ENABLE_SCHEDULED_TESTING=${THRASH_ENABLE_SCHEDULED_TESTING}
+      - THRASH_COMPREHENSIVE_TEST_SCHEDULE=${THRASH_COMPREHENSIVE_TEST_SCHEDULE}
+      - THRASH_QUICK_VALIDATION_SCHEDULE=${THRASH_QUICK_VALIDATION_SCHEDULE}
     volumes:
       - ./results:/app/results
       - ./config:/app/config
@@ -38,10 +38,10 @@ services:
     ports:
       - 8884:8884
     environment:
-      - NLP_SERVER_URL=${NLP_SERVER_URL}
-      - API_HOST=${API_HOST}
-      - API_PORT=${API_PORT:-8884}
-      - API_DEBUG=${API_DEBUG}
+      - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL}
+      - THRASH_API_HOST=${THRASH_API_HOST}
+      - GLOBAL_THRASH_API_PORT=${GLOBAL_THRASH_API_PORT:-8884}
+      - THRASH_API_DEBUG=${THRASH_API_DEBUG}
     volumes:
       - ./results:/app/results
       - ./config:/app/config
@@ -60,9 +60,9 @@ services:
     container_name: ash-thrash-db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-ash_testing}
-      - POSTGRES_USER=${POSTGRES_USER:-ash_test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - GLOBAL_POSTGRES_DB=${GLOBAL_POSTGRES_DB:-ash_testing}
+      - GLOBAL_POSTGRES_USER=${GLOBAL_POSTGRES_USER:-ash_test}
+      - GLOBAL_POSTGRES_PASSWORD=${GLOBAL_POSTGRES_PASSWORD}
     volumes:
       - ash_thrash_db_data:/var/lib/postgresql/data
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql

@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 
 def debug_nlp_response():
     """Debug what the NLP server actually returns."""
-    nlp_url = os.getenv('NLP_SERVER_URL', 'http://10.20.30.253:8881')
+    nlp_url = os.getenv('GLOBAL_NLP_API_URL', 'http://10.20.30.253:8881')
     
     print("🔍 Debugging NLP Server Response Format")
     print("=" * 50)

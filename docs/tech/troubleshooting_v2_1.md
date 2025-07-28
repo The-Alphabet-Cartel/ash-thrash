@@ -152,7 +152,7 @@ docker network inspect ash_ash-network
 
 # Solution 3: Update configuration
 # Edit .env file and restart
-sed -i 's/NLP_SERVER_URL=.*/NLP_SERVER_URL=http:\/\/10.20.30.253:8881/g' .env
+sed -i 's/GLOBAL_NLP_API_URL=.*/GLOBAL_NLP_API_URL=http:\/\/10.20.30.253:8881/g' .env
 docker-compose restart ash-thrash
 
 # Solution 4: Test with different timeout
@@ -244,7 +244,7 @@ docker-compose exec ash-thrash-db psql -U ash_user -d ash_thrash_prod -c "ANALYZ
 
 # Solution 3: Increase connection pool
 # Edit .env file
-sed -i 's/DATABASE_POOL_SIZE=.*/DATABASE_POOL_SIZE=20/g' .env
+sed -i 's/THRASH_DATABASE_POOL_SIZE=.*/THRASH_DATABASE_POOL_SIZE=20/g' .env
 docker-compose restart ash-thrash
 
 # Solution 4: Clean old data

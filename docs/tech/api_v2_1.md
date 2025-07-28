@@ -579,7 +579,7 @@ curl -H "X-API-Key: your-api-key" \
   "system": {
     "environment": "production",
     "debug_mode": false,
-    "log_level": "INFO"
+    "GLOBAL_LOG_LEVEL": "INFO"
   },
   "testing": {
     "default_timeout": 600,
@@ -1272,7 +1272,7 @@ curl http://10.20.30.253:8884/api/metrics/custom
     "code": "NLP_SERVER_UNAVAILABLE", 
     "message": "Cannot connect to NLP server",
     "details": {
-      "nlp_server_url": "http://10.20.30.253:8881",
+      "GLOBAL_NLP_API_URL": "http://10.20.30.253:8881",
       "last_successful_connection": "2025-07-27T14:25:00Z"
     }
   }

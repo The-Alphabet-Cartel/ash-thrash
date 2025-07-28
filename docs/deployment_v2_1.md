@@ -119,14 +119,14 @@ cat > .env << 'EOF'
 # Production Environment Configuration - Ash-Thrash v2.1
 
 # === Core Service Configuration ===
-NLP_SERVER_URL=http://10.20.30.253:8881
+GLOBAL_NLP_API_URL=http://10.20.30.253:8881
 NLP_API_TIMEOUT=30
 NLP_MAX_RETRIES=3
 
 # === API Server Configuration ===
-API_HOST=0.0.0.0
-API_PORT=8884
-API_DEBUG=false
+THRASH_API_HOST=0.0.0.0
+GLOBAL_THRASH_API_PORT=8884
+THRASH_API_DEBUG=false
 API_MAX_WORKERS=4
 API_REQUEST_TIMEOUT=60
 
@@ -140,18 +140,18 @@ DATABASE_PASSWORD=YOUR_SECURE_DATABASE_PASSWORD_HERE
 # === Redis Configuration ===
 REDIS_HOST=ash-thrash-redis
 REDIS_PORT=6379
-REDIS_DB=0
+DASH_REDIS_DB=0
 REDIS_PASSWORD=YOUR_SECURE_REDIS_PASSWORD_HERE
 
 # === Testing Configuration ===
 ENABLE_SCHEDULED_TESTS=true
 COMPREHENSIVE_TEST_INTERVAL=daily
 QUICK_TEST_INTERVAL=hourly
-MAX_CONCURRENT_TESTS=2
+THRASH_MAX_CONCURRENT_TESTS=2
 TEST_TIMEOUT=600
 
 # === Storage Configuration ===
-RESULTS_RETENTION_DAYS=90
+THRASH_RESULTS_RETENTION_DAYS=90
 AUTO_BACKUP_ENABLED=true
 BACKUP_INTERVAL=weekly
 BACKUP_RETENTION_WEEKS=12
@@ -166,11 +166,11 @@ ALLOWED_HOSTS=10.20.30.253,localhost,127.0.0.1
 ENABLE_HEALTH_CHECKS=true
 HEALTH_CHECK_INTERVAL=30
 ENABLE_METRICS_COLLECTION=true
-LOG_LEVEL=INFO
+GLOBAL_LOG_LEVEL=INFO
 
 # === Dashboard Integration ===
 DASHBOARD_URL=http://10.20.30.253:8883
-ENABLE_DASHBOARD_INTEGRATION=true
+THRASH_ENABLE_DASHBOARD_INTEGRATION=true
 WEBHOOK_URL=http://10.20.30.253:8883/api/ash-thrash/webhook
 
 # === Notification Configuration ===
@@ -186,7 +186,7 @@ ENABLE_COMPRESSION=true
 
 # === Development/Debug (Production: false) ===
 DEBUG_MODE=false
-ENABLE_DETAILED_LOGGING=false
+THRASH_ENABLE_DETAILED_LOGGING=false
 ENABLE_TEST_DATA_EXPORT=true
 EOF
 
@@ -258,9 +258,9 @@ services:
     image: postgres:15-alpine
     container_name: ash-thrash-db-prod
     environment:
-      POSTGRES_DB: ${DATABASE_NAME}
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      GLOBAL_POSTGRES_DB: ${DATABASE_NAME}
+      GLOBAL_POSTGRES_USER: ${DATABASE_USER}
+      GLOBAL_POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
     volumes:
       - ash_thrash_prod_data:/var/lib/postgresql/data
@@ -737,7 +737,7 @@ chmod +x /opt/ash-thrash/scripts/backup.sh
 # Production optimizations in .env
 ENVIRONMENT=production
 DEBUG_MODE=false
-LOG_LEVEL=INFO
+GLOBAL_LOG_LEVEL=INFO
 API_WORKERS=4
 ENABLE_CACHING=true
 CACHE_TTL=300
@@ -751,7 +751,7 @@ cp .env .env.staging
 
 # Staging-specific settings
 sed -i 's/DATABASE_NAME=ash_thrash_prod/DATABASE_NAME=ash_thrash_staging/g' .env.staging
-sed -i 's/API_PORT=8884/API_PORT=8885/g' .env.staging
+sed -i 's/GLOBAL_THRASH_API_PORT=8884/GLOBAL_THRASH_API_PORT=8885/g' .env.staging
 sed -i 's/DEBUG_MODE=false/DEBUG_MODE=true/g' .env.staging
 ```
 

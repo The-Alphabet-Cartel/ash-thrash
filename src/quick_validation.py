@@ -44,9 +44,9 @@ QUICK_TEST_PHRASES = [
     {"phrase": "Everything is fine", "expected_priority": "none", "category": "definite_none"}
 ]
 
-def get_nlp_server_url():
+def get_GLOBAL_NLP_API_URL():
     """Get NLP server URL from environment variables."""
-    return os.getenv('NLP_SERVER_URL', 'http://10.20.30.253:8881')
+    return os.getenv('GLOBAL_NLP_API_URL', 'http://10.20.30.253:8881')
 
 def test_nlp_server_health(url):
     """Test if NLP server is responding."""
@@ -59,7 +59,7 @@ def test_nlp_server_health(url):
 
 def analyze_phrase(phrase, user_id="test_user", channel_id="test_channel"):
     """Send a phrase to the NLP server for analysis."""
-    url = get_nlp_server_url()
+    url = get_GLOBAL_NLP_API_URL()
     
     try:
         payload = {
@@ -192,7 +192,7 @@ def run_quick_validation():
     print()
     
     start_time = time.time()
-    nlp_url = get_nlp_server_url()
+    nlp_url = get_GLOBAL_NLP_API_URL()
     
     print(f"🎯 Testing NLP Server: {nlp_url}")
     print(f"📝 Running {len(QUICK_TEST_PHRASES)} validation phrases")
@@ -296,7 +296,7 @@ def run_quick_validation():
         "permissive_evaluation": True,
         "definite_bidirectional_allowed": True,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "nlp_server_url": nlp_url,
+        "GLOBAL_NLP_API_URL": nlp_url,
         "total_phrases": len(QUICK_TEST_PHRASES),
         "passed": passed,
         "failed": failed,

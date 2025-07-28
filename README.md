@@ -74,13 +74,13 @@ curl http://localhost:8884/api/health
 **Required .env Variables:**
 ```bash
 # NLP Server Configuration
-NLP_SERVER_URL=http://10.20.30.253:8881
+GLOBAL_NLP_API_URL=http://10.20.30.253:8881
 NLP_API_TIMEOUT=30
 
 # API Configuration
-API_HOST=0.0.0.0
-API_PORT=8884
-API_DEBUG=false
+THRASH_API_HOST=0.0.0.0
+GLOBAL_THRASH_API_PORT=8884
+THRASH_API_DEBUG=false
 
 # Testing Configuration
 ENABLE_SCHEDULED_TESTS=true
@@ -88,7 +88,7 @@ COMPREHENSIVE_TEST_INTERVAL=daily
 QUICK_TEST_INTERVAL=hourly
 
 # Storage Configuration
-RESULTS_RETENTION_DAYS=90
+THRASH_RESULTS_RETENTION_DAYS=90
 AUTO_BACKUP_ENABLED=true
 BACKUP_INTERVAL=weekly
 ```
@@ -242,8 +242,8 @@ services:
     ports:
       - "8884:8884"
     environment:
-      - NLP_SERVER_URL=http://10.20.30.253:8881
-      - API_PORT=8884
+      - GLOBAL_NLP_API_URL=http://10.20.30.253:8881
+      - GLOBAL_THRASH_API_PORT=8884
       - ENABLE_SCHEDULED_TESTS=true
     volumes:
       - ./results:/app/results
@@ -265,9 +265,9 @@ services:
     image: postgres:15
     container_name: ash-thrash-db
     environment:
-      - POSTGRES_DB=ash_thrash
-      - POSTGRES_USER=ash_user
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - GLOBAL_POSTGRES_DB=ash_thrash
+      - GLOBAL_POSTGRES_USER=ash_user
+      - GLOBAL_POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
       - ash_thrash_data:/var/lib/postgresql/data
     restart: unless-stopped

@@ -63,7 +63,7 @@ def sample_test_results():
 def test_config():
     """Test configuration"""
     return {
-        "nlp_server_url": "http://localhost:8881",
+        "GLOBAL_NLP_API_URL": "http://localhost:8881",
         "max_concurrent_tests": 2,
         "test_timeout": 5
     }

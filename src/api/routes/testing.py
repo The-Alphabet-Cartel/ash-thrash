@@ -49,7 +49,7 @@ def get_testing_status():
             'latest_results': latest_results,
             'history_summary': history_summary,
             'configuration': {
-                'nlp_server_url': current_app.config.get('NLP_SERVER_URL'),
+                'GLOBAL_NLP_API_URL': current_app.config.get('GLOBAL_NLP_API_URL'),
                 'max_workers': current_app.config.get('MAX_WORKERS'),
                 'testing_timeout': current_app.config.get('TESTING_TIMEOUT')
             }

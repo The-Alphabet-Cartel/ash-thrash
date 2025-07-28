@@ -11,7 +11,7 @@
 INSERT INTO test_runs (
     test_type, 
     total_tests, 
-    nlp_server_url, 
+    GLOBAL_NLP_API_URL, 
     environment, 
     git_commit_hash, 
     test_trigger,
@@ -19,7 +19,7 @@ INSERT INTO test_runs (
 ) VALUES (
     :test_type, 
     :total_tests, 
-    :nlp_server_url, 
+    :GLOBAL_NLP_API_URL, 
     :environment, 
     :git_commit_hash, 
     :test_trigger,

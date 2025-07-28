@@ -5,11 +5,11 @@ echo "🧪 Starting Ash-Thrash Container"
 echo "Mode: $1"
 
 # Wait for NLP server if URL is provided
-if [ ! -z "$NLP_SERVER_URL" ]; then
-    echo "⏳ Waiting for NLP server at $NLP_SERVER_URL..."
+if [ ! -z "$GLOBAL_NLP_API_URL" ]; then
+    echo "⏳ Waiting for NLP server at $GLOBAL_NLP_API_URL..."
     timeout=60
     while [ $timeout -gt 0 ]; do
-        if curl -s --fail "$NLP_SERVER_URL/health" >/dev/null 2>&1; then
+        if curl -s --fail "$GLOBAL_NLP_API_URL/health" >/dev/null 2>&1; then
             echo "✅ NLP server is ready"
             break
         fi
@@ -44,7 +44,7 @@ case "$1" in
         echo "🧪 Starting testing service with scheduled jobs"
         
         # Start cron for scheduled testing
-        if [ "$ENABLE_SCHEDULED_TESTING" = "true" ]; then
+        if [ "$THRASH_ENABLE_SCHEDULED_TESTING" = "true" ]; then
             echo "📅 Starting cron daemon"
             cron
         fi
@@ -72,7 +72,7 @@ case "$1" in
         cd /app
         
         # Check if we should use development or production server
-        if [ "$API_DEBUG" = "true" ]; then
+        if [ "$THRASH_API_DEBUG" = "true" ]; then
             echo "🔧 Running in development mode with Flask dev server"
             python -m src.api.server
         else
