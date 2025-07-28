@@ -15,7 +15,7 @@ from urllib.parse import urljoin
 class NLPClient:
     """Client for communicating with Ash NLP server"""
     
-    def __init__(self, base_url: str = "http://10.20.30.16:8881", timeout: int = 10, max_retries: int = 3):
+    def __init__(self, base_url: str = "http://10.20.30.253:8881", timeout: int = 10, max_retries: int = 3):
         """
         Initialize NLP client
         
@@ -266,7 +266,7 @@ class NLPClient:
 
 
 # Convenience function for quick testing
-def quick_health_check(base_url: str = "http://10.20.30.16:8881") -> bool:
+def quick_health_check(base_url: str = "http://10.20.30.253:8881") -> bool:
     """
     Quick health check function
     
@@ -284,7 +284,7 @@ def quick_health_check(base_url: str = "http://10.20.30.16:8881") -> bool:
         return False
 
 
-def quick_analyze(message: str, base_url: str = "http://10.20.30.16:8881") -> Optional[Dict[str, Any]]:
+def quick_analyze(message: str, base_url: str = "http://10.20.30.253:8881") -> Optional[Dict[str, Any]]:
     """
     Quick message analysis function
     

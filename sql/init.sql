@@ -330,7 +330,7 @@ INSERT INTO test_configurations (
     ash_thrash_version
 ) VALUES (
     uuid_generate_v4(), -- Placeholder ID for default config
-    'http://10.20.30.16:8881',
+    'http://10.20.30.253:8881',
     '{
         "definite_high": {"target_pass_rate": 100.0, "critical": true, "description": "High Priority Crisis (Safety First!)"},
         "definite_medium": {"target_pass_rate": 65.0, "critical": false, "description": "Medium Priority Crisis"},

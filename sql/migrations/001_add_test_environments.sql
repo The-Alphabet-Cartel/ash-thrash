@@ -83,7 +83,7 @@ CREATE TRIGGER update_test_schedules_updated_at
 
 -- Insert default environments
 INSERT INTO test_environments (environment_name, nlp_server_url, description, configuration) VALUES
-('production', 'http://10.20.30.16:8881', 'Production NLP server environment', '{"timeout": 10, "retries": 3}'),
+('production', 'http://10.20.30.253:8881', 'Production NLP server environment', '{"timeout": 10, "retries": 3}'),
 ('development', 'http://localhost:8881', 'Local development environment', '{"timeout": 5, "retries": 1}'),
 ('staging', 'http://10.20.30.17:8881', 'Staging environment for testing', '{"timeout": 8, "retries": 2}')
 ON CONFLICT (environment_name) DO NOTHING;

@@ -15,7 +15,7 @@ const path = require('path');
 const router = express.Router();
 
 // Configuration
-const ASH_THRASH_API = process.env.ASH_THRASH_API || 'http://10.20.30.16:8884';
+const ASH_THRASH_API = process.env.ASH_THRASH_API || 'http://10.20.30.253:8884';
 const RESULTS_CACHE_TTL = 60000; // 1 minute cache
 
 // Cache for results to reduce API calls

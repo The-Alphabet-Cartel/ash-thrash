@@ -154,7 +154,7 @@ def _check_dependencies():
     dependencies = {}
     
     # NLP Server check
-    nlp_url = current_app.config.get('NLP_SERVER_URL', 'http://10.20.30.16:8881')
+    nlp_url = current_app.config.get('NLP_SERVER_URL', 'http://10.20.30.253:8881')
     dependencies['nlp_server'] = _check_nlp_server(nlp_url)
     
     # Results directory check

@@ -85,9 +85,9 @@ if [ ! -f .env ]; then
 # =============================================================================
 # NLP Server Configuration (Ash NLP Server)
 # =============================================================================
-NLP_SERVER_HOST=10.20.30.16
+NLP_SERVER_HOST=10.20.30.253
 NLP_SERVER_PORT=8881
-NLP_SERVER_URL=http://10.20.30.16:8881
+NLP_SERVER_URL=http://10.20.30.253:8881
 
 # =============================================================================
 # Testing Configuration
@@ -229,9 +229,9 @@ cat > config/server_config.json << 'EOF'
   "description": "Ash-Thrash Server Configuration",
   "nlp_servers": {
     "primary": {
-      "host": "10.20.30.16",
+      "host": "10.20.30.253",
       "port": 8881,
-      "url": "http://10.20.30.16:8881",
+      "url": "http://10.20.30.253:8881",
       "timeout": 10,
       "retry_attempts": 3,
       "retry_delay": 1
@@ -1693,7 +1693,7 @@ echo "   🔧 Utility scripts (scripts/)"
 echo ""
 echo -e "${BLUE}🚀 Next Steps:${NC}"
 echo "   1. Review and customize .env file"
-echo "   2. Verify NLP server URL (currently: ${NLP_SERVER_URL:-http://10.20.30.16:8881})"
+echo "   2. Verify NLP server URL (currently: ${NLP_SERVER_URL:-http://10.20.30.253:8881})"
 echo "   3. Build and start services: ${YELLOW}docker-compose up -d${NC}"
 echo "   4. Run initial test: ${YELLOW}docker-compose exec ash-thrash python src/comprehensive_testing.py${NC}"
 echo ""

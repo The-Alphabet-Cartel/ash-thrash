@@ -87,7 +87,7 @@ except ImportError:
 
 def get_nlp_server_url():
     """Get NLP server URL from environment variables."""
-    return os.getenv('NLP_SERVER_URL', 'http://10.20.30.16:8881')
+    return os.getenv('NLP_SERVER_URL', 'http://10.20.30.253:8881')
 
 def get_max_concurrent_tests():
     """Get maximum concurrent tests from environment."""

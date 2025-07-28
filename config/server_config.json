@@ -3,9 +3,9 @@
   "description": "Ash-Thrash Server Configuration",
   "nlp_servers": {
     "primary": {
-      "host": "10.20.30.16",
+      "host": "10.20.30.253",
       "port": 8881,
-      "url": "http://10.20.30.16:8881",
+      "url": "http://10.20.30.253:8881",
       "timeout": 10,
       "retry_attempts": 3,
       "retry_delay": 1
