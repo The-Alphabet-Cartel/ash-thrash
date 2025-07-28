@@ -122,7 +122,7 @@ THRASH_QUICK_VALIDATION_SCHEDULE=0 * * * *        # Every hour
 # Dashboard Integration
 # =============================================================================
 THRASH_ENABLE_DASHBOARD_INTEGRATION=true
-THRASH_DASHBOARD_API_URL=http://localhost:8883
+GLOBAL_DASH_API_URL=http://localhost:8883
 THRASH_DASHBOARD_UPDATE_INTERVAL=120              # Seconds
 
 # =============================================================================

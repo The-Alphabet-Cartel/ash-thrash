@@ -83,14 +83,12 @@ GLOBAL_THRASH_API_PORT=8884
 GLOBAL_ENABLE_DEBUG_MODE=false
 
 # Testing Configuration
-ENABLE_SCHEDULED_TESTS=true
-COMPREHENSIVE_TEST_INTERVAL=daily
-QUICK_TEST_INTERVAL=hourly
+THRASH_ENABLE_SCHEDULED_TESTS=true
+THRASH_COMPREHENSIVE_TEST_INTERVAL=daily
+THRASH_QUICK_TEST_INTERVAL=hourly
 
 # Storage Configuration
 THRASH_RESULTS_RETENTION_DAYS=90
-AUTO_BACKUP_ENABLED=true
-BACKUP_INTERVAL=weekly
 ```
 
 ---
@@ -244,7 +242,7 @@ services:
     environment:
       - GLOBAL_NLP_API_URL=http://10.20.30.253:8881
       - GLOBAL_THRASH_API_PORT=8884
-      - ENABLE_SCHEDULED_TESTS=true
+      - THRASH_ENABLE_SCHEDULED_TESTS=true
     volumes:
       - ./results:/app/results
       - ./config:/app/config
