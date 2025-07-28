@@ -72,7 +72,7 @@ case "$1" in
         cd /app
         
         # Check if we should use development or production server
-        if [ "$THRASH_API_DEBUG" = "true" ]; then
+        if [ "$GLOBAL_ENABLE_DEBUG_MODE" = "true" ]; then
             echo "🔧 Running in development mode with Flask dev server"
             python -m src.api.server
         else

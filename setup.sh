@@ -102,7 +102,7 @@ THRASH_ENABLE_DETAILED_LOGGING=true
 # =============================================================================
 GLOBAL_THRASH_API_PORT=8884
 THRASH_API_HOST=0.0.0.0
-THRASH_API_DEBUG=false
+GLOBAL_ENABLE_DEBUG_MODE=false
 
 # =============================================================================
 # Database Configuration (Optional)
@@ -311,7 +311,7 @@ services:
       - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL}
       - THRASH_API_HOST=${THRASH_API_HOST}
       - GLOBAL_THRASH_API_PORT=8884
-      - THRASH_API_DEBUG=${THRASH_API_DEBUG}
+      - GLOBAL_ENABLE_DEBUG_MODE=${GLOBAL_ENABLE_DEBUG_MODE}
     volumes:
       - ./results:/app/results
       - ./config:/app/config
