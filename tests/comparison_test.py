@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Ash-Thrash Sentiment & Confidence Verification Script
+NLP Server Sentiment & Confidence Analysis Script
 
-This script verifies that ash-thrash is using the same logic as ash-bot 
-for handling positive/negative sentiment levels and confidence scores.
+This script analyzes how the ash-nlp server handles sentiment and confidence
+to help verify that ash-thrash evaluation logic matches ash-bot behavior.
 
 Usage:
-    python verify_sentiment_confidence.py
+    python analyze_nlp_sentiment.py
 """
 
 import requests
@@ -16,7 +16,6 @@ from typing import Dict, List, Tuple, Any
 
 # Configuration
 ASH_NLP_URL = "http://10.20.30.253:8881"
-ASH_THRASH_URL = "http://10.20.30.253:8884"
 
 # Test phrases specifically designed to test sentiment + confidence handling
 TEST_PHRASES = [
@@ -79,31 +78,50 @@ def analyze_with_nlp_server(phrase: str) -> Dict[str, Any]:
         print(f"❌ NLP request failed: {e}")
         return None
 
-def test_with_ash_thrash(phrase: str) -> Dict[str, Any]:
-    """Test phrase through ash-thrash evaluation"""
-    try:
-        payload = {
-            "phrase": phrase,
-            "expected_priority": "medium",  # Dummy value for testing
-            "category": "test_verification"
-        }
+def simulate_ash_bot_evaluation(nlp_result: Dict[str, Any]) -> Dict[str, Any]:
+    """Simulate how ash-bot would evaluate the NLP result"""
+    
+    if not nlp_result:
+        return {"error": "No NLP result to evaluate"}
+    
+    # Extract base values
+    crisis_level = nlp_result.get('crisis_level', 'none')
+    base_confidence = nlp_result.get('confidence_score', 0.0)
+    analysis = nlp_result.get('analysis', {})
+    
+    # Simulate ash-bot's sentiment adjustments
+    confidence_adjustment = 0.0
+    adjustment_reasons = []
+    
+    # Check for sentiment scores in analysis
+    sentiment_scores = analysis.get('sentiment_scores', {})
+    if sentiment_scores:
+        # Negative sentiment boost (matches ash-bot logic)
+        negative_score = sentiment_scores.get('negative', 0)
+        if negative_score > 0.85:  # Very negative sentiment
+            confidence_adjustment += 0.08
+            adjustment_reasons.append("very_negative_sentiment (+0.08)")
+        elif negative_score > 0.70:  # Moderately negative
+            confidence_adjustment += 0.04
+            adjustment_reasons.append("negative_sentiment (+0.04)")
         
-        response = requests.post(
-            f"{ASH_THRASH_URL}/api/test_single",
-            json=payload,
-            timeout=10,
-            headers={'Content-Type': 'application/json'}
-        )
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print(f"❌ Thrash API error: {response.status_code} - {response.text}")
-            return None
-            
-    except Exception as e:
-        print(f"❌ Thrash request failed: {e}")
-        return None
+        # Positive sentiment reduction (matches ash-bot logic)
+        positive_score = sentiment_scores.get('positive', 0)
+        if positive_score > 0.70:
+            confidence_adjustment -= 0.10
+            adjustment_reasons.append("positive_sentiment (-0.10)")
+    
+    # Apply adjustment and clamp to [0, 1]
+    adjusted_confidence = max(0.0, min(1.0, base_confidence + confidence_adjustment))
+    
+    return {
+        "original_crisis_level": crisis_level,
+        "original_confidence": base_confidence,
+        "sentiment_adjustment": confidence_adjustment,
+        "adjusted_confidence": adjusted_confidence,
+        "adjustment_reasons": adjustment_reasons,
+        "sentiment_scores": sentiment_scores
+    }
 
 def extract_sentiment_info(nlp_result: Dict[str, Any]) -> Dict[str, Any]:
     """Extract sentiment information from NLP result"""
@@ -126,15 +144,15 @@ def extract_sentiment_info(nlp_result: Dict[str, Any]) -> Dict[str, Any]:
     
     return sentiment_info
 
-def compare_ash_bot_vs_thrash_logic(phrase_data: Dict[str, str]) -> Dict[str, Any]:
-    """Compare how ash-bot vs ash-thrash handle the same phrase"""
+def analyze_nlp_response(phrase_data: Dict[str, str]) -> Dict[str, Any]:
+    """Analyze how NLP server responds and what ash-bot/ash-thrash should do with it"""
     
     phrase = phrase_data['phrase']
     print(f"\n🔍 Testing: '{phrase[:60]}...'")
     print(f"   Expected sentiment: {phrase_data['expected_sentiment']}")
     print(f"   Expected crisis: {phrase_data['expected_crisis']}")
     
-    # Get NLP analysis (what ash-bot would see)
+    # Get NLP analysis
     nlp_result = analyze_with_nlp_server(phrase)
     if not nlp_result:
         return {"error": "Failed to get NLP analysis"}
@@ -144,45 +162,44 @@ def compare_ash_bot_vs_thrash_logic(phrase_data: Dict[str, str]) -> Dict[str, An
     confidence = nlp_result.get('confidence_score', 0.0)
     sentiment_info = extract_sentiment_info(nlp_result)
     
-    print(f"   📊 NLP Result: {crisis_level} (confidence: {confidence:.3f})")
-    print(f"   🎭 Sentiment: {sentiment_info}")
+    print(f"   📊 Raw NLP Result: {crisis_level} (confidence: {confidence:.3f})")
     
-    # Test with ash-thrash (simulate ash-bot evaluation)
-    thrash_result = test_with_ash_thrash(phrase)
+    # Show detailed sentiment breakdown
+    if sentiment_info['sentiment_breakdown']:
+        print(f"   🎭 Sentiment Breakdown:")
+        for sentiment_type, score in sentiment_info['sentiment_breakdown'].items():
+            print(f"      • {sentiment_type}: {score:.3f}")
     
-    comparison = {
+    if sentiment_info['sentiment_score'] is not None:
+        print(f"   🎭 Overall Sentiment Score: {sentiment_info['sentiment_score']:.3f}")
+    
+    # Simulate ash-bot processing
+    ash_bot_simulation = simulate_ash_bot_evaluation(nlp_result)
+    print(f"   🤖 Ash-Bot Would Process As:")
+    print(f"      • Original confidence: {ash_bot_simulation['original_confidence']:.3f}")
+    if ash_bot_simulation['adjustment_reasons']:
+        print(f"      • Adjustments: {', '.join(ash_bot_simulation['adjustment_reasons'])}")
+        print(f"      • Final confidence: {ash_bot_simulation['adjusted_confidence']:.3f}")
+    else:
+        print(f"      • No sentiment adjustments needed")
+    
+    return {
         'phrase': phrase,
-        'nlp_result': {
-            'crisis_level': crisis_level,
-            'confidence_score': confidence,
-            'sentiment_info': sentiment_info
-        },
-        'thrash_evaluation': thrash_result,
-        'expected': phrase_data,
-        'discrepancies': []
+        'nlp_raw': nlp_result,
+        'sentiment_info': sentiment_info,
+        'ash_bot_simulation': ash_bot_simulation,
+        'expected': phrase_data
     }
-    
-    # Check for discrepancies
-    if thrash_result:
-        thrash_confidence = thrash_result.get('confidence', 0.0)
-        confidence_diff = abs(confidence - thrash_confidence)
-        
-        if confidence_diff > 0.1:  # Significant difference
-            comparison['discrepancies'].append(
-                f"Confidence mismatch: NLP={confidence:.3f} vs Thrash={thrash_confidence:.3f}"
-            )
-    
-    return comparison
 
-def verify_sentiment_handling() -> None:
-    """Main verification function"""
-    print("🔬 Ash-Thrash Sentiment & Confidence Verification")
+def analyze_nlp_sentiment_handling() -> None:
+    """Main analysis function for NLP server sentiment handling"""
+    print("🔬 NLP Server Sentiment & Confidence Analysis")
     print("=" * 60)
     print(f"🎯 NLP Server: {ASH_NLP_URL}")
-    print(f"🧪 Thrash Server: {ASH_THRASH_URL}")
+    print("🎯 Purpose: Analyze how NLP processes sentiment to guide ash-thrash logic")
     print()
     
-    # Health checks
+    # Health check
     try:
         nlp_health = requests.get(f"{ASH_NLP_URL}/health", timeout=5)
         if nlp_health.status_code != 200:
@@ -190,98 +207,169 @@ def verify_sentiment_handling() -> None:
             return
         print("✅ NLP server healthy")
         
-        thrash_health = requests.get(f"{ASH_THRASH_URL}/api/health", timeout=5)  
-        if thrash_health.status_code != 200:
-            print("❌ Thrash server health check failed!")
-            return
-        print("✅ Thrash server healthy")
-        
     except Exception as e:
         print(f"❌ Health check failed: {e}")
         return
     
     print("\n" + "="*60)
-    print("🧪 SENTIMENT & CONFIDENCE VERIFICATION TESTS")
+    print("🧪 SENTIMENT & CONFIDENCE ANALYSIS")
     print("="*60)
     
     all_results = []
-    discrepancy_count = 0
     
     for i, test_phrase in enumerate(TEST_PHRASES, 1):
         print(f"\n📝 Test {i}/{len(TEST_PHRASES)}: {test_phrase['description']}")
         
-        result = compare_ash_bot_vs_thrash_logic(test_phrase)
+        result = analyze_nlp_response(test_phrase)
         all_results.append(result)
         
-        if result.get('discrepancies'):
-            discrepancy_count += len(result['discrepancies'])
-            print("⚠️  DISCREPANCIES FOUND:")
-            for disc in result['discrepancies']:
-                print(f"     • {disc}")
+        if 'error' in result:
+            print(f"❌ Error: {result['error']}")
+            continue
+            
+        # Check if sentiment handling makes sense
+        ash_bot_sim = result['ash_bot_simulation']
+        expected_sentiment = test_phrase['expected_sentiment']
+        expected_crisis = test_phrase['expected_crisis']
+        
+        # Validate sentiment detection
+        sentiment_scores = ash_bot_sim.get('sentiment_scores', {})
+        if expected_sentiment == 'positive' and sentiment_scores.get('positive', 0) < 0.5:
+            print("   ⚠️  Expected positive sentiment not strongly detected")
+        elif expected_sentiment == 'negative' and sentiment_scores.get('negative', 0) < 0.5:
+            print("   ⚠️  Expected negative sentiment not strongly detected")
         else:
-            print("✅ No significant discrepancies detected")
+            print("   ✅ Sentiment detection aligns with expectations")
+            
+        # Validate crisis level alignment
+        actual_crisis = result['nlp_raw'].get('crisis_level', 'none')
+        if actual_crisis != expected_crisis:
+            print(f"   ⚠️  Crisis level mismatch: expected {expected_crisis}, got {actual_crisis}")
+        else:
+            print("   ✅ Crisis level aligns with expectations")
     
-    # Summary
+    # Summary and recommendations
     print("\n" + "="*60)
-    print("📋 VERIFICATION SUMMARY")
+    print("📋 ANALYSIS SUMMARY & ASH-THRASH RECOMMENDATIONS")
     print("="*60)
     
-    if discrepancy_count == 0:
-        print("✅ All tests passed - ash-thrash appears to handle sentiment & confidence correctly")
-    else:
-        print(f"⚠️  Found {discrepancy_count} discrepancies across {len(TEST_PHRASES)} tests")
-        print("\n🔧 RECOMMENDED ACTIONS:")
-        print("   1. Review ash-thrash evaluation logic in src/utils/ash_compatible_evaluation.py")
-        print("   2. Ensure sentiment adjustments are properly simulated")
-        print("   3. Verify confidence score calculations match ash-bot behavior")
-        print("   4. Consider updating ash-thrash to use ash-bot's exact sentiment logic")
+    print("\n🔍 KEY FINDINGS:")
+    sentiment_patterns = {}
+    confidence_patterns = {}
     
-    # Detailed results
-    print(f"\n📊 DETAILED RESULTS:")
+    for result in all_results:
+        if 'error' not in result:
+            sim = result['ash_bot_simulation']
+            expected = result['expected']['expected_sentiment']
+            
+            # Track sentiment patterns
+            if expected not in sentiment_patterns:
+                sentiment_patterns[expected] = []
+            sentiment_patterns[expected].append(sim.get('sentiment_scores', {}))
+            
+            # Track confidence adjustments
+            if sim.get('adjustment_reasons'):
+                for reason in sim['adjustment_reasons']:
+                    if reason not in confidence_patterns:
+                        confidence_patterns[reason] = 0
+                    confidence_patterns[reason] += 1
+    
+    print(f"   • Tested {len(TEST_PHRASES)} phrases across different sentiment types")
+    print(f"   • Found {len(confidence_patterns)} types of confidence adjustments")
+    
+    if confidence_patterns:
+        print(f"   • Most common adjustments:")
+        for reason, count in sorted(confidence_patterns.items(), key=lambda x: x[1], reverse=True):
+            print(f"     - {reason}: {count} times")
+    
+    print(f"\n🔧 ASH-THRASH IMPLEMENTATION RECOMMENDATIONS:")
+    print(f"   1. Ensure ash-thrash extracts sentiment_scores from NLP analysis")
+    print(f"   2. Implement the same confidence adjustments ash-bot uses:")
+    print(f"      • Negative sentiment > 0.85: +0.08 confidence")
+    print(f"      • Negative sentiment > 0.70: +0.04 confidence") 
+    print(f"      • Positive sentiment > 0.70: -0.10 confidence")
+    print(f"   3. Apply adjustments in ash_compatible_evaluation.py")
+    print(f"   4. Clamp adjusted confidence to [0.0, 1.0] range")
+    
+    print(f"\n📊 DETAILED RESULTS FOR DEBUGGING:")
     for i, result in enumerate(all_results, 1):
         if 'error' in result:
             print(f"   Test {i}: ❌ {result['error']}")
         else:
-            nlp = result['nlp_result']
-            print(f"   Test {i}: {nlp['crisis_level']} (conf: {nlp['confidence_score']:.3f})")
+            nlp = result['nlp_raw']
+            sim = result['ash_bot_simulation']
+            print(f"   Test {i}: {nlp.get('crisis_level')} (raw: {sim['original_confidence']:.3f} → final: {sim['adjusted_confidence']:.3f})")
             
-            # Show sentiment details if available
-            sentiment = nlp['sentiment_info']
-            if sentiment['sentiment_score'] is not None:
-                print(f"            Sentiment score: {sentiment['sentiment_score']:.3f}")
-            if sentiment['sentiment_breakdown']:
-                print(f"            Sentiment breakdown: {sentiment['sentiment_breakdown']}")
+            # Show sentiment breakdown
+            sentiment_scores = sim.get('sentiment_scores', {})
+            if sentiment_scores:
+                sentiment_str = ", ".join([f"{k}:{v:.2f}" for k, v in sentiment_scores.items() if v > 0.1])
+                print(f"            Sentiment: {sentiment_str}")
+            
+            if sim.get('adjustment_reasons'):
+                print(f"            Adjustments: {', '.join(sim['adjustment_reasons'])}")
 
-def check_ash_thrash_evaluation_logic() -> None:
-    """Check if ash-thrash has the latest evaluation logic"""
+def generate_ash_thrash_code_template() -> None:
+    """Generate template code for ash-thrash to handle sentiment properly"""
     
     print("\n" + "="*60)
-    print("🔍 CHECKING ASH-THRASH EVALUATION LOGIC")
+    print("💻 ASH-THRASH CODE TEMPLATE")
     print("="*60)
     
-    key_checks = [
-        "Does ash-thrash use confidence_score from NLP results?",
-        "Does ash-thrash account for sentiment adjustments?", 
-        "Does ash-thrash simulate keyword+NLP hybrid logic?",
-        "Does ash-thrash use safety-first hierarchy (max priority wins)?",
-        "Does ash-thrash handle positive vs negative sentiment differently?"
-    ]
+    code_template = '''
+# Add this to ash-thrash/src/utils/ash_compatible_evaluation.py
+
+def apply_sentiment_adjustments(nlp_result: Dict[str, Any]) -> float:
+    """
+    Apply the same sentiment adjustments that ash-bot uses.
+    This ensures ash-thrash evaluation matches ash-bot behavior.
+    """
+    base_confidence = nlp_result.get("confidence_score", 0.0)
+    analysis = nlp_result.get('analysis', {})
     
-    print("🔧 Manual verification needed for:")
-    for i, check in enumerate(key_checks, 1):
-        print(f"   {i}. {check}")
+    # Extract sentiment scores
+    sentiment_scores = analysis.get('sentiment_scores', {})
+    if not sentiment_scores:
+        return base_confidence
     
-    print("\n📁 Key files to examine:")
-    print("   • ash-thrash/src/utils/ash_compatible_evaluation.py")
-    print("   • ash-thrash/src/quick_validation.py") 
-    print("   • ash-thrash/src/comprehensive_testing.py")
+    confidence_adjustment = 0.0
     
-    print("\n🔍 Look for these patterns:")
-    print("   • confidence = nlp_result.get('confidence_score', 0)")
-    print("   • sentiment handling in evaluation logic")
-    print("   • Context adjustments for positive/negative sentiment")
-    print("   • Final confidence score calculations")
+    # Negative sentiment boost (matches ash-bot logic)
+    negative_score = sentiment_scores.get('negative', 0)
+    if negative_score > 0.85:  # Very negative sentiment
+        confidence_adjustment += 0.08
+    elif negative_score > 0.70:  # Moderately negative
+        confidence_adjustment += 0.04
+    
+    # Positive sentiment reduction (matches ash-bot logic) 
+    positive_score = sentiment_scores.get('positive', 0)
+    if positive_score > 0.70:
+        confidence_adjustment -= 0.10
+    
+    # Apply adjustment and clamp to [0, 1]
+    adjusted_confidence = max(0.0, min(1.0, base_confidence + confidence_adjustment))
+    
+    return adjusted_confidence
+
+# Then modify evaluate_ash_compatible() to use this:
+def evaluate_ash_compatible(phrase_data, nlp_result):
+    # ... existing code ...
+    
+    # Instead of: confidence = nlp_result.get("confidence_score", 0)
+    # Use: confidence = apply_sentiment_adjustments(nlp_result)
+    
+    # ... rest of function ...
+'''
+    
+    print("📝 Add this code to your ash-thrash implementation:")
+    print(code_template)
+    
+    print("\n🔧 Integration Steps:")
+    print("   1. Add the apply_sentiment_adjustments() function")
+    print("   2. Update evaluate_ash_compatible() to use it")
+    print("   3. Test with sentiment-heavy phrases")
+    print("   4. Verify confidence scores match expected ash-bot behavior")
 
 if __name__ == "__main__":
-    verify_sentiment_handling()
-    check_ash_thrash_evaluation_logic()
+    analyze_nlp_sentiment_handling()
+    generate_ash_thrash_code_template()
