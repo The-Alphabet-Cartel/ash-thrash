@@ -82,6 +82,7 @@ try:
     from src.utils.ash_compatible_evaluation import evaluate_ash_compatible, get_ash_testing_goals
     USE_ASH_COMPATIBLE = True
     print("✅ Ash-compatible evaluation imported successfully")
+    print("✅ Sentiment adjustments will be applied during evaluation")
 except ImportError:
     print("⚠️  Using basic evaluation - ash_compatible_evaluation not found")
 
@@ -101,6 +102,17 @@ def test_nlp_server_health(url):
     except Exception as e:
         print(f"❌ Health check failed: {e}")
         return False
+
+def evaluate_single_phrase(phrase_data, result):
+    """Evaluate a single phrase result with sentiment-aware logic"""
+    if USE_ASH_COMPATIBLE:
+        # Use Ash-compatible evaluation with sentiment adjustments
+        evaluation = evaluate_ash_compatible(phrase_data, result)
+        return evaluation["success"], evaluation["message"], evaluation.get("extra_data", {})
+    else:
+        # Fallback to basic evaluation
+        success, message = evaluate_result_basic(phrase_data, result)
+        return success, message, {}
 
 def analyze_phrase(phrase_data, test_id=None):
     """Send a phrase to the NLP server for analysis."""
