@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY src/ ./src/
 COPY config/ ./config/
 COPY scripts/ ./scripts/
-COPY testing/ ./testing/
+COPY tests/ ./tests/
 
 # Create results directory
 RUN mkdir -p /app/results
