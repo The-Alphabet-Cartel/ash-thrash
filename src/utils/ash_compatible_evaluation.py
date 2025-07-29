@@ -12,7 +12,7 @@ from typing import Dict, Any
 def apply_sentiment_adjustments(nlp_result: Dict[str, Any]) -> tuple[float, list]:
     """
     Apply the same sentiment adjustments that ash-bot uses.
-    Returns: (adjusted_confidence, adjustment_reasons)
+    NOW WITH WORKING SENTIMENT DATA!
     """
     base_confidence = nlp_result.get("confidence_score", 0.0)
     analysis = nlp_result.get('analysis', {})
@@ -50,7 +50,7 @@ def apply_sentiment_adjustments(nlp_result: Dict[str, Any]) -> tuple[float, list
 
 def evaluate_ash_compatible(phrase_data, nlp_result):
     """
-    UPDATED: Evaluate using Ash's actual crisis detection logic with sentiment adjustments.
+    FINAL VERSION: Evaluate using Ash's actual crisis detection logic with sentiment adjustments.
     """
     
     if not nlp_result:
@@ -61,7 +61,7 @@ def evaluate_ash_compatible(phrase_data, nlp_result):
     phrase = phrase_data.get("phrase", phrase_data.get("message", ""))
     category = phrase_data.get("category", "unknown")
     
-    # UPDATED: Apply sentiment adjustments like ash-bot does
+    # Apply sentiment adjustments like ash-bot does
     adjusted_confidence, adjustment_reasons = apply_sentiment_adjustments(nlp_result)
     
     # Simulate keyword detection (Ash's baseline)
