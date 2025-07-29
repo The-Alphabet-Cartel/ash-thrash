@@ -7,23 +7,50 @@ in comprehensive testing, ensuring ash-thrash tests use consistent evaluation
 across keyword_primary and nlp_primary detections.
 """
 
+from typing import Dict, Any
+
+def apply_sentiment_adjustments(nlp_result: Dict[str, Any]) -> tuple[float, list]:
+    """
+    Apply the same sentiment adjustments that ash-bot uses.
+    Returns: (adjusted_confidence, adjustment_reasons)
+    """
+    base_confidence = nlp_result.get("confidence_score", 0.0)
+    analysis = nlp_result.get('analysis', {})
+    
+    # Extract sentiment scores from the analysis section
+    sentiment_scores = analysis.get('sentiment_scores', {})
+    if not sentiment_scores:
+        return base_confidence, []
+    
+    confidence_adjustment = 0.0
+    adjustment_reasons = []
+    
+    # Apply ash-bot's sentiment adjustment logic
+    negative_score = sentiment_scores.get('negative', 0)
+    positive_score = sentiment_scores.get('positive', 0)
+    neutral_score = sentiment_scores.get('neutral', 0)
+    
+    # Negative sentiment boost (matches ash-bot logic from project knowledge)
+    if negative_score > 0.85:  # Very negative sentiment
+        confidence_adjustment += 0.08
+        adjustment_reasons.append("very_negative_sentiment (+0.08)")
+    elif negative_score > 0.70:  # Moderately negative
+        confidence_adjustment += 0.04
+        adjustment_reasons.append("negative_sentiment (+0.04)")
+    
+    # Positive sentiment reduction (matches ash-bot logic)
+    if positive_score > 0.70:
+        confidence_adjustment -= 0.10
+        adjustment_reasons.append("positive_sentiment (-0.10)")
+    
+    # Apply adjustment and clamp to [0, 1]
+    adjusted_confidence = max(0.0, min(1.0, base_confidence + confidence_adjustment))
+    
+    return adjusted_confidence, adjustment_reasons
+
 def evaluate_ash_compatible(phrase_data, nlp_result):
     """
-    Evaluate using Ash's actual crisis detection logic with permissive evaluation.
-    
-    This matches the hybrid detection system where Ash combines:
-    1. Keyword detection (high confidence baseline)
-    2. NLP detection (ML-based analysis)
-    3. Safety-first hierarchy (higher priority wins)
-    
-    BUT now uses permissive evaluation that allows bidirectional movement.
-    
-    Args:
-        phrase_data: Test phrase info with expected_priority and category
-        nlp_result: Raw response from NLP server
-        
-    Returns:
-        dict: Evaluation result with success/failure and detailed reasoning
+    UPDATED: Evaluate using Ash's actual crisis detection logic with sentiment adjustments.
     """
     
     if not nlp_result:
@@ -33,7 +60,9 @@ def evaluate_ash_compatible(phrase_data, nlp_result):
     actual_nlp = nlp_result.get("crisis_level", "unknown").lower()
     phrase = phrase_data.get("phrase", phrase_data.get("message", ""))
     category = phrase_data.get("category", "unknown")
-    confidence = nlp_result.get("confidence_score", 0)
+    
+    # UPDATED: Apply sentiment adjustments like ash-bot does
+    adjusted_confidence, adjustment_reasons = apply_sentiment_adjustments(nlp_result)
     
     # Simulate keyword detection (Ash's baseline)
     keyword_level = simulate_keyword_detection(phrase)
@@ -54,93 +83,90 @@ def evaluate_ash_compatible(phrase_data, nlp_result):
         winning_confidence = 0.9  # Keywords are high confidence in Ash
     else:
         method = "nlp_primary" 
-        winning_confidence = confidence
+        winning_confidence = adjusted_confidence  # Use adjusted confidence!
     
-    # NEW PERMISSIVE EVALUATION LOGIC - Same as comprehensive testing
+    # Build success message with sentiment info
+    success_message = ""
     expected_value = hierarchy.get(expected, 0)
     actual_value = final_priority_value
     
     # Exact match is always correct
     if expected == final_priority:
         success = True
-        message = f"✅ Exact match: {final_priority} (via {method})"
+        success_message = f"✅ Exact match: {final_priority} (via {method})"
+        if adjustment_reasons:
+            success_message += f" [sentiment: {', '.join(adjustment_reasons)}]"
     
     # For "maybe" categories, use permissive range-based evaluation
     elif "maybe" in category:
-        # Define category-specific acceptable ranges
         if category == "maybe_high_medium":
-            # Should be low, medium or high (1-3), avoid none (0)
             if actual_value >= 1:
                 success = True
-                message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
+                success_message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
             else:
                 success = False
-                message = f"❌ Underdetection: {expected} → {final_priority} (via {method}) - too low for crisis-level phrase"
+                success_message = f"❌ Underdetection: {expected} → {final_priority} (via {method})"
                 
         elif category == "maybe_medium_low":
-            # Should be none, low, medium, or high (0-3), accept anything!
-            success = True
-            message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
+            success = True  # Accept anything for this category
+            success_message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
                 
         elif category == "maybe_low_none":
-            # Should be none or low (0-1), avoid medium/high (2-3)
             if actual_value <= 1:
                 success = True
-                message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
+                success_message = f"✅ Appropriate range: {expected} → {final_priority} (via {method})"
             else:
                 success = False
-                message = f"❌ Overdetection: {expected} → {final_priority} (via {method}) - false positive"
+                success_message = f"❌ Overdetection: {expected} → {final_priority} (via {method})"
         else:
-            # Generic maybe handling - allow one step in either direction
+            # Generic maybe handling
             priority_diff = abs(actual_value - expected_value)
             if priority_diff <= 1:
                 success = True
-                if actual_value > expected_value:
-                    message = f"✅ Escalation: {expected} → {final_priority} (via {method})"
-                elif actual_value < expected_value:
-                    message = f"✅ Descalation: {expected} → {final_priority} (via {method})"
-                else:
-                    message = f"✅ Exact match: {final_priority} (via {method})"
+                success_message = f"✅ Within range: {expected} → {final_priority} (via {method})"
             else:
                 success = False
-                message = f"❌ Too far off: {expected} → {final_priority} (via {method})"
+                success_message = f"❌ Too far off: {expected} → {final_priority} (via {method})"
     
-    # For definite categories, allow exact match or escalation/de-escalation by one level
+    # For definite categories, allow exact match or one-level movement
     else:
-        priority_diff = abs(expected_value - actual_value)  # Absolute difference
+        priority_diff = abs(expected_value - actual_value)
         
         if priority_diff == 0:
-            # Exact match
             success = True
-            message = f"✅ Exact match: {final_priority} (via {method})"
+            success_message = f"✅ Exact match: {final_priority} (via {method})"
         elif priority_diff == 1:
-            # One level difference in either direction (allowed)
+            success = True
             if actual_value > expected_value:
-                success = True
-                message = f"✅ Escalation allowed: {expected} → {final_priority} (via {method})"
+                success_message = f"✅ Escalation allowed: {expected} → {final_priority} (via {method})"
             else:
-                success = True
-                message = f"✅ De-escalation allowed: {expected} → {final_priority} (via {method})"
+                success_message = f"✅ De-escalation allowed: {expected} → {final_priority} (via {method})"
         else:
-            # More than one level difference (not allowed)
+            success = False
             if actual_value > expected_value:
-                success = False
-                message = f"❌ Excessive escalation: {expected} → {final_priority} (via {method}) - too far up"
+                success_message = f"❌ Excessive escalation: {expected} → {final_priority} (via {method})"
             else:
-                success = False
-                message = f"❌ Excessive de-escalation: {expected} → {final_priority} (via {method}) - too far down"
+                success_message = f"❌ Excessive de-escalation: {expected} → {final_priority} (via {method})"
+    
+    # Add sentiment adjustment info to message
+    if adjustment_reasons:
+        success_message += f" [adjustments: {', '.join(adjustment_reasons)}]"
     
     return create_evaluation_result(
         phrase_data, 
         final_priority, 
         success, 
-        message,
+        success_message,
         extra_data={
             "keyword_level": keyword_level,
             "nlp_level": actual_nlp,
             "final_level": final_priority,
             "method": method,
             "confidence": winning_confidence,
+            "original_confidence": nlp_result.get("confidence_score", 0.0),
+            "adjusted_confidence": adjusted_confidence,
+            "sentiment_adjustments": adjustment_reasons,
+            "sentiment_scores": nlp_result.get('analysis', {}).get('sentiment_scores', {}),
             "keyword_priority": keyword_priority,
             "nlp_priority": nlp_priority,
             "safety_escalation": actual_value > expected_value
