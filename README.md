@@ -86,9 +86,6 @@ GLOBAL_ENABLE_DEBUG_MODE=false
 THRASH_ENABLE_SCHEDULED_TESTS=true
 THRASH_COMPREHENSIVE_TEST_INTERVAL=daily
 THRASH_QUICK_TEST_INTERVAL=hourly
-
-# Storage Configuration
-THRASH_RESULTS_RETENTION_DAYS=90
 ```
 
 ---
@@ -264,7 +261,7 @@ services:
     container_name: ash-thrash-db
     environment:
       - GLOBAL_POSTGRES_DB=ash_thrash
-      - GLOBAL_POSTGRES_USER=ash_user
+      - GLOBAL_POSTGRES_USER=ash
       - GLOBAL_POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
       - ash_thrash_data:/var/lib/postgresql/data

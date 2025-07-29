@@ -43,12 +43,6 @@ case "$1" in
     "testing")
         echo "🧪 Starting testing service with scheduled jobs"
         
-        # Start cron for scheduled testing
-        if [ "$THRASH_ENABLE_SCHEDULED_TESTING" = "true" ]; then
-            echo "📅 Starting cron daemon"
-            cron
-        fi
-        
         # Run initial validation but don't exit if it fails
         echo "🔍 Running initial validation"
         if python /app/src/quick_validation.py; then

@@ -1,33 +1,37 @@
+# Ash-Thrash Docker Compose for Ash Ecosystem
+# Repository: https://github.com/the-alphabet-cartel/ash-thrash
+# Discord: https://discord.gg/alphabetcartel
+# Website: http://alphabetcartel.org
 services:
-  # Main testing service
+  # ========================================================================
+  # Testing Suite (ash-thrash)
+  # ========================================================================
   ash-thrash:
     image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
     container_name: ash-thrash
     restart: unless-stopped
+    networks:
+      ash-network:
+        ipv4_address: 172.20.0.13
     environment:
       - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL}
       - THRASH_MAX_CONCURRENT_TESTS=${THRASH_MAX_CONCURRENT_TESTS}
-      - THRASH_ENABLE_SCHEDULED_TESTING=${THRASH_ENABLE_SCHEDULED_TESTING}
-      - THRASH_COMPREHENSIVE_TEST_SCHEDULE=${THRASH_COMPREHENSIVE_TEST_SCHEDULE}
-      - THRASH_QUICK_VALIDATION_SCHEDULE=${THRASH_QUICK_VALIDATION_SCHEDULE}
     volumes:
-      - ./results:/app/results
-      - ./config:/app/config
-      - ./src:/app/src
-    networks:
-      - ash-thrash-network
+      - ./ash-thrash/config:/app/config
+      - ./ash-thrash/src:/app/src
+      - ./ash-thrash/logs:/app/logs
+      - ./ash-thrash/results:/app/results
+      - ./ash-thrash/reports:/app/reports
+      - ./secrets:/run/secrets:ro
     depends_on:
-      - ash-thrash-api
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8884/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      ash-redis:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
 
-  # API server for remote testing and dashboard integration
   ash-thrash-api:
     image: ghcr.io/the-alphabet-cartel/ash-thrash-api:latest
     build:
@@ -35,52 +39,69 @@ services:
       dockerfile: docker/Dockerfile.api
     container_name: ash-thrash-api
     restart: unless-stopped
+    networks:
+      ash-network:
+        ipv4_address: 172.20.0.14
     ports:
       - 8884:8884
     environment:
       - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL}
-      - THRASH_API_HOST=${THRASH_API_HOST}
-      - GLOBAL_THRASH_API_PORT=${GLOBAL_THRASH_API_PORT:-8884}
+      - GLOBAL_THRASH_API_PORT=${GLOBAL_THRASH_API_PORT}
       - GLOBAL_ENABLE_DEBUG_MODE=${GLOBAL_ENABLE_DEBUG_MODE}
+      - THRASH_API_HOST=${THRASH_API_HOST}
     volumes:
-      - ./results:/app/results
-      - ./config:/app/config
-      - ./src:/app/src
-    networks:
-      - ash-thrash-network
+      - ./ash-thrash/config:/app/config
+      - ./ash-thrash/src:/app/src
+      - ./ash-thrash/results:/app/results
+      - ./secrets:/run/secrets:ro
+    depends_on:
+      ash-redis:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '1.0'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8884/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  # Optional database for historical data
-  ash-thrash-db:
-    image: postgres:15-alpine
-    container_name: ash-thrash-db
+  # ========================================================================
+  # Redis Cache
+  # ========================================================================
+  ash-redis:
+    image: redis:7-alpine
+    container_name: ash-redis
     restart: unless-stopped
-    environment:
-      - GLOBAL_POSTGRES_DB=${GLOBAL_POSTGRES_DB:-ash_testing}
-      - GLOBAL_POSTGRES_USER=${GLOBAL_POSTGRES_USER:-ash_test}
-      - GLOBAL_POSTGRES_PASSWORD=${GLOBAL_POSTGRES_PASSWORD}
-    volumes:
-      - ash_thrash_db_data:/var/lib/postgresql/data
-      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - ash-thrash-network
+      ash-network:
+        ipv4_address: 172.20.0.20
     ports:
-      - 5433:5432
+      - 6379:6379
+    command: redis-server --appendonly yes --requirepass ${GLOBAL_REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+      - ./secrets:/run/secrets:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ash_test"]
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 30s
       timeout: 10s
-      retries: 5
-    profiles:
-      - database
-
-volumes:
-  ash_thrash_db_data:
+      retries: 3
 
 networks:
-  ash-thrash-network:
+  ash-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  redis_data:
+    driver: local
