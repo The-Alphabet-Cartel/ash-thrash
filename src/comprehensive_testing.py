@@ -103,17 +103,6 @@ def test_nlp_server_health(url):
         print(f"❌ Health check failed: {e}")
         return False
 
-def evaluate_single_phrase(phrase_data, result):
-    """Evaluate a single phrase result with sentiment-aware logic"""
-    if USE_ASH_COMPATIBLE:
-        # Use Ash-compatible evaluation with sentiment adjustments
-        evaluation = evaluate_ash_compatible(phrase_data, result)
-        return evaluation["success"], evaluation["message"], evaluation.get("extra_data", {})
-    else:
-        # Fallback to basic evaluation
-        success, message = evaluate_result_basic(phrase_data, result)
-        return success, message, {}
-
 def analyze_phrase(phrase_data, test_id=None):
     """Send a phrase to the NLP server for analysis."""
     # Handle the actual data format from our test data module
@@ -151,7 +140,7 @@ def analyze_phrase(phrase_data, test_id=None):
             if USE_ASH_COMPATIBLE:
                 return evaluate_ash_compatible(phrase_data, result)
             else:
-                return evaluate_result(phrase_data, result)
+                return evaluate_single_phrase(phrase_data, result)
         else:
             return create_error_result(phrase_data, f"API error: {response.status_code}")
             
@@ -174,6 +163,17 @@ def create_error_result(phrase_data, error_message):
         "subcategory": phrase_data.get("subcategory", ""),
         "description": phrase_data.get("description", "")
     }
+
+def evaluate_single_phrase(phrase_data, result):
+    """Evaluate a single phrase result with sentiment-aware logic"""
+    if USE_ASH_COMPATIBLE:
+        # Use Ash-compatible evaluation with sentiment adjustments
+        evaluation = evaluate_ash_compatible(phrase_data, result)
+        return evaluation["success"], evaluation["message"], evaluation.get("extra_data", {})
+    else:
+        # Fallback to basic evaluation
+        success, message = evaluate_result(phrase_data, result)
+        return success, message, {}
 
 def evaluate_result(phrase_data, result):
     """Evaluate if the NLP result matches expected priority - uses permissive range-based logic."""
