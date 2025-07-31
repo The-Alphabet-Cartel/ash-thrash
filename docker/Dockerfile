@@ -31,6 +31,9 @@ COPY docker/crontab /etc/cron.d/ash-thrash
 RUN chmod 0644 /etc/cron.d/ash-thrash && \
     crontab /etc/cron.d/ash-thrash
 
+# Environmental Variables
+ENV TZ="America/Los_Angeles"
+
 # Copy entrypoint script
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
