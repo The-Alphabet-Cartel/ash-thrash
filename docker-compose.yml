@@ -1,5 +1,3 @@
-version: '3.8'
-
 # =============================================================================
 # ASH-THRASH DOCKER COMPOSE CONFIGURATION
 # Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -15,20 +13,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/the-alphabet-cartel/ash-thrash:v3.0
+    image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
     container_name: ash-thrash-api
     restart: unless-stopped
-    
-    # Network Configuration
     networks:
       ash-network:
-        ipv4_address: 172.20.0.15
-    
-    # Port Mapping
+        ipv4_address: 172.20.0.13
     ports:
-      - "8884:8884"
-    
-    # Environment Variables
+      - 8884:8884
     environment:
       # Core Configuration
       - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL:-http://10.20.30.253:8881}
@@ -64,8 +56,6 @@ services:
       # Performance
       - THRASH_ENABLE_RESULT_CACHING=${THRASH_ENABLE_RESULT_CACHING:-true}
       - THRASH_CACHE_TTL_SECONDS=${THRASH_CACHE_TTL_SECONDS:-300}
-    
-    # Volume Mounts
     volumes:
       # Results and logs persistence
       - ./results:/app/results
@@ -75,14 +65,10 @@ services:
       # Configuration (read-only)
       - ./config:/app/config:ro
       
-      # Optional: Mount source for development
-      # - ./src:/app/src:ro
-    
-    # Dependencies
+      # Secrets
+      - ./secrets:/run/secrets:ro
     depends_on:
       - ash-nlp-check
-    
-    # Resource Limits
     deploy:
       resources:
         limits:
@@ -91,16 +77,12 @@ services:
         reservations:
           memory: 512M
           cpus: '0.5'
-    
-    # Health Check
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8884/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
-    
-    # Labels for monitoring
     labels:
       - "traefik.enable=false"
       - "ash.service=thrash-api"
@@ -113,35 +95,27 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/the-alphabet-cartel/ash-thrash:v3.0
+    image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
     container_name: ash-thrash-cli
+    networks:
+      ash-network:
+        ipv4_address: 172.20.0.14
     
     # Override default command for CLI operations
     entrypoint: ["python", "cli.py"]
     command: ["validate", "setup"]  # Default command
     
-    # Network Configuration
-    networks:
-      ash-network:
-        ipv4_address: 172.20.0.16
-    
-    # Environment Variables (same as API)
     environment:
       - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL:-http://10.20.30.253:8881}
       - GLOBAL_LOG_LEVEL=${GLOBAL_LOG_LEVEL:-INFO}
       - THRASH_REQUEST_TIMEOUT=${THRASH_REQUEST_TIMEOUT:-30}
-    
-    # Volume Mounts
     volumes:
       - ./results:/app/results
       - ./logs:/app/logs
       - ./config:/app/config:ro
-    
-    # Dependencies
+      - ./secrets:/run/secrets:ro
     depends_on:
       - ash-nlp-check
-    
-    # Resource Limits (lighter for CLI)
     deploy:
       resources:
         limits:
@@ -150,12 +124,9 @@ services:
         reservations:
           memory: 256M
           cpus: '0.25'
-    
-    # Profile for on-demand usage
     profiles:
       - cli
       - testing
-    
     labels:
       - "ash.service=thrash-cli"
       - "ash.version=v3.0"
@@ -166,10 +137,10 @@ services:
   ash-nlp-check:
     image: curlimages/curl:latest
     container_name: ash-nlp-health-check
-    
+    restart: "no"
     networks:
       ash-network:
-        ipv4_address: 172.20.0.17
+        ipv4_address: 172.20.0.15
     
     # Health check command
     command: >
@@ -182,17 +153,11 @@ services:
         echo 'NLP server is healthy!';
         exit 0;
       "
-    
-    # Don't restart - this is just a health check
-    restart: "no"
-    
+
     labels:
       - "ash.service=nlp-health-check"
       - "ash.temporary=true"
 
-# =============================================================================
-# NETWORKS
-# =============================================================================
 networks:
   ash-network:
     name: ash-network
@@ -202,9 +167,6 @@ networks:
         - subnet: 172.20.0.0/16
           gateway: 172.20.0.1
 
-# =============================================================================
-# VOLUMES (optional - for persistent data)
-# =============================================================================
 volumes:
   ash-thrash-results:
     name: ash-thrash-results
@@ -213,24 +175,3 @@ volumes:
   ash-thrash-logs:
     name: ash-thrash-logs
     driver: local
-
-# =============================================================================
-# USAGE EXAMPLES
-# =============================================================================
-
-# Start API server:
-#   docker-compose up -d ash-thrash-api
-
-# Run CLI commands:
-#   docker-compose run --rm ash-thrash-cli test comprehensive
-#   docker-compose run --rm ash-thrash-cli test quick
-#   docker-compose run --rm ash-thrash-cli test category definite_high
-#   docker-compose run --rm ash-thrash-cli validate setup
-
-# View logs:
-#   docker-compose logs -f ash-thrash-api
-
-# Scale for multiple concurrent tests (if needed):
-#   docker-compose up -d --scale ash-thrash-api=2
-
-# =============================================================================
