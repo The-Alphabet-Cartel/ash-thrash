@@ -12,16 +12,18 @@ LABEL repository="https://github.com/The-Alphabet-Cartel/ash-thrash"
 # Set working directory
 WORKDIR /app
 
+# Copy requirements first for better caching
+COPY requirements.txt .
+
 # Create non-root user with matching UID/GID for consistency across containers
-RUN groupadd -r thrash && useradd -r -g thrash -u 1001 thrash
+RUN groupadd -r -g 1001 thrash && \
+    useradd -r -g 1001 -u 1001 thrash
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
