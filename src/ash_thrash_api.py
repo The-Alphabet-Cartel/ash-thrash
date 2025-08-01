@@ -372,7 +372,7 @@ async def save_test_results(results: ComprehensiveTestResults):
 
 async def send_discord_notification(results: ComprehensiveTestResults):
     """Send Discord webhook notification for completed tests"""
-    webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
+    webhook_url = os.getenv('THRASH_DISCORD_WEBHOOK_URL')
     if not webhook_url:
         return  # No webhook configured
     
