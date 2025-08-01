@@ -32,7 +32,7 @@ COPY --chown=thrash:thrash . .
 
 # Create directories for results and logs
 RUN mkdir -p ./results ./logs ./reports && \
-    chown -R thrash:thrash /app
+    chown -R thrash:thrash /app  && \
     chmod 755 /app
 
 # Create non-root user for security
