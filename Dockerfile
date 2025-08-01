@@ -15,9 +15,9 @@ WORKDIR /app
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Create non-root user with matching UID/GID for consistency across containers
+# Create non-root user with /app as home directory (no separate home dir)
 RUN groupadd -g 1001 thrash && \
-    useradd -g 1001 -u 1001 thrash
+    useradd -g 1001 -u 1001 -d /app -M thrash
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
