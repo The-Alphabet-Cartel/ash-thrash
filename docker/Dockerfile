@@ -6,6 +6,9 @@ LABEL repository="https://github.com/The-Alphabet-Cartel/ash-thrash"
 
 WORKDIR /app
 
+# Create non-root user with matching UID/GID for consistency across containers
+RUN groupadd -r thrash && useradd -r -g thrash -u 1001 thrash
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
@@ -18,19 +21,15 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY src/ ./src/
-COPY config/ ./config/
-COPY scripts/ ./scripts/
-COPY tests/ ./tests/
+COPY --chown=1001:1001 . .
 
 # Create results directory
-RUN mkdir -p /app/results
+RUN mkdir -p ./results && \
+    chown -R 1001:1001 /app
 
-# Copy and setup cron
-COPY docker/crontab /etc/cron.d/ash-thrash
-RUN chmod 0644 /etc/cron.d/ash-thrash && \
-    crontab /etc/cron.d/ash-thrash
-
+# Switch to non-root user
+USER thrash
+    
 # Environmental Variables
 ENV TZ="America/Los_Angeles"
 
