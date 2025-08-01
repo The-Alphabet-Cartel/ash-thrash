@@ -25,9 +25,9 @@ sys.path.insert(0, str(project_root))
 
 # Import test data with fallback
 def get_all_test_phrases():
-    """Get test phrases - tries to import from test_data module, falls back to basic set."""
+    """Get test phrases - tries to import from keywords module, falls back to basic set."""
     try:
-        from src.test_data import get_all_test_phrases as import_phrases
+        from src.keywords import get_all_test_phrases as import_phrases
         print("✅ Test data modules imported successfully")
         return import_phrases()
     except ImportError:
@@ -64,9 +64,9 @@ def get_all_test_phrases():
         }
 
 def get_category_info():
-    """Get category info - tries to import from test_data module, falls back to basic set."""
+    """Get category info - tries to import from keywords module, falls back to basic set."""
     try:
-        from src.test_data import get_category_info as import_info
+        from src.keywords import get_category_info as import_info
         return import_info()
     except ImportError:
         return {

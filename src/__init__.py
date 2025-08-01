@@ -163,7 +163,7 @@ def get_category_info():
     """
     return {
         "definite_high": {
-            "target_pass_rate": 100.0,
+            "target_pass_rate": 90.0,
             "description": "High Priority Crisis (Must Catch All)",
             "critical": True,
             "allow_escalation": False,

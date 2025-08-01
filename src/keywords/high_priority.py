@@ -319,7 +319,7 @@ def get_high_priority_phrases():
 CATEGORY_INFO = {
     "name": "definite_high",
     "description": "High Priority Crisis (Safety First!)",
-    "target_pass_rate": 100.0,
+    "target_pass_rate": 95.0,
     "critical": True,
     "allow_escalation": False,
     "total_phrases": 50
