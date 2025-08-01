@@ -16,8 +16,8 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Create non-root user with matching UID/GID for consistency across containers
-RUN groupadd -r -g 1001 thrash && \
-    useradd -r -g 1001 -u 1001 thrash
+RUN groupadd -g 1001 thrash && \
+    useradd -g 1001 -u 1001 thrash
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
