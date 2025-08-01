@@ -91,10 +91,7 @@ services:
   # =========================================================================
   # Ash-Thrash CLI Runner (on-demand)
   # =========================================================================
-  ash-thrash-cli:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  ash-thrash:
     image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
     container_name: ash-thrash-cli
     networks:
