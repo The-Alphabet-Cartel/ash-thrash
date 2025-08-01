@@ -292,9 +292,9 @@ Configure Discord webhooks for automated test notifications:
 
 ```bash
 # In .env file
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your/webhook/url
-DISCORD_NOTIFICATIONS_ENABLED=true
-NOTIFY_ON_COMPREHENSIVE_TESTS=true
+THRASH_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your/webhook/url
+THRASH_DISCORD_NOTIFICATIONS_ENABLED=true
+THRASH_NOTIFY_ON_COMPREHENSIVE_TESTS=true
 ```
 
 ### Example Discord Notification
@@ -339,8 +339,8 @@ GLOBAL_NLP_API_URL=http://10.20.30.253:8881
 GLOBAL_THRASH_API_PORT=8884
 
 # Discord Integration
-DISCORD_WEBHOOK_URL=your_webhook_url
-DISCORD_NOTIFICATIONS_ENABLED=true
+THRASH_DISCORD_WEBHOOK_URL=your_webhook_url
+THRASH_DISCORD_NOTIFICATIONS_ENABLED=true
 
 # Testing Configuration
 THRASH_MAX_CONCURRENT_TESTS=3
