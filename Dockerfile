@@ -26,11 +26,12 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY --chown=1001:1001 . .
+COPY --chown=thrash:thrash . .
 
 # Create directories for results and logs
 RUN mkdir -p ./results ./logs ./reports && \
-    chown -R 1001:1001 /app
+    chown -R thrash:thrash /app
+    chmod 755 /app
 
 # Create non-root user for security
 USER thrash
