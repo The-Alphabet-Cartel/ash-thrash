@@ -8,12 +8,12 @@ Discord: https://discord.gg/alphabetcartel
 Website: http://alphabetcartel.org
 
 Usage:
-    python manage.py setup        # Initial setup and validation
-    python manage.py start        # Start services with Docker Compose  
-    python manage.py test-all     # Run comprehensive tests
-    python manage.py status       # Check service status
-    python manage.py logs         # View service logs
-    python manage.py stop         # Stop all services
+    python main.py setup        # Initial setup and validation
+    python main.py start        # Start services with Docker Compose  
+    python main.py test-all     # Run comprehensive tests
+    python main.py status       # Check service status
+    python main.py logs         # View service logs
+    python main.py stop         # Stop all services
 """
 
 import os
@@ -29,7 +29,7 @@ from typing import Optional
 PROJECT_NAME = "ash-thrash"
 COMPOSE_FILE = "docker-compose.yml"
 ENV_FILE = ".env"
-ENV_TEMPLATE = "config/.env.template"
+ENV_TEMPLATE = ".env.template"
 
 def print_header(title: str, width: int = 40):
     """Print a formatted header"""
@@ -78,8 +78,8 @@ def setup_command(args):
     print_success("Setup completed successfully!")
     print("\nNext steps:")
     print("  1. Review and update .env file with your settings")
-    print("  2. Run 'python manage.py start' to start services")
-    print("  3. Run 'python manage.py test-all' to run tests")
+    print("  2. Run 'python main.py start' to start services")
+    print("  3. Run 'python main.py test-all' to run tests")
 
 def start_command(args):
     """Start Ash-Thrash services"""
@@ -423,12 +423,12 @@ def create_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python manage.py setup
-  python manage.py start --detach
-  python manage.py test-all comprehensive
-  python manage.py status
-  python manage.py logs --follow
-  python manage.py stop
+  python main.py setup
+  python main.py start --detach
+  python main.py test-all comprehensive
+  python main.py status
+  python main.py logs --follow
+  python main.py stop
         """
     )
     
