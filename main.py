@@ -320,8 +320,8 @@ def setup_environment():
         basic_env = """# Ash-Thrash Configuration
 GLOBAL_NLP_API_URL=http://10.20.30.253:8881
 GLOBAL_LOG_LEVEL=INFO
-DISCORD_WEBHOOK_URL=
-DISCORD_NOTIFICATIONS_ENABLED=true
+THRASH_DISCORD_WEBHOOK_URL=
+THRASH_DISCORD_NOTIFICATIONS_ENABLED=true
 """
         env_path.write_text(basic_env)
         print_success(f"Created basic {ENV_FILE}")
