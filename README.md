@@ -46,7 +46,7 @@ ash-thrash/
 ├── logs/                           # Application logs (auto-created)
 ├── reports/                        # Test reports (auto-created)
 ├── cli.py                          # Python CLI interface
-├── manage.py                       # Docker Compose management
+├── main.py                       # Docker Compose management
 ├── docker-compose.yml              # Docker orchestration
 ├── Dockerfile                      # Container build configuration
 ├── requirements.txt                # Python dependencies
@@ -65,16 +65,16 @@ git clone https://github.com/the-alphabet-cartel/ash-thrash.git
 cd ash-thrash
 
 # 2. Initial setup (creates .env file and directories)
-python manage.py setup
+python main.py setup
 
 # 3. Configure environment
 # Edit .env file with your NLP server URL and settings
 
 # 4. Start services
-python manage.py start
+python main.py start
 
 # 5. Verify health
-python manage.py status
+python main.py status
 ```
 
 ### Option 2: Local Development
@@ -127,11 +127,11 @@ python cli.py test comprehensive --output file
 
 ```bash
 # Start API server first
-python manage.py start
+python main.py start
 
 # Run tests via management script
-python manage.py test-all comprehensive
-python manage.py test-all quick
+python main.py test-all comprehensive
+python main.py test-all quick
 
 # Run tests directly via Docker Compose
 docker-compose run --rm ash-thrash-cli test comprehensive
@@ -145,7 +145,7 @@ docker-compose run --rm ash-thrash-cli validate setup
 # Start API server
 python cli.py api start --port 8884
 # OR via Docker
-python manage.py start
+python main.py start
 
 # Trigger tests via API (Python CLI)
 python cli.py api trigger comprehensive --wait
@@ -206,28 +206,28 @@ print(f"Overall pass rate: {results['overall_pass_rate']:.1f}%")
 
 ## 🐍 Python Management Commands
 
-### Management Script (`manage.py`)
+### Management Script (`main.py`)
 
 ```bash
 # Project lifecycle
-python manage.py setup                    # Initial setup and validation
-python manage.py start                    # Start all services
-python manage.py stop                     # Stop all services
-python manage.py status                   # Check service status
-python manage.py logs --follow            # View logs (follow mode)
+python main.py setup                    # Initial setup and validation
+python main.py start                    # Start all services
+python main.py stop                     # Stop all services
+python main.py status                   # Check service status
+python main.py logs --follow            # View logs (follow mode)
 
 # Testing
-python manage.py test-all comprehensive   # Run comprehensive tests
-python manage.py test-all quick           # Run quick tests
+python main.py test-all comprehensive   # Run comprehensive tests
+python main.py test-all quick           # Run quick tests
 
 # Maintenance
-python manage.py build                    # Build Docker images
-python manage.py clean --force            # Clean up containers/images
-python manage.py validate                 # Validate configuration
+python main.py build                    # Build Docker images
+python main.py clean --force            # Clean up containers/images
+python main.py validate                 # Validate configuration
 
 # Advanced usage
-python manage.py cli test comprehensive   # Run CLI command in container
-python manage.py logs --service ash-thrash-api  # Service-specific logs
+python main.py cli test comprehensive   # Run CLI command in container
+python main.py logs --service ash-thrash-api  # Service-specific logs
 ```
 
 ### CLI Script (`cli.py`)
@@ -381,24 +381,24 @@ python cli.py validate data
 netstat -tulpn | grep 8884
 
 # Check via management script
-python manage.py status
+python main.py status
 
 # View detailed logs
-python manage.py logs --follow ash-thrash-api
+python main.py logs --follow ash-thrash-api
 ```
 
 **Docker Issues**
 ```bash
 # Rebuild containers
-python manage.py build
+python main.py build
 
 # Check service status
-python manage.py status
+python main.py status
 
 # Clean and restart
-python manage.py clean --force
-python manage.py setup
-python manage.py start
+python main.py clean --force
+python main.py setup
+python main.py start
 ```
 
 **Permission Issues**
@@ -407,7 +407,7 @@ python manage.py start
 mkdir -p results logs reports
 
 # Fix permissions
-chmod +x cli.py manage.py
+chmod +x cli.py main.py
 ```
 
 ## 📈 Performance Expectations
@@ -432,7 +432,7 @@ We welcome contributions to improve Ash-Thrash! Here's how to help:
 git clone https://github.com/the-alphabet-cartel/ash-thrash.git
 cd ash-thrash
 pip install -r requirements.txt
-python manage.py setup
+python main.py setup
 ```
 
 ### Adding Test Phrases
@@ -459,10 +459,10 @@ python cli.py validate setup
 python cli.py test quick
 
 # Build and test with Docker
-python manage.py build
-python manage.py start
-python manage.py test-all
-python manage.py stop
+python main.py build
+python main.py start
+python main.py test-all
+python main.py stop
 ```
 
 ## 📞 Support & Community
