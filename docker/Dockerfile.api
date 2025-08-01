@@ -5,6 +5,9 @@ LABEL description="Ash-Thrash API Server"
 
 WORKDIR /app
 
+# Create non-root user with matching UID/GID for consistency across containers
+RUN groupadd -r thrashapi && useradd -r -g thrashapi -u 1001 thrashapi
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
@@ -16,12 +19,15 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY src/ ./src/
-COPY config/ ./config/
-
+COPY --chown=1001:1001 . .
+    
 # Create results directory
-RUN mkdir -p /app/results
-
+RUN mkdir -p ./results && \
+    chown -R 1001:1001 /app
+    
+# Switch to non-root user
+USER thrashapi
+        
 # Environmental Variables
 ENV TZ="America/Los_Angeles"
 
