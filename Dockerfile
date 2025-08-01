@@ -38,6 +38,9 @@ RUN mkdir -p ./results ./logs ./reports && \
 # Create non-root user for security
 USER thrash
 
+# Set working directory
+WORKDIR /app
+
 # Environmental Variables
 ENV PYTHONUNBUFFERED="1"
 ENV PYTHONDONTWRITEBYTECODE="1"
