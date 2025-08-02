@@ -458,26 +458,59 @@ def get_all_test_phrases():
         "maybe_low_none": MAYBE_LOW_NONE_PHRASES
     }
 
+# Add this temporary function to src/test_data.py for debugging:
+def debug_file_paths():
+    """Debug function to check file paths"""
+    print(f"Current working directory: {Path.cwd()}")
+    print(f"__file__ location: {Path(__file__)}")
+    print(f"Parent directory: {Path(__file__).parent}")
+    print(f"Project root (assumed): {Path(__file__).parent.parent}")
+    
+    # Check what's actually in the directories
+    print("\nDirectories in project root:")
+    project_root = Path(__file__).parent.parent
+    for item in project_root.iterdir():
+        if item.is_dir():
+            print(f"  📁 {item.name}/")
+        else:
+            print(f"  📄 {item.name}")
+    
+    # Check config directory specifically
+    config_dir = project_root / "config"
+    if config_dir.exists():
+        print(f"\nFiles in config directory:")
+        for item in config_dir.iterdir():
+            print(f"  📄 {item.name}")
+
 def load_testing_goals_from_json():
     """
     Load testing goals from config/testing_goals.json file.
     Falls back to hardcoded defaults if file doesn't exist.
     """
     try:
-        # Try to find the JSON file relative to the project root
-        current_dir = Path(__file__).parent
-        config_file = current_dir.parent / "config" / "testing_goals.json"
+        # Try multiple possible paths for the JSON file
+        possible_paths = [
+            Path(__file__).parent.parent / "config" / "testing_goals.json",  # ../config/testing_goals.json from src/
+            Path("config/testing_goals.json"),                               # config/testing_goals.json from cwd
+            Path("config") / "testing_goals.json",                          # Alternative syntax
+            Path.cwd() / "config" / "testing_goals.json",                   # Absolute from current working directory
+        ]
         
-        # Alternative path if running from different directory
-        if not config_file.exists():
-            config_file = Path("config/testing_goals.json")
+        config_file = None
+        for path in possible_paths:
+            if path.exists():
+                config_file = path
+                break
         
-        if config_file.exists():
+        if config_file:
+            print(f"✅ Loading configuration from: {config_file}")
             with open(config_file, 'r') as f:
                 config = json.load(f)
                 return config.get('goals', {})
         else:
-            print(f"⚠️  Warning: Could not find testing_goals.json at {config_file}")
+            print(f"⚠️  Warning: Could not find testing_goals.json in any of these locations:")
+            for path in possible_paths:
+                print(f"     - {path} (exists: {path.exists()})")
             print("⚠️  Using hardcoded defaults")
             return get_hardcoded_testing_goals()
             
