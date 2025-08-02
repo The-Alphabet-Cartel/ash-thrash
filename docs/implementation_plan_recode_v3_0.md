@@ -3,7 +3,7 @@
 **Repository**: https://github.com/the-alphabet-cartel/ash-thrash  
 **Project**: Ash-Thrash v3.0 Complete Rewrite  
 **Document Location**: `ash/ash-thrash/docs/implementation_plan_recode.md`  
-**Last Updated**: August 1, 2025
+**Last Updated**: August 1, 2025 - Conversation 2
 
 ---
 
@@ -18,6 +18,8 @@
 - ✅ **REST API**: Full API server on port 8884 for ash-dash integration
 - ✅ **NLP Integration**: Uses same API calls as ash-bot for accurate testing
 - ✅ **Automated Building**: GitHub workflow for Docker image builds
+- ✅ **FastAPI Modern**: Updated to use lifespan events (no deprecation warnings)
+- ✅ **Container Naming**: Simplified ash-thrash container names
 
 ---
 
@@ -51,14 +53,19 @@
 
 #### **3. REST API Server**
 - **File**: `src/ash_thrash_api.py`
-- **Status**: ✅ Complete
+- **Status**: ✅ Complete - **UPDATED in Conversation 2**
+- **Recent Changes**:
+  - ✅ **Fixed FastAPI deprecation warning**: Replaced `@app.on_event("startup")` with modern `lifespan` event handler
+  - ✅ **Updated Discord webhook variable**: Changed from `DISCORD_WEBHOOK_URL` to `THRASH_DISCORD_WEBHOOK_URL`
+  - ✅ **Modern FastAPI patterns**: Uses `@asynccontextmanager` and `lifespan=lifespan` parameter
 - **Features**:
   - FastAPI-based server on port 8884
   - Full CRUD operations for test management
   - Background test execution with status tracking
-  - Discord webhook integration for notifications
+  - Discord webhook integration for notifications (updated env var)
   - JSON response format compatible with ash-dash
   - Health checks and monitoring endpoints
+  - No deprecation warnings - fully modern FastAPI implementation
 
 #### **4. Python CLI Interface**
 - **File**: `cli.py`
@@ -83,12 +90,17 @@
 
 #### **6. Docker Configuration**
 - **Files**: `Dockerfile`, `docker-compose.yml`, `requirements.txt`
-- **Status**: ✅ Complete
+- **Status**: ✅ Complete - **UPDATED in Conversation 2**
+- **Recent Changes**:
+  - ✅ **Container renaming**: Changed `ash-thrash-cli` to `ash-thrash` for easier command usage
+  - ✅ **Updated all references**: main.py, README.md, and documentation updated
+  - ✅ **Simplified commands**: `docker-compose run --rm ash-thrash test comprehensive`
 - **Features**:
   - Multi-service orchestration (API, CLI, health checks)
   - Proper networking and volume management
   - Health checks and dependency management
   - Production-ready container configuration
+  - Simplified container naming for better UX
 
 #### **7. GitHub Workflow**
 - **File**: `.github/workflows/docker-build.yml`
@@ -143,14 +155,19 @@ ash-thrash/                           # Individual repository
 
 ## 🔧 Configuration Changes Made
 
-### **Environment Configuration**
+### **Configuration Changes**
 - **Location**: `.env.template` moved from `config/` to root directory (per user preference)
 - **Management**: `main.py setup` automatically creates `.env` from template
 - **Key Variables**:
   - `GLOBAL_NLP_API_URL=http://10.20.30.253:8881`
   - `GLOBAL_THRASH_API_PORT=8884`
-  - `DISCORD_WEBHOOK_URL` (optional)
+  - `THRASH_DISCORD_WEBHOOK_URL` (updated from `DISCORD_WEBHOOK_URL`)
   - Testing and tuning configuration options
+
+### **Container Naming** (Updated in Conversation 2)
+- **Changed**: `ash-thrash-cli` → `ash-thrash` (simplified for easier remembering)
+- **Usage**: `docker-compose run --rm ash-thrash test comprehensive`
+- **Impact**: Updated in docker-compose.yml, main.py, and all documentation
 
 ### **Dependencies**
 - **Removed**: `click` dependency (replaced with standard `argparse`)
@@ -194,6 +211,37 @@ python cli.py validate setup         # System validation
 
 ---
 
+## 🔄 Recent Updates (Conversation 2 - August 1, 2025)
+
+### **FastAPI Modernization**
+- **Issue**: Deprecation warning for `@app.on_event("startup")`
+- **Solution**: ✅ Completely rewrote `src/ash_thrash_api.py` using modern `lifespan` event handlers
+- **Changes**:
+  - Added `from contextlib import asynccontextmanager`
+  - Replaced `@app.on_event("startup")` with `@asynccontextmanager async def lifespan(app: FastAPI)`
+  - Updated FastAPI initialization to use `lifespan=lifespan`
+  - No functional changes - same startup/shutdown behavior, no warnings
+
+### **Container Naming Simplification**
+- **Issue**: Complex container name `ash-thrash-cli` hard to remember
+- **Solution**: ✅ Renamed to simple `ash-thrash`
+- **Updated Files**:
+  - `docker-compose.yml` - Service and container name
+  - `main.py` - Docker commands for test and CLI operations
+  - `README.md` - All usage examples
+  - Documentation comments and examples
+
+### **Environment Variable Update**
+- **Issue**: Discord webhook variable naming consistency
+- **Solution**: ✅ Changed `DISCORD_WEBHOOK_URL` → `THRASH_DISCORD_WEBHOOK_URL`
+- **Updated**: `src/ash_thrash_api.py` webhook retrieval code
+- **Benefit**: Consistent with project naming convention
+
+### **Documentation Updates**
+- **Files Updated**: README.md, directory structure guide, implementation plan
+- **Changes**: Container names, API modernization notes, updated usage examples
+- **Status**: All documentation consistent with new container naming
+
 ## ⚠️ Known Issues and Considerations
 
 ### **1. NLP Server Dependency**
@@ -210,6 +258,11 @@ python cli.py validate setup         # System validation
 - **Issue**: Must integrate with existing ash ecosystem networking
 - **Status**: Configured for ash-network (172.20.0.0/16)
 - **Mitigation**: Uses consistent networking with other ash services
+
+### **4. FastAPI Version Compatibility**
+- **Issue**: Deprecation warnings with older FastAPI patterns
+- **Status**: ✅ RESOLVED in Conversation 2
+- **Resolution**: Updated to modern lifespan event handlers
 
 ---
 
@@ -279,11 +332,13 @@ python cli.py validate setup         # System validation
 - **Standalone Repository**: Not a submodule, individual repo with own GitHub workflow
 - **Development Optimized**: Fast builds, no security scanning during development
 - **File Naming**: `main.py` for management, `cli.py` for direct operations
+- **Container Naming**: Simplified `ash-thrash` (updated from `ash-thrash-cli`)
+- **Modern FastAPI**: Uses lifespan events, no deprecated patterns
 
 ### **Integration Points**
 - **ash-nlp**: Uses `GLOBAL_NLP_API_URL` environment variable
 - **ash-dash**: Provides REST API on port 8884 for dashboard integration
-- **Discord**: Optional webhook notifications for test results
+- **Discord**: Webhook notifications via `THRASH_DISCORD_WEBHOOK_URL` (updated variable name)
 - **GitHub**: Automated Docker image building and publishing
 
 ### **Repository Structure**
