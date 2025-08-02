@@ -2,24 +2,25 @@
 
 **Repository**: https://github.com/the-alphabet-cartel/ash-thrash  
 **Project**: Ash-Thrash v3.0 Complete Rewrite  
-**Document Location**: `ash/ash-thrash/docs/implementation_plan_recode.md`  
-**Last Updated**: August 1, 2025 - Conversation 2
+**Document Location**: `ash/ash-thrash/docs/implementation_plan_recode_v3_0.md`  
+**Last Updated**: August 2025 - Persistent Container Update
 
 ---
 
 ## 🎯 Project Overview
 
-**COMPLETE REWRITE** of Ash-Thrash testing suite from bash scripts to a Python-first, Docker Compose-native system for testing and tuning the Ash NLP crisis detection system.
+**COMPLETE REWRITE** of Ash-Thrash testing suite from bash scripts to a Python-first, Docker Compose-native system with persistent container architecture for testing and tuning the Ash NLP crisis detection system.
 
 ### Key Goals Achieved:
 - ✅ **Python-First**: No bash scripts, pure Python CLI with standard library
-- ✅ **Docker Native**: Full Docker Compose orchestration 
+- ✅ **Docker Native**: Full Docker Compose orchestration with persistent containers
 - ✅ **350 Test Phrases**: Comprehensive test data across 7 crisis categories
 - ✅ **REST API**: Full API server on port 8884 for ash-dash integration
 - ✅ **NLP Integration**: Uses same API calls as ash-bot for accurate testing
 - ✅ **Automated Building**: GitHub workflow for Docker image builds
 - ✅ **FastAPI Modern**: Updated to use lifespan events (no deprecation warnings)
 - ✅ **Container Naming**: Simplified ash-thrash container names
+- ✅ **Persistent Architecture**: Containers remain running for instant testing
 
 ---
 
@@ -53,13 +54,14 @@
 
 #### **3. REST API Server**
 - **File**: `src/ash_thrash_api.py`
-- **Status**: ✅ Complete - **UPDATED in Conversation 2**
+- **Status**: ✅ Complete - **UPDATED for Persistent Architecture**
 - **Recent Changes**:
   - ✅ **Fixed FastAPI deprecation warning**: Replaced `@app.on_event("startup")` with modern `lifespan` event handler
   - ✅ **Updated Discord webhook variable**: Changed from `DISCORD_WEBHOOK_URL` to `THRASH_DISCORD_WEBHOOK_URL`
   - ✅ **Modern FastAPI patterns**: Uses `@asynccontextmanager` and `lifespan=lifespan` parameter
+  - ✅ **Persistent container optimized**: Designed for always-running API service
 - **Features**:
-  - FastAPI-based server on port 8884
+  - FastAPI-based server on port 8884 (persistent container)
   - Full CRUD operations for test management
   - Background test execution with status tracking
   - Discord webhook integration for notifications (updated env var)
@@ -69,7 +71,7 @@
 
 #### **4. Python CLI Interface**
 - **File**: `cli.py`
-- **Status**: ✅ Complete
+- **Status**: ✅ Complete - **OPTIMIZED for Persistent Containers**
 - **Features**:
   - Standard Python argparse (no external dependencies)
   - Terminal-friendly with rich console output
@@ -77,30 +79,36 @@
   - API operations (start server, trigger tests, health checks)
   - Validation commands (setup, data validation)
   - Multiple output formats (console, JSON, file)
+  - **Optimized for execution within persistent containers**
 
 #### **5. Docker Compose Management**
 - **File**: `main.py` (renamed from manage.py)
-- **Status**: ✅ Complete
+- **Status**: ✅ Complete - **UPDATED for Persistent Architecture**
 - **Features**:
-  - Full Docker Compose lifecycle management
+  - Full Docker Compose lifecycle management for persistent containers
   - Service health monitoring
   - Log management and viewing
   - Build and deployment operations
   - Cleanup and maintenance operations
+  - **Container exec command support for persistent workflow**
 
 #### **6. Docker Configuration**
 - **Files**: `Dockerfile`, `docker-compose.yml`, `requirements.txt`
-- **Status**: ✅ Complete - **UPDATED in Conversation 2**
+- **Status**: ✅ Complete - **MAJOR UPDATE for Persistent Containers**
 - **Recent Changes**:
+  - ✅ **Persistent container architecture**: Both API and CLI containers remain running
+  - ✅ **API container command**: Explicit uvicorn startup for persistent API service
+  - ✅ **CLI container command**: `tail -f /dev/null` to keep container alive
+  - ✅ **Removed profiles**: No more profile-based container management
+  - ✅ **Always-on restart policy**: `restart: unless-stopped` for both containers
   - ✅ **Container renaming**: Changed `ash-thrash-cli` to `ash-thrash` for easier command usage
-  - ✅ **Updated all references**: main.py, README.md, and documentation updated
-  - ✅ **Simplified commands**: `docker-compose run --rm ash-thrash test comprehensive`
 - **Features**:
   - Multi-service orchestration (API, CLI, health checks)
   - Proper networking and volume management
   - Health checks and dependency management
-  - Production-ready container configuration
+  - Production-ready container configuration with persistent services
   - Simplified container naming for better UX
+  - **Persistent container architecture eliminates orphan containers**
 
 #### **7. GitHub Workflow**
 - **File**: `.github/workflows/docker-build.yml`
@@ -115,13 +123,14 @@
 
 #### **8. Documentation**
 - **Files**: `README.md`, directory structure guide, workflow setup
-- **Status**: ✅ Complete
+- **Status**: ✅ Complete - **UPDATED for Persistent Container Workflow**
 - **Features**:
   - Comprehensive setup and usage documentation
   - Python-first approach examples
-  - Docker Compose integration guide
+  - Docker Compose integration guide with persistent containers
   - API usage examples
   - Troubleshooting section
+  - **Updated all examples to use `docker compose exec` commands**
 
 ---
 
@@ -134,28 +143,38 @@ ash-thrash/                           # Individual repository
 │       └── docker-build.yml         # ✅ GitHub workflow for Docker builds
 ├── src/
 │   ├── ash_thrash_core.py           # ✅ Core testing engine
-│   ├── ash_thrash_api.py            # ✅ REST API server
+│   ├── ash_thrash_api.py            # ✅ REST API server (persistent container)
 │   └── test_data.py                 # ✅ 350 test phrases + categories
 ├── config/
 │   └── testing_goals.json           # ✅ Pass/fail criteria (existing)
 ├── results/                          # Auto-created for test results
 ├── logs/                             # Auto-created for logs
 ├── reports/                          # Auto-created for reports
-├── cli.py                           # ✅ Python CLI interface
-├── main.py                          # ✅ Docker Compose management (renamed)
-├── docker-compose.yml               # ✅ Docker orchestration
+├── cli.py                           # ✅ Python CLI interface (persistent container optimized)
+├── main.py                          # ✅ Docker Compose management (persistent container support)
+├── docker-compose.yml               # ✅ Docker orchestration (PERSISTENT ARCHITECTURE)
 ├── Dockerfile                       # ✅ Container build config
 ├── requirements.txt                 # ✅ Python dependencies
 ├── .env.template                    # ✅ Environment template (moved to root)
 ├── .env                             # Created from template during setup
-└── README.md                        # ✅ Updated documentation
+└── README.md                        # ✅ Updated documentation (persistent container workflow)
 ```
 
 ---
 
 ## 🔧 Configuration Changes Made
 
-### **Configuration Changes**
+### **Persistent Container Architecture**
+- **API Container**: Runs `uvicorn` server continuously on port 8884
+- **CLI Container**: Runs `tail -f /dev/null` to stay alive for exec commands
+- **No Profiles**: Containers start by default with `docker compose up -d`
+- **Always Running**: Both containers remain active until explicitly stopped
+
+### **Updated Command Structure**
+- **Old**: `docker compose run --rm ash-thrash test comprehensive` (creates orphan containers)
+- **New**: `docker compose exec ash-thrash python cli.py test comprehensive` (uses persistent container)
+
+### **Environment Variables**
 - **Location**: `.env.template` moved from `config/` to root directory (per user preference)
 - **Management**: `main.py setup` automatically creates `.env` from template
 - **Key Variables**:
@@ -164,9 +183,9 @@ ash-thrash/                           # Individual repository
   - `THRASH_DISCORD_WEBHOOK_URL` (updated from `DISCORD_WEBHOOK_URL`)
   - Testing and tuning configuration options
 
-### **Container Naming** (Updated in Conversation 2)
+### **Container Naming** (Updated in Previous Conversation)
 - **Changed**: `ash-thrash-cli` → `ash-thrash` (simplified for easier remembering)
-- **Usage**: `docker-compose run --rm ash-thrash test comprehensive`
+- **Usage**: `docker compose exec ash-thrash python cli.py test comprehensive`
 - **Impact**: Updated in docker-compose.yml, main.py, and all documentation
 
 ### **Dependencies**
@@ -183,12 +202,23 @@ ash-thrash/                           # Individual repository
 
 ## 🚀 Usage Patterns Established
 
+### **Persistent Container Operations** (`docker compose`)
+```bash
+docker compose up -d                           # Start all persistent services
+docker compose exec ash-thrash python cli.py test comprehensive  # Run comprehensive test
+docker compose exec ash-thrash python cli.py test quick         # Quick validation
+docker compose exec ash-thrash python cli.py validate setup     # System validation
+docker compose exec ash-thrash python cli.py api health         # Health check
+docker compose logs ash-thrash-api            # View API logs
+docker compose down                            # Stop all services
+```
+
 ### **Management Operations** (`main.py`)
 ```bash
 python main.py setup                 # Initial setup
-python main.py start                 # Start Docker services
+python main.py start                 # Start persistent Docker services
 python main.py status                # Check service health
-python main.py test-all comprehensive # Run tests via Docker
+python main.py test-all comprehensive # Run tests via persistent containers
 python main.py logs --follow         # Monitor logs
 python main.py stop                  # Stop services
 python main.py clean --force         # Cleanup
@@ -208,51 +238,57 @@ python cli.py validate setup         # System validation
 - **Health Endpoint**: `/health` for monitoring
 - **Test Triggers**: `/api/test/trigger` for automated testing
 - **Results**: `/api/test/results/{test_id}` for result retrieval
+- **Persistent availability**: API always running with persistent containers
 
 ---
 
-## 🔄 Recent Updates (Conversation 2 - August 1, 2025)
+## 🔄 Recent Updates (August 2025 - Persistent Container Architecture)
 
-### **FastAPI Modernization**
-- **Issue**: Deprecation warning for `@app.on_event("startup")`
-- **Solution**: ✅ Completely rewrote `src/ash_thrash_api.py` using modern `lifespan` event handlers
+### **Persistent Container Implementation**
+- **Issue**: `docker compose run` commands created orphan containers
+- **Solution**: ✅ Implemented persistent container architecture
 - **Changes**:
-  - Added `from contextlib import asynccontextmanager`
-  - Replaced `@app.on_event("startup")` with `@asynccontextmanager async def lifespan(app: FastAPI)`
-  - Updated FastAPI initialization to use `lifespan=lifespan`
-  - No functional changes - same startup/shutdown behavior, no warnings
+  - API container runs `uvicorn` continuously
+  - CLI container runs `tail -f /dev/null` to stay alive
+  - Removed `profiles` section to start containers by default
+  - Added `restart: unless-stopped` policy
+  - Updated all documentation to use `docker compose exec` commands
+  - Eliminated orphan containers completely
 
-### **Container Naming Simplification**
-- **Issue**: Complex container name `ash-thrash-cli` hard to remember
-- **Solution**: ✅ Renamed to simple `ash-thrash`
-- **Updated Files**:
-  - `docker-compose.yml` - Service and container name
-  - `main.py` - Docker commands for test and CLI operations
-  - `README.md` - All usage examples
-  - Documentation comments and examples
+### **Command Structure Modernization**
+- **Old Workflow**: 
+  ```bash
+  docker compose run --rm ash-thrash test comprehensive  # Creates temporary container
+  ```
+- **New Workflow**:
+  ```bash
+  docker compose up -d                                   # Start persistent containers
+  docker compose exec ash-thrash python cli.py test comprehensive  # Execute in running container
+  docker compose down                                    # Stop when done
+  ```
 
-### **Environment Variable Update**
-- **Issue**: Discord webhook variable naming consistency
-- **Solution**: ✅ Changed `DISCORD_WEBHOOK_URL` → `THRASH_DISCORD_WEBHOOK_URL`
-- **Updated**: `src/ash_thrash_api.py` webhook retrieval code
-- **Benefit**: Consistent with project naming convention
+### **Container Lifecycle Optimization**
+- **Startup Time**: Eliminated container startup delays for each test
+- **Resource Usage**: More efficient with persistent containers
+- **User Experience**: Instant test execution without waiting
+- **Management**: Clean container lifecycle with Docker Compose
 
-### **Documentation Updates**
-- **Files Updated**: README.md, directory structure guide, implementation plan
-- **Changes**: Container names, API modernization notes, updated usage examples
-- **Status**: All documentation consistent with new container naming
+### **Documentation Overhaul**
+- **Files Updated**: README.md, team guide, troubleshooting guide, API docs
+- **Changes**: All examples now use persistent container commands
+- **Status**: Complete documentation consistency with new architecture
 
 ## ⚠️ Known Issues and Considerations
 
 ### **1. NLP Server Dependency**
 - **Issue**: All tests require ash-nlp server to be running
 - **Status**: Expected behavior, by design
-- **Mitigation**: Health checks validate NLP connectivity
+- **Mitigation**: Health checks validate NLP connectivity from persistent containers
 
 ### **2. Test Data Validation** 
 - **Issue**: Must maintain exactly 350 phrases (50 per category)
 - **Status**: Automated validation in place
-- **Mitigation**: `python cli.py validate data` checks structure
+- **Mitigation**: `docker compose exec ash-thrash python cli.py validate data` checks structure
 
 ### **3. Docker Network Integration**
 - **Issue**: Must integrate with existing ash ecosystem networking
@@ -261,24 +297,30 @@ python cli.py validate setup         # System validation
 
 ### **4. FastAPI Version Compatibility**
 - **Issue**: Deprecation warnings with older FastAPI patterns
-- **Status**: ✅ RESOLVED in Conversation 2
+- **Status**: ✅ RESOLVED in Previous Updates
 - **Resolution**: Updated to modern lifespan event handlers
+
+### **5. Container Resource Management**
+- **Issue**: Persistent containers consume resources continuously
+- **Status**: By design - trade-off for instant availability
+- **Mitigation**: Containers can be stopped when not needed: `docker compose down`
 
 ---
 
 ## 📈 Performance Expectations
 
-### **Test Execution Times**
-- **Comprehensive Test**: ~3 minutes (350 phrases)
-- **Quick Validation**: ~30 seconds (50 phrases)
-- **Category Test**: ~25 seconds (50 phrases)
+### **Test Execution Times (with Persistent Containers)**
+- **Comprehensive Test**: ~3 minutes (350 phrases) - **No container startup delay**
+- **Quick Validation**: ~30 seconds (50 phrases) - **Instant execution**
+- **Category Test**: ~25 seconds (50 phrases) - **Immediate response**
 
-### **Docker Build Times**
-- **GitHub Actions**: ~3-5 minutes (AMD64 only, no security scans)
-- **Local Development**: ~2-3 minutes with cache
+### **Container Startup Times**
+- **Initial Startup**: ~30 seconds (one-time when starting services)
+- **Test Execution**: **0 seconds delay** (containers already running)
+- **Total Efficiency**: **Significant time savings** for repeated testing
 
 ### **System Requirements**
-- **Memory**: 2GB RAM for API container
+- **Memory**: 2GB RAM for API container, 1GB for CLI (persistent)
 - **CPU**: 1-2 cores recommended
 - **Storage**: ~100MB for results and logs
 - **Network**: Stable connection to ash-nlp server
@@ -317,6 +359,7 @@ python cli.py validate setup         # System validation
 - ✅ **350 Test Phrases**: Comprehensive test coverage
 - ✅ **Tuning Suggestions**: Automated NLP threshold recommendations
 - ✅ **Fast Development**: Optimized build and test cycles
+- ✅ **Persistent Architecture**: Eliminates orphan containers and startup delays
 
 ---
 
@@ -326,6 +369,7 @@ python cli.py validate setup         # System validation
 - This is a **COMPLETE REWRITE** of ash-thrash, not an incremental update
 - All previous bash scripts and old Python files should be **REMOVED**
 - The system is **production-ready** and fully functional
+- **Persistent container architecture** is now the standard deployment model
 
 ### **Key Decisions Made**
 - **No External UI Dependencies**: Uses standard Python argparse, not click
@@ -334,6 +378,13 @@ python cli.py validate setup         # System validation
 - **File Naming**: `main.py` for management, `cli.py` for direct operations
 - **Container Naming**: Simplified `ash-thrash` (updated from `ash-thrash-cli`)
 - **Modern FastAPI**: Uses lifespan events, no deprecated patterns
+- **Persistent Containers**: Both API and CLI containers remain running for instant access
+
+### **Container Architecture**
+- **ash-thrash-api**: Persistent API server (`uvicorn` command)
+- **ash-thrash**: Persistent CLI container (`tail -f /dev/null` command)
+- **No Profiles**: Containers start with default `docker compose up -d`
+- **Command Pattern**: Use `docker compose exec` instead of `docker compose run`
 
 ### **Integration Points**
 - **ash-nlp**: Uses `GLOBAL_NLP_API_URL` environment variable
@@ -344,7 +395,13 @@ python cli.py validate setup         # System validation
 ### **Repository Structure**
 - **Location**: `ash/ash-thrash/` (individual repository)
 - **Branch**: Working on `v3.0` branch for complete rewrite
-- **Configuration**: `.env.template` in root directory (user's OCD preference)
+- **Configuration**: `.env.template` in root directory (user's preference)
 - **Workflow**: `.github/workflows/docker-build.yml` (not in parent repo)
 
-This document serves as a complete reference for the ash-thrash v3.0 implementation state and should enable seamless continuation of work in future conversations.
+### **Usage Patterns**
+- **Start Services**: `docker compose up -d` (containers remain running)
+- **Execute Tests**: `docker compose exec ash-thrash python cli.py test comprehensive`
+- **Check Health**: `docker compose exec ash-thrash python cli.py api health`
+- **Stop Services**: `docker compose down` (only when completely done)
+
+This document serves as a complete reference for the ash-thrash v3.0 implementation state with persistent container architecture and should enable seamless continuation of work in future conversations.
