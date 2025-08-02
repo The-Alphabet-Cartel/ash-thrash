@@ -30,6 +30,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application code
 COPY --chown=thrash:thrash . .
 
+# Add this after the COPY command for debugging
+RUN ls -la /app/config/ && echo "Config directory contents above"
+
 # Create directories for results and logs
 RUN mkdir -p ./results ./logs ./reports && \
     chown -R thrash:thrash /app  && \
