@@ -9,7 +9,7 @@
 
 ## 👥 Welcome to Ash-Thrash v3.0
 
-This guide helps Alphabet Cartel team members get up and running with Ash-Thrash v3.0 quickly and effectively. Whether you're a developer, administrator, or community moderator, this guide has you covered.
+This guide helps Alphabet Cartel team members get up and running with Ash-Thrash v3.0 quickly and effectively. Whether you're a developer, administrator, or community moderator, this guide covers the persistent container workflow that keeps services running continuously.
 
 ---
 
@@ -21,13 +21,12 @@ This guide helps Alphabet Cartel team members get up and running with Ash-Thrash
 git clone https://github.com/the-alphabet-cartel/ash-thrash.git
 cd ash-thrash
 
-# 2. Local development setup
-pip install -r requirements.txt
-python main.py setup
+# 2. Start persistent containers
+docker compose up -d
 
-# 3. Start testing
-python cli.py validate setup
-python cli.py test quick
+# 3. Start testing immediately
+docker compose exec ash-thrash python cli.py validate setup
+docker compose exec ash-thrash python cli.py test quick
 ```
 
 ### **⚙️ System Administrators** 
@@ -40,16 +39,19 @@ cd ash-thrash
 python main.py setup
 # Edit .env with production settings
 
-# 3. Deploy services
-python main.py start
-python main.py status
+# 3. Deploy persistent services
+docker compose up -d
+
+# 4. Verify deployment
+docker compose ps
+docker compose exec ash-thrash python cli.py validate setup
 ```
 
 ### **👮‍♀️ Community Moderators**
 ```bash
 # 1. Monitor test results via Discord webhooks
 # 2. Access results via ash-dash integration
-# 3. Request specific tests via team Discord channel
+# 3. Request specific tests: docker compose exec ash-thrash python cli.py test category definite_high
 ```
 
 ---
@@ -99,6 +101,12 @@ THRASH_ENABLE_CORS=false
 
 ### **Step 3: Team Workflow Integration**
 
+#### **Persistent Container Workflow**
+- **Always Running**: Containers remain active for immediate testing
+- **No Orphan Containers**: Clean management via Docker Compose
+- **Instant Testing**: Execute tests without container startup delays
+- **Easy Management**: Single command to start/stop all services
+
 #### **GitHub Integration**
 - **Automated Builds**: Docker images build automatically on main branch pushes
 - **Pull Requests**: All changes require PR review
@@ -106,81 +114,87 @@ THRASH_ENABLE_CORS=false
 
 #### **Discord Integration**
 - **Test Notifications**: Automated results posted to #ash-testing channel
-- **Manual Testing**: Use `/test comprehensive` bot command (when implemented)
+- **Manual Testing**: Execute tests via persistent containers
 - **Alerts**: Critical test failures alert @Crisis-Team role
 
 ---
 
 ## 🧪 Testing Workflows
 
-### **Daily Testing Routine**
+### **Daily Testing Routine with Persistent Containers**
 
-#### **Morning Validation (10 minutes)**
+#### **Morning Validation (5 minutes)**
 ```bash
-# 1. Quick health check
-python main.py status
+# 1. Ensure containers are running
+docker compose ps
 
-# 2. Validate system
-python cli.py validate setup
+# 2. Quick health check
+docker compose exec ash-thrash python cli.py validate setup
 
 # 3. Quick test run
-python cli.py test quick --sample-size 30
+docker compose exec ash-thrash python cli.py test quick --sample-size 30
 
 # 4. Check results in Discord
 ```
 
-#### **Weekly Comprehensive Testing (30 minutes)**
+#### **Weekly Comprehensive Testing (15 minutes)**
 ```bash
-# 1. Full comprehensive test
-python cli.py test comprehensive
+# 1. Start containers if not running
+docker compose up -d
 
-# 2. Review tuning suggestions
+# 2. Full comprehensive test
+docker compose exec ash-thrash python cli.py test comprehensive
+
+# 3. Review tuning suggestions
 # Check output for NLP threshold recommendations
 
-# 3. Document results
+# 4. Document results
 # Update team tracking spreadsheet
 
-# 4. Apply tuning if needed
+# 5. Apply tuning if needed
 # Update ash-nlp .env with suggested values
 ```
 
-### **Pre-Deployment Testing**
+### **Pre-Deployment Testing with Persistent Containers**
 
 #### **Before NLP Updates**
 ```bash
-# 1. Baseline test
-python cli.py test comprehensive --output file
-mv results/comprehensive_*.json results/baseline_pre_update.json
+# 1. Ensure containers are running
+docker compose up -d
 
-# 2. Deploy NLP changes
+# 2. Baseline test
+docker compose exec ash-thrash python cli.py test comprehensive --output file
+docker compose cp ash-thrash:/app/results/comprehensive_*.json ./baseline_pre_update.json
+
+# 3. Deploy NLP changes
 # (Update ash-nlp)
 
-# 3. Post-update test
-python cli.py test comprehensive --output file
-mv results/comprehensive_*.json results/post_update.json
+# 4. Post-update test
+docker compose exec ash-thrash python cli.py test comprehensive --output file
+docker compose cp ash-thrash:/app/results/comprehensive_*.json ./post_update.json
 
-# 4. Compare results
+# 5. Compare results
 # Ensure no degradation in critical categories
 ```
 
 #### **Before Bot Updates**
 ```bash
-# 1. Validate integration
-python cli.py api health
+# 1. Validate integration from persistent container
+docker compose exec ash-thrash python cli.py api health
 
 # 2. Test category accuracy
-python cli.py test category definite_high
-python cli.py test category definite_none
+docker compose exec ash-thrash python cli.py test category definite_high
+docker compose exec ash-thrash python cli.py test category definite_none
 
 # 3. Verify 100% accuracy on critical categories
 ```
 
-### **Incident Response Testing**
+### **Incident Response Testing with Persistent Containers**
 
 #### **After Crisis Detection Issues**
 ```bash
-# 1. Immediate validation
-python cli.py test category definite_high --output json
+# 1. Immediate validation from running container
+docker compose exec ash-thrash python cli.py test category definite_high --output json
 
 # 2. Check for false negatives
 # Review failed high-crisis phrases
@@ -188,8 +202,8 @@ python cli.py test category definite_high --output json
 # 3. Emergency tuning
 # Apply immediate threshold adjustments
 
-# 4. Re-test and validate
-python cli.py test category definite_high
+# 4. Re-test and validate from persistent container
+docker compose exec ash-thrash python cli.py test category definite_high
 ```
 
 ---
@@ -204,16 +218,17 @@ python cli.py test category definite_high
 - Integrate with new ash ecosystem components
 - Monitor and fix technical issues
 
-#### **Daily Tasks**
+#### **Daily Tasks with Persistent Containers**
 ```bash
-# Code quality checks
-python cli.py validate setup
+# Code quality checks from running container
+docker compose exec ash-thrash python cli.py validate setup
 
-# Test new features
-python cli.py test quick
+# Test new features immediately
+docker compose exec ash-thrash python cli.py test quick
 
 # Monitor API health
 curl http://localhost:8884/health
+docker compose exec ash-thrash python cli.py api health
 ```
 
 #### **Weekly Tasks**
@@ -230,16 +245,18 @@ curl http://localhost:8884/health
 - Manage Docker container orchestration
 - Ensure integration with ash ecosystem
 
-#### **Daily Tasks**
+#### **Daily Tasks with Persistent Containers**
 ```bash
 # Production health monitoring
-python main.py status
+docker compose ps
+docker compose exec ash-thrash python cli.py validate setup
 
 # Check service logs
-python main.py logs --follow ash-thrash-api
+docker compose logs ash-thrash-api
+docker compose logs ash-thrash
 
-# Validate NLP connectivity
-python cli.py api health
+# Validate NLP connectivity from container
+docker compose exec ash-thrash python cli.py api health
 ```
 
 #### **Weekly Tasks**
@@ -256,10 +273,11 @@ python cli.py api health
 - Provide input on test phrase categories
 - Escalate critical detection failures
 
-#### **Daily Tasks**
+#### **Daily Tasks with Persistent Containers**
 - Review Discord test notifications
 - Monitor ash-dash for test results
 - Check for false positive/negative alerts
+- Run ad-hoc tests: `docker compose exec ash-thrash python cli.py test category definite_high`
 
 #### **Weekly Tasks**
 - Analyze comprehensive test trends
@@ -271,14 +289,14 @@ python cli.py api health
 
 ## 🔧 Common Team Workflows
 
-### **Adding New Test Phrases**
+### **Adding New Test Phrases with Persistent Containers**
 
 #### **Process**
 1. **Identify Need**: Community feedback or incident analysis
 2. **Propose Addition**: Create GitHub issue with phrase and category
 3. **Team Review**: Safety team and developers review
 4. **Implementation**: Add to `src/test_data.py`
-5. **Validation**: Test with new phrases
+5. **Validation**: Test with new phrases from persistent container
 6. **Deployment**: Merge to main and deploy
 
 #### **Example Workflow**
@@ -290,11 +308,12 @@ git checkout -b add-new-crisis-phrases
 vim src/test_data.py
 # Add phrases to appropriate category
 
-# 3. Validate changes
-python cli.py validate data
+# 3. Validate changes from persistent container
+docker compose up -d
+docker compose exec ash-thrash python cli.py validate data
 
-# 4. Test new phrases
-python cli.py test category definite_high
+# 4. Test new phrases immediately
+docker compose exec ash-thrash python cli.py test category definite_high
 
 # 5. Create PR
 git add src/test_data.py
@@ -302,20 +321,21 @@ git commit -m "feat: add new high-crisis phrases"
 git push origin add-new-crisis-phrases
 ```
 
-### **Tuning NLP Thresholds**
+### **Tuning NLP Thresholds with Persistent Containers**
 
 #### **Process**
-1. **Run Comprehensive Test**: Get current performance baseline
+1. **Run Comprehensive Test**: Get current performance baseline from persistent container
 2. **Review Suggestions**: Analyze ash-thrash tuning recommendations
 3. **Team Discussion**: Discuss changes in #ash-development
 4. **Apply Changes**: Update ash-nlp environment variables
-5. **Validate**: Re-run tests to confirm improvements
+5. **Validate**: Re-run tests from persistent container to confirm improvements
 6. **Monitor**: Watch for 24-48 hours to ensure stability
 
 #### **Example Workflow**
 ```bash
-# 1. Baseline test
-python cli.py test comprehensive
+# 1. Baseline test from persistent container
+docker compose up -d
+docker compose exec ash-thrash python cli.py test comprehensive
 
 # 2. Review suggestions
 # Example output:
@@ -328,18 +348,18 @@ python cli.py test comprehensive
 
 # 4. Restart ash-nlp
 # (In ash-nlp directory)
-# docker-compose restart ash-nlp
+# docker compose restart ash-nlp
 
-# 5. Validate improvement
-python cli.py test category definite_high
+# 5. Validate improvement immediately from persistent container
+docker compose exec ash-thrash python cli.py test category definite_high
 ```
 
-### **Incident Response**
+### **Incident Response with Persistent Containers**
 
 #### **False Negative (Missed Crisis)**
 ```bash
-# 1. Immediate test
-python cli.py test category definite_high --output json
+# 1. Immediate test from running container
+docker compose exec ash-thrash python cli.py test category definite_high --output json
 
 # 2. Check specific phrase
 # Add problematic phrase to test data if needed
@@ -347,8 +367,8 @@ python cli.py test category definite_high --output json
 # 3. Emergency threshold adjustment
 # Lower detection thresholds immediately
 
-# 4. Validate fix
-python cli.py test category definite_high
+# 4. Validate fix from persistent container
+docker compose exec ash-thrash python cli.py test category definite_high
 
 # 5. Monitor production
 # Watch Discord for continued issues
@@ -356,8 +376,8 @@ python cli.py test category definite_high
 
 #### **False Positive (Normal Message Flagged)**
 ```bash
-# 1. Test normal conversation detection
-python cli.py test category definite_none --output json
+# 1. Test normal conversation detection from persistent container
+docker compose exec ash-thrash python cli.py test category definite_none --output json
 
 # 2. Review failed phrases
 # Identify problematic detection patterns
@@ -365,12 +385,12 @@ python cli.py test category definite_none --output json
 # 3. Adjust thresholds
 # Raise thresholds to reduce false positives
 
-# 4. Re-test
-python cli.py test category definite_none
+# 4. Re-test from persistent container
+docker compose exec ash-thrash python cli.py test category definite_none
 
 # 5. Balance check
 # Ensure high-crisis detection still works
-python cli.py test category definite_high
+docker compose exec ash-thrash python cli.py test category definite_high
 ```
 
 ---
@@ -408,10 +428,10 @@ python cli.py test category definite_high
 🔧 Tuning Suggestions Available
 ```
 
-### **Performance Tracking**
+### **Performance Tracking with Persistent Containers**
 
 #### **Weekly Team Metrics**
-- **Test Coverage**: Number of tests run per week
+- **Test Coverage**: Number of tests run per week via persistent containers
 - **Accuracy Trends**: Pass rate trends over time
 - **Issue Resolution**: Time to fix critical failures
 - **System Uptime**: API and service availability
@@ -419,14 +439,14 @@ python cli.py test category definite_high
 #### **Monthly Team Review**
 - **Goal Achievement**: Progress toward 100% accuracy targets
 - **Test Phrase Effectiveness**: Review and update phrases
-- **Team Workflow**: Process improvements
+- **Team Workflow**: Process improvements with persistent containers
 - **Community Impact**: Crisis detection effectiveness
 
 ---
 
 ## 🛠️ Development & Contribution Guidelines
 
-### **Code Contribution Process**
+### **Code Contribution Process with Persistent Containers**
 
 #### **1. Issue Creation**
 - Use GitHub Issues for all changes
@@ -438,12 +458,15 @@ python cli.py test category definite_high
 # Create feature branch
 git checkout -b feature/your-feature-name
 
+# Start persistent containers for immediate testing
+docker compose up -d
+
 # Make changes
 # Edit code, update tests, update documentation
 
-# Validate changes
-python cli.py validate setup
-python cli.py test quick
+# Validate changes immediately
+docker compose exec ash-thrash python cli.py validate setup
+docker compose exec ash-thrash python cli.py test quick
 
 # Commit and push
 git add .
@@ -456,33 +479,37 @@ git push origin feature/your-feature-name
 
 #### **3. Code Review Requirements**
 - At least one team member approval
-- All tests must pass
+- All tests must pass from persistent containers
 - Documentation must be updated
 - No breaking changes without team discussion
 
-### **Testing Standards**
+### **Testing Standards with Persistent Containers**
 
 #### **Before Committing**
 ```bash
+# Ensure containers are running
+docker compose up -d
+
 # Validate test data
-python cli.py validate data
+docker compose exec ash-thrash python cli.py validate data
 
 # Run quick test
-python cli.py test quick
+docker compose exec ash-thrash python cli.py test quick
 
 # Check API functionality
-python cli.py api health
+docker compose exec ash-thrash python cli.py api health
 ```
 
 #### **Before Releasing**
 ```bash
-# Full comprehensive test
-python cli.py test comprehensive
+# Full comprehensive test from persistent container
+docker compose exec ash-thrash python cli.py test comprehensive
 
 # Docker build test
-python main.py build
-python main.py start
-python main.py test-all comprehensive
+docker compose down
+docker compose build
+docker compose up -d
+docker compose exec ash-thrash python cli.py test comprehensive
 ```
 
 ### **Documentation Standards**
@@ -498,68 +525,70 @@ python main.py test-all comprehensive
 
 ### **Support Channels**
 
-#### **Level 1: Self-Service**
+#### **Level 1: Self-Service with Persistent Containers**
 - Check this team guide
 - Review troubleshooting documentation
 - Search GitHub Issues
+- Test from persistent containers: `docker compose exec ash-thrash python cli.py validate setup`
 
 #### **Level 2: Team Discussion**
 - Post in #ash-development Discord channel
 - Tag relevant team members
-- Provide logs and error details
+- Provide logs: `docker compose logs`
 
 #### **Level 3: Escalation**
 - Create GitHub Issue for bugs
 - Tag @Crisis-Team for safety issues
 - Emergency: Direct message team leads
 
-### **Common Team Issues**
+### **Common Team Issues with Persistent Containers**
 
 #### **"Tests Failing After NLP Update"**
 ```bash
-# 1. Check NLP connectivity
-python cli.py api health
+# 1. Check NLP connectivity from persistent container
+docker compose exec ash-thrash python cli.py api health
 
 # 2. Run baseline test
-python cli.py test category definite_high
+docker compose exec ash-thrash python cli.py test category definite_high
 
 # 3. If failing, revert NLP changes temporarily
 # 4. Investigate tuning requirements
 # 5. Apply gradual threshold adjustments
 ```
 
-#### **"Docker Containers Won't Start"**
+#### **"Containers Won't Start or Keep Restarting"**
 ```bash
-# 1. Check system resources
-docker system df
-docker system prune
+# 1. Check container status
+docker compose ps
+docker compose logs
 
-# 2. Restart services
-python main.py stop
-python main.py start
+# 2. Check system resources
+docker stats
+free -h
 
-# 3. Check logs
-python main.py logs --follow
+# 3. Restart services cleanly
+docker compose down
+docker compose up -d
 
 # 4. If still failing, rebuild
-python main.py clean --force
-python main.py build
-python main.py start
+docker compose down
+docker compose build
+docker compose up -d
 ```
 
-#### **"API Not Responding"**
+#### **"Cannot Execute Commands in Containers"**
 ```bash
-# 1. Check service status
-python main.py status
+# 1. Check if containers are running
+docker compose ps
 
-# 2. Check port availability
-netstat -tulpn | grep 8884
+# 2. Ensure containers are healthy
+docker compose exec ash-thrash echo "Container accessible"
 
-# 3. Restart API service
-docker-compose restart ash-thrash-api
+# 3. Restart if needed
+docker compose restart ash-thrash
 
-# 4. Check logs for errors
-python main.py logs ash-thrash-api
+# 4. Check logs for startup issues
+docker compose logs ash-thrash
 ```
 
 ---
@@ -570,14 +599,15 @@ python main.py logs ash-thrash-api
 
 - [ ] Repository access granted
 - [ ] Discord channels joined (#ash-testing, #ash-development)
-- [ ] Local development environment setup
-- [ ] First successful test run completed
+- [ ] Persistent container environment setup: `docker compose up -d`
+- [ ] First successful test run: `docker compose exec ash-thrash python cli.py test quick`
 - [ ] Team workflow training completed
 - [ ] Emergency procedures understood
 
-### **Weekly Team Tasks**
+### **Weekly Team Tasks with Persistent Containers**
 
-- [ ] Comprehensive test run completed
+- [ ] Containers running and healthy: `docker compose ps`
+- [ ] Comprehensive test run: `docker compose exec ash-thrash python cli.py test comprehensive`
 - [ ] Results reviewed and documented
 - [ ] Discord notifications monitored
 - [ ] GitHub Issues triaged
@@ -586,11 +616,11 @@ python main.py logs ash-thrash-api
 
 ### **Pre-Deployment Checklist**
 
-- [ ] All tests passing
+- [ ] All tests passing from persistent containers
 - [ ] Code review completed
 - [ ] Documentation updated
 - [ ] Docker images built successfully
-- [ ] Staging environment validated
+- [ ] Staging environment validated with persistent containers
 - [ ] Team notification sent
 - [ ] Rollback plan confirmed
 
@@ -599,9 +629,9 @@ python main.py logs ash-thrash-api
 - [ ] Issue severity assessed
 - [ ] Team leads notified
 - [ ] Immediate mitigation applied
-- [ ] Root cause investigation started
+- [ ] Root cause investigation started from persistent containers
 - [ ] Community impact evaluated
-- [ ] Fix implemented and tested
+- [ ] Fix implemented and tested: `docker compose exec ash-thrash python cli.py test comprehensive`
 - [ ] Post-incident review scheduled
 
 ---
@@ -612,12 +642,12 @@ python main.py logs ash-thrash-api
 
 1. **100% High Crisis Detection**: Never miss suicidal ideation
 2. **95% False Positive Prevention**: Minimize normal conversation flags
-3. **<5 Minute Response Time**: Quick issue resolution
+3. **<5 Minute Response Time**: Quick issue resolution with persistent containers
 4. **Daily Testing Coverage**: Consistent validation schedule
 
-### **Team KPIs**
+### **Team KPIs with Persistent Containers**
 
-- **Test Execution**: 7+ comprehensive tests per week
+- **Test Execution**: 7+ comprehensive tests per week from persistent containers
 - **Issue Resolution**: <24 hours for critical issues
 - **Accuracy Improvement**: Monthly trending upward
 - **Community Safety**: Zero missed crisis incidents
@@ -631,9 +661,224 @@ python main.py logs ash-thrash-api
 
 ---
 
-**The Alphabet Cartel team's dedication to crisis detection accuracy directly protects our community members. Every test run, every tuning adjustment, and every code improvement contributes to saving lives.**
+## 🔄 Persistent Container Best Practices
+
+### **Container Lifecycle Management**
+
+#### **Starting Your Work Session**
+```bash
+# 1. Always check container status first
+docker compose ps
+
+# 2. Start containers if not running
+docker compose up -d
+
+# 3. Verify health before proceeding
+docker compose exec ash-thrash python cli.py validate setup
+```
+
+#### **During Development**
+```bash
+# Test changes immediately without container restarts
+docker compose exec ash-thrash python cli.py test quick
+
+# Check logs in real-time
+docker compose logs -f ash-thrash
+
+# Execute multiple commands efficiently
+docker compose exec ash-thrash bash
+# Now you're inside the container for multiple commands
+```
+
+#### **Ending Your Work Session**
+```bash
+# Leave containers running for team members
+# Only stop if you're the last person working
+docker compose ps  # Check if others might be using
+
+# Optional: Stop containers if needed
+docker compose down
+```
+
+### **Resource Management**
+
+#### **Monitoring Container Health**
+```bash
+# Check resource usage
+docker stats ash-thrash ash-thrash-api
+
+# Monitor disk usage
+docker system df
+
+# Clean up if needed (containers will restart automatically)
+docker system prune -f
+```
+
+#### **Troubleshooting Container Issues**
+```bash
+# Quick container restart (preserves volumes)
+docker compose restart ash-thrash
+
+# Full restart with clean state
+docker compose down
+docker compose up -d
+
+# View startup logs
+docker compose logs ash-thrash
+```
+
+---
+
+## 📚 Advanced Team Workflows
+
+### **Collaborative Testing Sessions**
+
+#### **Team Testing Sprint**
+```bash
+# Coordinator starts session
+docker compose up -d
+
+# Team members can immediately join
+docker compose exec ash-thrash python cli.py test category definite_high
+
+# Real-time results sharing via Discord webhooks
+# No waiting for container startups
+```
+
+#### **Parallel Testing Workflow**
+```bash
+# Developer 1: Test new features
+docker compose exec ash-thrash python cli.py test quick
+
+# Developer 2: Validate existing functionality  
+docker compose exec ash-thrash python cli.py test category definite_none
+
+# Operations: Monitor system health
+docker compose exec ash-thrash python cli.py api health
+```
+
+### **Emergency Response Procedures**
+
+#### **Critical Bug Hotfix Workflow**
+```bash
+# 1. Immediate assessment (containers already running)
+docker compose exec ash-thrash python cli.py test category definite_high
+
+# 2. Apply emergency fix
+# Edit code files
+
+# 3. Test fix immediately (no container rebuild needed)
+docker compose exec ash-thrash python cli.py test category definite_high
+
+# 4. Deploy to production if tests pass
+```
+
+#### **Performance Issue Investigation**
+```bash
+# 1. Real-time monitoring
+docker stats ash-thrash ash-thrash-api
+
+# 2. Test performance from container
+docker compose exec ash-thrash time python cli.py test quick
+
+# 3. Check network connectivity
+docker compose exec ash-thrash ping 10.20.30.253
+
+# 4. Review logs without stopping services
+docker compose logs ash-thrash | grep -i error
+```
+
+---
+
+## 📊 Team Metrics and Reporting
+
+### **Weekly Team Standup Data**
+
+#### **Gathering Metrics**
+```bash
+# Get test execution count for the week
+docker compose exec ash-thrash python cli.py results history --days 7
+
+# Check system uptime
+docker compose exec ash-thrash python cli.py api health
+
+# Review error rates
+docker compose logs ash-thrash | grep -i error | wc -l
+```
+
+#### **Performance Trends**
+```bash
+# Compare this week vs last week
+docker compose exec ash-thrash python cli.py results compare --week-over-week
+
+# Check accuracy trends
+docker compose exec ash-thrash python cli.py test comprehensive --output json > this_week.json
+```
+
+### **Monthly Team Review**
+
+#### **Comprehensive Analysis**
+```bash
+# Generate monthly report
+docker compose exec ash-thrash python cli.py results report --month
+
+# Export data for analysis
+docker compose cp ash-thrash:/app/results ./monthly_backup/
+
+# Review and document findings
+# Update team processes based on insights
+```
+
+---
+
+## 🎓 Training and Knowledge Sharing
+
+### **New Developer Onboarding Session**
+
+#### **Hands-on Training Agenda**
+1. **Environment Setup** (10 minutes)
+   ```bash
+   docker compose up -d
+   docker compose exec ash-thrash python cli.py validate setup
+   ```
+
+2. **Basic Testing** (15 minutes)
+   ```bash
+   docker compose exec ash-thrash python cli.py test quick
+   docker compose exec ash-thrash python cli.py test category definite_high
+   ```
+
+3. **API Integration** (10 minutes)
+   ```bash
+   curl http://localhost:8884/health
+   docker compose exec ash-thrash python cli.py api health
+   ```
+
+4. **Troubleshooting Practice** (15 minutes)
+   ```bash
+   docker compose logs ash-thrash
+   docker compose exec ash-thrash python cli.py validate data
+   ```
+
+### **Knowledge Transfer Sessions**
+
+#### **Monthly Technical Deep Dive**
+- **Topic**: Advanced testing strategies
+- **Demo**: Live testing with persistent containers
+- **Hands-on**: Each team member runs tests
+- **Discussion**: Results analysis and improvement ideas
+
+#### **Quarterly Process Review**
+- **Evaluate**: Current persistent container workflow
+- **Identify**: Pain points and inefficiencies
+- **Implement**: Process improvements
+- **Document**: Updated procedures
+
+---
+
+**The Alphabet Cartel team's dedication to crisis detection accuracy directly protects our community members. Every test run, every tuning adjustment, and every code improvement contributes to saving lives. With persistent containers, we can respond faster and test more efficiently than ever before.**
 
 **Discord**: [https://discord.gg/alphabetcartel](https://discord.gg/alphabetcartel)  
 **Repository**: [https://github.com/the-alphabet-cartel/ash-thrash](https://github.com/the-alphabet-cartel/ash-thrash)
 
-*Building safer communities together.* 👥🛡️
+*Building safer communities together with always-ready testing infrastructure.* 👥🛡️🐳
