@@ -12,7 +12,7 @@ services:
   ash-thrash-api:
     #build:
       #context: .
-      #dockerfile: Dockerfile
+      #dockerfile: ./Dockerfile
     image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
     container_name: ash-thrash-api
     restart: unless-stopped
@@ -21,6 +21,8 @@ services:
         ipv4_address: 172.20.0.13
     ports:
       - 8884:8884
+    # Override default command to start the API server
+    command: ["python", "-m", "uvicorn", "src.ash_thrash_api:app", "--host", "0.0.0.0", "--port", "8884"]
     environment:
       # Core Configuration
       - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL:-http://10.20.30.253:8881}
@@ -124,26 +126,33 @@ services:
       - "ash.version=v3.0"
 
   # =========================================================================
-  # Ash-Thrash CLI Runner (on-demand)
+  # Ash-Thrash Service
   # =========================================================================
   ash-thrash:
+    #build:
+      #context: .
+      #dockerfile: ./Dockerfile
     image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
     container_name: ash-thrash
+    restart: unless-stopped
     networks:
       ash-network:
         ipv4_address: 172.20.0.14
     
-    # Override default command for CLI operations
-    entrypoint: ["python", "cli.py"]
-    command: ["validate", "setup"]  # Default command
+    # Keep the container running with a long-lived command
+    # This allows you to exec into it for CLI operations
+    command: ["tail", "-f", "/dev/null"]
     
     environment:
       - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL:-http://10.20.30.253:8881}
       - GLOBAL_LOG_LEVEL=${GLOBAL_LOG_LEVEL:-INFO}
       - THRASH_REQUEST_TIMEOUT=${THRASH_REQUEST_TIMEOUT:-30}
+      - THRASH_MAX_CONCURRENT_TESTS=${THRASH_MAX_CONCURRENT_TESTS:-3}
+      - THRASH_QUICK_TEST_SAMPLE_SIZE=${THRASH_QUICK_TEST_SAMPLE_SIZE:-50}
     volumes:
       - ./results:/app/results
       - ./logs:/app/logs
+      - ./reports:/app/reports
       - ./config:/app/config:ro
       - ./secrets:/run/secrets:ro
     depends_on:
@@ -156,9 +165,6 @@ services:
         reservations:
           memory: 256M
           cpus: '0.25'
-    profiles:
-      - cli
-      - testing
     labels:
       - "ash.service=thrash-cli"
       - "ash.version=v3.0"
