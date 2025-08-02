@@ -1,7 +1,7 @@
 # Ash-Thrash v3.0 GitHub Release Guide
 
 **Repository**: https://github.com/the-alphabet-cartel/ash-thrash  
-**Release**: v3.0.0 - Complete System Rewrite  
+**Release**: v3.0.0 - Complete System Rewrite with Persistent Container Architecture  
 **Document Location**: `docs/git/github_release_v3_0.md`  
 **Release Date**: August 2025
 
@@ -9,17 +9,18 @@
 
 ## 🎉 Release Overview
 
-Ash-Thrash v3.0 represents a **complete ground-up rewrite** of the crisis detection testing suite, transforming it from a bash-script-based system to a modern, enterprise-grade Python and Docker solution.
+Ash-Thrash v3.0 represents a **complete ground-up rewrite** of the crisis detection testing suite, transforming it from a bash-script-based system to a modern, enterprise-grade Python and Docker solution with **persistent container architecture** that eliminates orphan containers and provides instant test execution.
 
 ### Release Highlights
 
 - **🔄 Complete Rewrite**: No legacy code carried over - built from scratch
 - **🐍 Python-First**: Pure Python implementation with no external UI dependencies
-- **🐳 Docker Native**: Full Docker Compose orchestration and deployment
+- **🐳 Docker Native**: Full Docker Compose orchestration with persistent containers
 - **📊 REST API**: Comprehensive API on port 8884 for integration
 - **🧪 350 Test Phrases**: Curated across 7 crisis detection categories
 - **🚀 Modern Stack**: FastAPI with lifespan events, no deprecation warnings
-- **⚡ Development Optimized**: Fast builds, streamlined development workflow
+- **⚡ Instant Execution**: Persistent containers eliminate startup delays
+- **🔧 Zero Orphans**: Clean container management with Docker Compose
 
 ---
 
@@ -27,42 +28,52 @@ Ash-Thrash v3.0 represents a **complete ground-up rewrite** of the crisis detect
 
 ### **Revolutionary Architecture Changes**
 
-#### **1. Python-First Approach**
+#### **1. Persistent Container Architecture**
+- **Before**: `docker compose run` creating orphan containers
+- **After**: `docker compose up -d` with persistent services + `docker compose exec` for execution
+- **Benefit**: Zero orphan containers, instant test execution, clean lifecycle management
+
+#### **2. Python-First Approach**
 - **Before**: Bash scripts with limited functionality
 - **After**: Pure Python CLI using standard library (argparse)
 - **Benefit**: Better error handling, cross-platform compatibility, maintainable code
 
-#### **2. Docker Compose Integration**
+#### **3. Docker Compose Integration**
 - **Before**: Manual container management
-- **After**: Full orchestration with `python main.py start/stop/status`
+- **After**: Full orchestration with persistent services
 - **Benefit**: Production-ready deployment, health monitoring, service discovery
 
-#### **3. REST API Server**
+#### **4. REST API Server**
 - **Before**: No API capabilities
-- **After**: Full FastAPI server on port 8884 with OpenAPI documentation
+- **After**: Full FastAPI server on port 8884 with OpenAPI documentation (persistent)
 - **Benefit**: Integration with ash-dash, automation, remote testing
 
-#### **4. Comprehensive Testing Framework**
+#### **5. Comprehensive Testing Framework**
 - **Before**: Basic keyword testing
 - **After**: 350 phrases across 7 categories with bidirectional testing
 - **Benefit**: Accurate NLP tuning, comprehensive coverage, goal-based validation
 
 ### **Major Feature Additions**
 
-#### **🧪 Advanced Testing System**
-```python
-# Multiple test modes available
-python cli.py test comprehensive          # Full 350 phrase test
-python cli.py test quick --sample-size 30 # Quick validation  
-python cli.py test category definite_high # Category-specific
+#### **🧪 Advanced Testing System with Persistent Containers**
+```bash
+# Start persistent services once
+docker compose up -d
+
+# Execute tests instantly (no container startup delays)
+docker compose exec ash-thrash python cli.py test comprehensive
+docker compose exec ash-thrash python cli.py test quick --sample-size 30
+docker compose exec ash-thrash python cli.py test category definite_high
+
+# Stop services when completely done
+docker compose down
 ```
 
-#### **📊 REST API Integration**
+#### **📊 REST API Integration (Always Available)**
 ```bash
-# Full API for automation and integration
-POST /api/test/trigger     # Start tests
-GET /api/test/results/{id} # Get results
-GET /health               # Health monitoring
+# API server runs persistently
+curl http://localhost:8884/health               # Always available
+curl -X POST http://localhost:8884/api/test/trigger  # Instant response
 ```
 
 #### **🔧 NLP Tuning Suggestions**
@@ -82,20 +93,22 @@ GET /health               # Health monitoring
 #### **🐍 Simplified Command Structure**
 ```bash
 # Management operations
-python main.py setup      # Initial setup
-python main.py start      # Start services  
-python main.py status     # Check health
+docker compose up -d      # Start persistent services
+docker compose ps         # Check service status
+docker compose down       # Stop services
 
-# Direct testing
-python cli.py test comprehensive
-python cli.py validate setup
+# Direct testing from persistent containers
+docker compose exec ash-thrash python cli.py test comprehensive
+docker compose exec ash-thrash python cli.py validate setup
 ```
 
 #### **🐳 Container Simplification**
 ```bash
-# Easy to remember container names
-docker-compose run --rm ash-thrash test comprehensive
-docker-compose run --rm ash-thrash validate setup
+# Easy to remember commands with persistent containers
+docker compose exec ash-thrash python cli.py test comprehensive
+docker compose exec ash-thrash python cli.py validate setup
+
+# No more orphan containers or cleanup needed
 ```
 
 #### **⚡ Automated Building**
@@ -109,10 +122,11 @@ docker-compose run --rm ash-thrash validate setup
 
 ### **Breaking Changes**
 
-⚠️ **Complete API Change**: All previous bash scripts are replaced
-⚠️ **New Environment Variables**: Configuration format completely changed
-⚠️ **Docker Structure**: New container names and orchestration
-⚠️ **Testing Categories**: New 7-category system with bidirectional testing
+⚠️ **Complete API Change**: All previous bash scripts are replaced  
+⚠️ **New Environment Variables**: Configuration format completely changed  
+⚠️ **Docker Structure**: New persistent container architecture  
+⚠️ **Testing Categories**: New 7-category system with bidirectional testing  
+⚠️ **Command Structure**: `docker compose run` → `docker compose exec` pattern
 
 ### **Migration Steps**
 
@@ -133,12 +147,17 @@ git pull origin main
 rm -rf *  # Only if you're comfortable with complete replacement
 ```
 
-#### **3. Fresh Setup**
+#### **3. Fresh Setup with Persistent Containers**
 ```bash
 # Follow new installation process
 python main.py setup
-# Edit .env file with your configuration
-python main.py start
+# Edit .env with your configuration
+
+# Start persistent services
+docker compose up -d
+
+# Verify installation
+docker compose exec ash-thrash python cli.py validate setup
 ```
 
 #### **4. Configuration Mapping**
@@ -149,6 +168,7 @@ python main.py start
 | `DISCORD_WEBHOOK` | `THRASH_DISCORD_WEBHOOK_URL` |
 | `LOG_LEVEL` | `GLOBAL_LOG_LEVEL` |
 | Bash script parameters | Environment variables in `.env` |
+| `docker compose run --rm` | `docker compose exec` |
 
 ---
 
@@ -167,12 +187,13 @@ python main.py setup
 # 3. Configure settings
 # Edit .env file with your NLP server URL and preferences
 
-# 4. Start services
-python main.py start
+# 4. Start persistent services
+docker compose up -d
 
 # 5. Verify installation
-python main.py status
-python cli.py test quick
+docker compose ps
+docker compose exec ash-thrash python cli.py validate setup
+docker compose exec ash-thrash python cli.py test quick
 ```
 
 ### **Development Installation**
@@ -194,20 +215,25 @@ python cli.py test comprehensive
 
 ### **Production Deployment**
 
-#### **Using Pre-built Images**
+#### **Using Pre-built Images with Persistent Architecture**
 ```bash
 # Pull from GitHub Container Registry
 docker pull ghcr.io/the-alphabet-cartel/ash-thrash:v3.0
 
-# Deploy with Docker Compose
+# Deploy with persistent containers
 version: '3.8'
 services:
   ash-thrash-api:
     image: ghcr.io/the-alphabet-cartel/ash-thrash:v3.0
+    command: ["python", "-m", "uvicorn", "src.ash_thrash_api:app", "--host", "0.0.0.0", "--port", "8884"]
+    restart: unless-stopped
     ports:
       - "8884:8884"
-    environment:
-      - GLOBAL_NLP_API_URL=http://your-nlp-server:8881
+
+  ash-thrash:
+    image: ghcr.io/the-alphabet-cartel/ash-thrash:v3.0
+    command: ["tail", "-f", "/dev/null"]
+    restart: unless-stopped
 ```
 
 #### **Automated Deployment**
@@ -240,36 +266,38 @@ GLOBAL_LOG_LEVEL=INFO
 
 ### **Docker Compose Configuration**
 
-The included `docker-compose.yml` provides:
-- **ash-thrash-api**: Main API server (port 8884)
-- **ash-thrash**: CLI container for on-demand testing
+The included `docker-compose.yml` provides persistent container architecture:
+- **ash-thrash-api**: Persistent API server (port 8884) with `uvicorn` command
+- **ash-thrash**: Persistent CLI container with `tail -f /dev/null` command
 - **Health checks**: Automatic dependency validation
 - **Networking**: Integration with ash ecosystem (172.20.0.0/16)
+- **Restart policy**: `unless-stopped` for automatic recovery
 
 ---
 
 ## 📊 Performance & Scaling
 
-### **Performance Benchmarks**
+### **Performance Benchmarks with Persistent Containers**
 
-| **Test Type** | **Duration** | **Memory** | **CPU** |
-|---------------|-------------|------------|---------|
-| Comprehensive (350 phrases) | ~3 minutes | 2GB | 1-2 cores |
-| Quick Validation (50 phrases) | ~30 seconds | 1GB | 1 core |
-| Category Test (50 phrases) | ~25 seconds | 1GB | 1 core |
+| **Test Type** | **Duration** | **Startup Time** | **Memory** | **CPU** |
+|---------------|-------------|------------------|------------|---------|
+| Comprehensive (350 phrases) | ~3 minutes | **0 seconds** | 2GB | 1-2 cores |
+| Quick Validation (50 phrases) | ~30 seconds | **0 seconds** | 1GB | 1 core |
+| Category Test (50 phrases) | ~25 seconds | **0 seconds** | 1GB | 1 core |
 
 ### **Scaling Recommendations**
 
 #### **Development Environment**
 ```bash
-# Single instance sufficient
-python main.py start
+# Single persistent instance sufficient
+docker compose up -d
+docker compose exec ash-thrash python cli.py test comprehensive
 ```
 
 #### **Production Environment**
 ```bash
-# Scale API for high load
-docker-compose up -d --scale ash-thrash-api=3
+# Scale API for high load while maintaining persistent containers
+docker compose up -d --scale ash-thrash-api=3
 
 # Load balancer configuration
 # Configure nginx/traefik to distribute load
@@ -278,8 +306,9 @@ docker-compose up -d --scale ash-thrash-api=3
 ### **Resource Requirements**
 
 - **Minimum**: 2GB RAM, 1 CPU core
-- **Recommended**: 4GB RAM, 2 CPU cores
+- **Recommended**: 4GB RAM, 2 CPU cores  
 - **High Load**: 8GB RAM, 4 CPU cores, multiple API instances
+- **Persistent overhead**: ~500MB additional RAM for always-running containers
 
 ---
 
@@ -297,19 +326,22 @@ docker-compose up -d --scale ash-thrash-api=3
 | `maybe_medium_low` | 50 | 80% | Bidirectional |
 | `maybe_low_none` | 50 | 90% | Bidirectional |
 
-### **Testing Modes**
+### **Testing Modes with Persistent Containers**
 
 ```bash
-# Comprehensive testing (all 350 phrases)
-python cli.py test comprehensive
+# Start persistent services
+docker compose up -d
 
-# Quick validation (subset)
-python cli.py test quick --sample-size 30
+# Comprehensive testing (all 350 phrases) - instant execution
+docker compose exec ash-thrash python cli.py test comprehensive
 
-# Category-specific testing
-python cli.py test category definite_high
+# Quick validation (subset) - no startup delay
+docker compose exec ash-thrash python cli.py test quick --sample-size 30
 
-# API-triggered testing
+# Category-specific testing - immediate response
+docker compose exec ash-thrash python cli.py test category definite_high
+
+# API-triggered testing (persistent API server)
 curl -X POST http://localhost:8884/api/test/trigger \
   -H "Content-Type: application/json" \
   -d '{"test_type": "comprehensive"}'
@@ -325,11 +357,13 @@ curl -X POST http://localhost:8884/api/test/trigger \
 - Uses identical API endpoints as ash-bot
 - Same message preprocessing pipeline
 - Validates real-world behavior
+- **Persistent connection** for faster testing
 
 #### **Ash-Dash Integration**
-- REST API provides data for dashboard visualization
+- REST API provides data for dashboard visualization (always available)
 - Real-time test status and results
 - Historical performance tracking
+- **Zero downtime** integration with persistent API
 
 #### **Ash-Bot Compatibility**
 - Tests same detection logic used in production
@@ -352,26 +386,28 @@ curl -X POST http://localhost:8884/api/test/trigger \
 
 ## 🔍 Monitoring & Observability
 
-### **Health Monitoring**
+### **Health Monitoring with Persistent Containers**
 
 ```bash
-# Service health checks
-python main.py status
+# Service health checks (always available)
+docker compose ps
+docker compose exec ash-thrash python cli.py api health
 
-# API health endpoint
+# API health endpoint (persistent service)
 curl http://localhost:8884/health
 
 # Individual service logs
-python main.py logs --service ash-thrash-api --follow
+docker compose logs ash-thrash-api
+docker compose logs ash-thrash
 ```
 
 ### **Performance Monitoring**
 
 ```bash
-# Test execution metrics
-GET /api/test/history         # Historical performance
-GET /api/test/goals          # Goal achievement tracking
-GET /api/test/data           # Test data validation
+# Test execution metrics (instant access)
+docker compose exec ash-thrash python cli.py results latest
+curl http://localhost:8884/api/test/history    # Historical performance
+curl http://localhost:8884/api/test/goals      # Goal achievement tracking
 ```
 
 ### **Alerting**
@@ -379,27 +415,27 @@ GET /api/test/data           # Test data validation
 - Discord webhook notifications for test completions
 - Health check failures logged with details
 - API response time monitoring built-in
+- **Persistent monitoring** without service interruption
 
 ---
 
 ## 🛠️ Development & Debugging
 
-### **Development Workflow**
+### **Development Workflow with Persistent Containers**
 
 ```bash
-# 1. Make code changes
+# 1. Start persistent development environment
+docker compose up -d
+
+# 2. Make code changes
 # Edit src/ash_thrash_core.py or other files
 
-# 2. Validate changes
-python cli.py validate setup
+# 3. Test changes immediately (no container rebuild needed)
+docker compose exec ash-thrash python cli.py validate setup
+docker compose exec ash-thrash python cli.py test quick
 
-# 3. Test changes locally
-python cli.py test quick
-
-# 4. Test with Docker
-python main.py build
-python main.py start
-python main.py test-all
+# 4. For API changes, restart API service
+docker compose restart ash-thrash-api
 
 # 5. Push changes (auto-builds via GitHub Actions)
 git add .
@@ -407,32 +443,37 @@ git commit -m "feat: your changes"
 git push origin main
 ```
 
-### **Debugging Tools**
+### **Debugging Tools with Persistent Containers**
 
 ```bash
-# Validate test data structure
-python cli.py validate data
+# Validate test data structure (instant access)
+docker compose exec ash-thrash python cli.py validate data
 
-# Check NLP server connectivity
-python cli.py api health --api-url http://your-nlp-server:8881
+# Check NLP server connectivity (no container startup delay)
+docker compose exec ash-thrash python cli.py api health
 
-# Debug API responses
+# Debug API responses (persistent API server)
 curl -X POST http://localhost:8884/api/test/trigger \
   -H "Content-Type: application/json" \
   -d '{"test_type": "quick"}' | jq '.'
+
+# Access container shell for debugging
+docker compose exec ash-thrash bash
+docker compose exec ash-thrash-api bash
 ```
 
-### **Log Analysis**
+### **Log Analysis with Persistent Containers**
 
 ```bash
-# View detailed application logs
-python main.py logs --follow
+# View detailed application logs (real-time)
+docker compose logs -f ash-thrash
+docker compose logs -f ash-thrash-api
 
 # Filter logs by level
-python main.py logs | grep ERROR
+docker compose logs ash-thrash | grep ERROR
 
 # Export logs for analysis
-python main.py logs > ash-thrash-logs.txt
+docker compose logs ash-thrash > ash-thrash-logs.txt
 ```
 
 ---
@@ -441,15 +482,15 @@ python main.py logs > ash-thrash-logs.txt
 
 ### **Complete Documentation Suite**
 
-- **[README.md](../README.md)** - Main project documentation
+- **[README.md](../README.md)** - Main project documentation (updated for persistent containers)
 - **[API Documentation](../tech/api_v3_0.md)** - Complete REST API reference
-- **[Team Guide](../team/team_guide_v3_0.md)** - Setup guide for team members
-- **[Troubleshooting Guide](../troubleshooting_v3_0.md)** - Problem resolution
-- **[Implementation Plan](../implementation_plan_recode.md)** - Development roadmap
+- **[Team Guide](../team/team_guide_v3_0.md)** - Setup guide for team members (persistent workflow)
+- **[Troubleshooting Guide](../troubleshooting_v3_0.md)** - Problem resolution (container-specific)
+- **[Implementation Plan](../implementation_plan_recode_v3_0.md)** - Development roadmap
 
 ### **API Documentation**
 
-- **OpenAPI Specification**: Available at `http://localhost:8884/docs`
+- **OpenAPI Specification**: Available at `http://localhost:8884/docs` (always running)
 - **Interactive Testing**: Built-in Swagger UI
 - **Examples**: Comprehensive usage examples for all endpoints
 
@@ -460,49 +501,55 @@ python main.py logs > ash-thrash-logs.txt
 ### **Production Considerations**
 
 1. **Security**: Configure CORS appropriately for production
-2. **Performance**: Monitor NLP server response times
+2. **Performance**: Monitor NLP server response times  
 3. **Scaling**: Use multiple API instances for high load
 4. **Backup**: Regular backup of test results and configuration
+5. **Resource Management**: Monitor persistent container resource usage
 
 ### **Breaking Changes from v2.x**
 
 - **Complete rewrite**: No compatibility with previous versions
-- **New command structure**: All bash scripts replaced with Python
+- **New command structure**: `docker compose run` → `docker compose exec`
 - **Environment variables**: New configuration format
-- **Docker structure**: New container names and orchestration
+- **Docker structure**: Persistent container architecture
+- **Container lifecycle**: Services remain running by default
 
 ### **Upgrade Path**
 
 - **Recommended**: Fresh installation rather than upgrade
 - **Configuration**: Manually migrate settings to new format
 - **Testing**: Validate all functionality after migration
+- **Training**: Team training on new persistent container workflow
 
 ---
 
 ## 🎯 Next Steps After Installation
 
-### **1. Validate Installation**
+### **1. Validate Installation with Persistent Containers**
 ```bash
-python cli.py validate setup
-python main.py status
+docker compose up -d
+docker compose ps
+docker compose exec ash-thrash python cli.py validate setup
 ```
 
 ### **2. Run Initial Tests**
 ```bash
-python cli.py test quick
-python cli.py test comprehensive
+docker compose exec ash-thrash python cli.py test quick
+docker compose exec ash-thrash python cli.py test comprehensive
 ```
 
 ### **3. Configure Integration**
 ```bash
 # Set up Discord webhooks in .env
 # Configure ash-dash to use port 8884
-# Validate ash-nlp connectivity
+# Validate ash-nlp connectivity from persistent container
+docker compose exec ash-thrash python cli.py api health
 ```
 
 ### **4. Production Deployment**
 ```bash
-# Scale for production load
+# Scale persistent services for production load
+docker compose up -d --scale ash-thrash-api=3
 # Configure monitoring and alerting
 # Set up automated testing schedule
 ```
@@ -525,10 +572,12 @@ python cli.py test comprehensive
 
 ---
 
-**Ash-Thrash v3.0 represents a quantum leap forward in crisis detection testing capabilities. This release provides enterprise-grade testing infrastructure that ensures the safety and accuracy of mental health crisis detection systems.**
+**Ash-Thrash v3.0 represents a quantum leap forward in crisis detection testing capabilities. This release provides enterprise-grade testing infrastructure with persistent container architecture that ensures the safety and accuracy of mental health crisis detection systems while eliminating container management overhead.**
+
+**Key Innovation**: **Persistent Container Architecture** - Zero orphan containers, instant test execution, clean lifecycle management.
 
 **Discord**: [https://discord.gg/alphabetcartel](https://discord.gg/alphabetcartel)  
 **Website**: [http://alphabetcartel.org](http://alphabetcartel.org)  
 **Repository**: [https://github.com/the-alphabet-cartel/ash-thrash](https://github.com/the-alphabet-cartel/ash-thrash)
 
-*Revolutionizing crisis detection testing for safer communities.* 🧪✨
+*Revolutionizing crisis detection testing with persistent, always-ready infrastructure.* 🧪✨🐳
