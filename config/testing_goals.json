@@ -72,11 +72,10 @@
           "alert_on_failure": false
       }
     },
-    "overall_targets": {
-        "minimum_overall_pass_rate": 90.0,
-        "maximum_avg_response_time_ms": 500.0,
-        "minimum_tests_per_second": 1.5,
-        "maximum_error_rate": 5.0
-    }
+  "overall_targets": {
+      "minimum_overall_pass_rate": 90.0,
+      "maximum_avg_response_time_ms": 500.0,
+      "minimum_tests_per_second": 1.5,
+      "maximum_error_rate": 5.0
   }
 }
