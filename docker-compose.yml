@@ -10,9 +10,9 @@ services:
   # Ash-Thrash API Server
   # =========================================================================
   ash-thrash-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    #build:
+      #context: .
+      #dockerfile: Dockerfile
     image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
     container_name: ash-thrash-api
     restart: unless-stopped
