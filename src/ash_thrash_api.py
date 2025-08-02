@@ -16,6 +16,7 @@ import asyncio
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from pathlib import Path
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.responses import JSONResponse
@@ -29,7 +30,7 @@ from src.test_data import get_phrase_count_summary, validate_test_data, get_cate
 
 # Pydantic models for API
 class TriggerTestRequest(BaseModel):
-    test_type: str = "comprehensive"  # comprehensive, quick, category_<name>
+    test_type: str = "comprehensive"  # comprehensive, quick, category_<n>
     triggered_by: str = "api"
     parameters: Optional[Dict] = None
 
@@ -60,13 +61,54 @@ running_tests: Dict[str, Dict] = {}
 completed_tests: Dict[str, ComprehensiveTestResults] = {}
 start_time = datetime.now(timezone.utc)
 
-# Initialize FastAPI app
+# Initialize tester
+tester = AshThrashTester()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan event handler"""
+    # Startup
+    print("🚀 Starting Ash-Thrash API Server")
+    print("=" * 40)
+    print(f"Version: 3.0.0")
+    print(f"NLP Server: {tester.nlp_url}")
+    print(f"Port: 8884")
+    print(f"Discord: https://discord.gg/alphabetcartel")
+    print(f"Website: http://alphabetcartel.org")
+    
+    # Validate test data on startup
+    validation = validate_test_data()
+    if validation["correct_total"] and validation["all_categories_have_50"]:
+        print(f"✅ Test data validated: {validation['total_phrases']} phrases")
+    else:
+        print(f"❌ Test data validation failed: {validation['total_phrases']} phrases")
+    
+    # Test NLP connectivity
+    try:
+        from src.ash_thrash_core import NLPClient
+        async with NLPClient(tester.nlp_url, timeout=5) as client:
+            if await client.health_check():
+                print("✅ NLP server connectivity verified")
+            else:
+                print("⚠️ NLP server health check failed")
+    except Exception as e:
+        print(f"❌ NLP server unreachable: {str(e)}")
+    
+    print("🎯 API server ready for testing!")
+    
+    yield
+    
+    # Shutdown
+    print("🛑 Shutting down Ash-Thrash API Server")
+
+# Initialize FastAPI app with lifespan
 app = FastAPI(
     title="Ash-Thrash Testing API",
     description="Crisis Detection Testing Suite for Ash NLP System",
     version="3.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Add CORS middleware
@@ -77,9 +119,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Initialize tester
-tester = AshThrashTester()
 
 @app.get("/", response_class=JSONResponse)
 async def root():
@@ -152,7 +191,7 @@ async def trigger_test(request: TriggerTestRequest, background_tasks: Background
         )
     
     # Generate test ID
-    test_id = f"{test_type}_{int(datetime.now(timestamp=timezone.utc).timestamp())}"
+    test_id = f"{test_type}_{int(datetime.now(timezone.utc).timestamp())}"
     
     # Estimate duration based on test type
     duration_estimates = {
@@ -440,38 +479,6 @@ async def send_discord_notification(results: ComprehensiveTestResults):
                     
     except Exception as e:
         print(f"❌ Discord webhook error: {str(e)}")
-
-# Startup event
-@app.on_event("startup")
-async def startup_event():
-    """Initialize the API server"""
-    print("🚀 Starting Ash-Thrash API Server")
-    print("=" * 40)
-    print(f"Version: 3.0.0")
-    print(f"NLP Server: {tester.nlp_url}")
-    print(f"Port: 8884")
-    print(f"Discord: https://discord.gg/alphabetcartel")
-    print(f"Website: http://alphabetcartel.org")
-    
-    # Validate test data on startup
-    validation = validate_test_data()
-    if validation["correct_total"] and validation["all_categories_have_50"]:
-        print(f"✅ Test data validated: {validation['total_phrases']} phrases")
-    else:
-        print(f"❌ Test data validation failed: {validation['total_phrases']} phrases")
-    
-    # Test NLP connectivity
-    try:
-        from src.ash_thrash_core import NLPClient
-        async with NLPClient(tester.nlp_url, timeout=5) as client:
-            if await client.health_check():
-                print("✅ NLP server connectivity verified")
-            else:
-                print("⚠️ NLP server health check failed")
-    except Exception as e:
-        print(f"❌ NLP server unreachable: {str(e)}")
-    
-    print("🎯 API server ready for testing!")
 
 # Custom exception handler
 @app.exception_handler(Exception)
