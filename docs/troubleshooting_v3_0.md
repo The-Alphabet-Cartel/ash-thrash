@@ -13,29 +13,31 @@
 
 #### **API Server Not Responding**
 ```bash
-# 1. Quick restart
-python main.py stop
-python main.py start
+# 1. Quick restart persistent containers
+docker compose restart ash-thrash-api
 
 # 2. Check if services are running
-python main.py status
+docker compose ps
 
-# 3. If still failing, force restart
-docker-compose down -v
-docker-compose up -d
+# 3. If still failing, force restart all
+docker compose down
+docker compose up -d
+
+# 4. Verify services are healthy
+docker compose exec ash-thrash python cli.py api health
 ```
 
 #### **All Tests Failing (NLP Server Issue)**
 ```bash
-# 1. Test NLP connectivity directly
-curl http://10.20.30.253:8881/health
+# 1. Test NLP connectivity from container
+docker compose exec ash-thrash curl http://10.20.30.253:8881/health
 
 # 2. If NLP down, restart ash-nlp service
 # (In ash-nlp directory)
-docker-compose restart ash-nlp
+docker compose restart ash-nlp
 
-# 3. Verify connectivity restored
-python cli.py api health
+# 3. Verify connectivity restored from ash-thrash container
+docker compose exec ash-thrash python cli.py api health
 ```
 
 #### **False Negatives (Missing Crisis Detection)**
@@ -46,10 +48,26 @@ python cli.py api health
 
 # 2. Restart NLP service
 # (In ash-nlp directory)
-docker-compose restart ash-nlp
+docker compose restart ash-nlp
 
-# 3. Immediate validation
-python cli.py test category definite_high
+# 3. Immediate validation using persistent container
+docker compose exec ash-thrash python cli.py test category definite_high
+```
+
+#### **Containers Won't Stay Running**
+```bash
+# 1. Check container status and exit codes
+docker compose ps
+docker compose logs ash-thrash
+docker compose logs ash-thrash-api
+
+# 2. Force clean restart
+docker compose down -v
+docker compose up -d
+
+# 3. Check for resource constraints
+docker stats
+free -h
 ```
 
 ---
@@ -58,49 +76,54 @@ python cli.py test category definite_high
 
 ### **System Health Check**
 ```bash
-# Complete system validation
-python cli.py validate setup
+# Complete system validation using persistent containers
+docker compose up -d
+docker compose exec ash-thrash python cli.py validate setup
 
-# API health check
-python cli.py api health
+# API health check from container
+docker compose exec ash-thrash python cli.py api health
 
 # Service status
-python main.py status
+docker compose ps
 
-# Test data validation
-python cli.py validate data
+# Test data validation from container
+docker compose exec ash-thrash python cli.py validate data
 ```
 
 ### **Network Connectivity Tests**
 ```bash
-# Test NLP server connectivity
-curl -I http://10.20.30.253:8881/health
+# Test NLP server connectivity from ash-thrash container
+docker compose exec ash-thrash curl -I http://10.20.30.253:8881/health
 
-# Test API server
+# Test API server from external
 curl -I http://localhost:8884/health
 
 # Check port availability
 netstat -tulpn | grep -E "(8881|8884)"
 
-# DNS resolution test
-nslookup 10.20.30.253
+# Test connectivity from within container network
+docker compose exec ash-thrash ping ash-nlp
+docker compose exec ash-thrash ping 10.20.30.253
 ```
 
 ### **Docker Diagnostics**
 ```bash
 # Container status
-docker-compose ps
+docker compose ps
 
-# Service logs
-python main.py logs --follow ash-thrash-api
+# Service logs for persistent containers
+docker compose logs ash-thrash-api
+docker compose logs ash-thrash
+docker compose logs -f  # Follow all logs
 
-# Resource usage
-docker stats ash-thrash-api
+# Resource usage for running containers
+docker stats ash-thrash-api ash-thrash
 
-# Network connectivity
-docker exec ash-thrash-api ping 10.20.30.253
+# Network connectivity between containers
+docker compose exec ash-thrash ping ash-thrash-api
+docker compose exec ash-thrash-api ping ash-nlp
 
-# Container health
+# Container health inspection
 docker inspect ash-thrash-api | jq '.[0].State.Health'
 ```
 
@@ -110,43 +133,43 @@ docker inspect ash-thrash-api | jq '.[0].State.Health'
 
 ### **Installation & Setup Issues**
 
-#### **Issue: `python main.py setup` Fails**
+#### **Issue: `docker compose up -d` Fails**
 
 **Symptoms:**
-- Command not found errors
-- Permission denied
+- Containers exit immediately
+- Port binding errors
 - Missing dependencies
 
 **Diagnosis:**
 ```bash
-# Check Python version
-python --version
+# Check Docker daemon
+docker version
 
-# Check if in correct directory
-pwd
-ls -la main.py
+# Check if ports are available
+sudo netstat -tulpn | grep -E "(8884|8881)"
 
-# Check file permissions
-ls -la main.py cli.py
+# View container startup logs
+docker compose logs
 ```
 
 **Solutions:**
 ```bash
-# Fix permissions
-chmod +x main.py cli.py
+# Stop conflicting services
+sudo lsof -ti:8884 | xargs kill -9
 
-# Install dependencies
-pip install -r requirements.txt
+# Clean up Docker resources
+docker system prune -f
 
-# Use Python 3 explicitly
-python3 main.py setup
+# Rebuild containers
+docker compose down
+docker compose build
+docker compose up -d
 
-# Virtual environment (if needed)
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-venv\Scripts\activate     # Windows
-pip install -r requirements.txt
+# Check Docker Compose syntax
+docker compose config
+
+# Increase Docker resources (Docker Desktop)
+# Settings > Resources > Memory > 4GB+
 ```
 
 #### **Issue: `.env` File Not Created**
@@ -154,6 +177,7 @@ pip install -r requirements.txt
 **Symptoms:**
 - "Environment file not found" errors
 - Default configuration being used
+- Containers fail to start
 
 **Solutions:**
 ```bash
@@ -166,87 +190,87 @@ nano .env  # or vim, code, etc.
 # Verify contents
 cat .env | grep -v '^#'
 
-# Export variables
-export $(cat .env | grep -v '^#' | xargs)
+# Restart containers with new config
+docker compose down
+docker compose up -d
 ```
 
-### **Docker & Container Issues**
+### **Container Lifecycle Issues**
 
-#### **Issue: Containers Won't Start**
+#### **Issue: Containers Keep Restarting**
 
 **Symptoms:**
-- `docker-compose up` fails
-- Container exits immediately
-- Port binding errors
+- Containers in restart loop
+- Exit code 1 or 125
+- Services marked as unhealthy
 
 **Diagnosis:**
 ```bash
-# Check Docker daemon
-docker version
+# Check container exit reasons
+docker compose ps
+docker compose logs ash-thrash
+docker compose logs ash-thrash-api
 
-# Check port conflicts
-sudo netstat -tulpn | grep 8884
-
-# View container logs
-docker-compose logs ash-thrash-api
-
-# Check resource usage
-docker system df
+# Check resource constraints
+docker stats
 free -h
+df -h
 ```
 
 **Solutions:**
 ```bash
-# Stop conflicting services
-sudo lsof -ti:8884 | xargs kill -9
+# Increase container memory limits
+# Edit docker-compose.yml:
+# deploy:
+#   resources:
+#     limits:
+#       memory: 4G  # Increase from 2G
 
-# Clean up Docker resources
-docker system prune -f
+# Fix file permissions
+chmod 777 results logs reports
 
-# Rebuild containers
-python main.py clean --force
-python main.py build
+# Check for dependency issues
+docker compose exec ash-thrash python cli.py validate setup
 
-# Check Docker Compose syntax
-docker-compose config
-
-# Increase Docker resources (Docker Desktop)
-# Settings > Resources > Memory > 4GB+
+# Restart with clean state
+docker compose down -v
+docker compose up -d
 ```
 
-#### **Issue: Container Health Checks Failing**
+#### **Issue: Cannot Execute Commands in Containers**
 
 **Symptoms:**
-- Containers marked as unhealthy
-- Health check timeouts
+- `docker compose exec` commands fail
+- "Container not found" errors
+- "Container not running" errors
 
 **Diagnosis:**
 ```bash
-# Manual health check
-docker exec ash-thrash-api curl -f http://localhost:8884/health
+# Check if containers are running
+docker compose ps
 
-# Check health check logs
-docker inspect ash-thrash-api | jq '.[0].State.Health.Log'
+# Check container health
+docker compose exec ash-thrash echo "Container is accessible"
 
-# Test connectivity inside container
-docker exec ash-thrash-api ping google.com
+# Verify service names
+docker compose config --services
 ```
 
 **Solutions:**
 ```bash
-# Increase health check timeout
-# Edit docker-compose.yml:
-# healthcheck:
-#   timeout: 30s  # Increase from 10s
+# Ensure containers are running
+docker compose up -d
 
-# Disable health checks temporarily
-# Comment out healthcheck section in docker-compose.yml
+# Wait for containers to be ready
+sleep 10
+docker compose ps
 
-# Fix DNS resolution
-# Add to docker-compose.yml:
-# dns:
-#   - 8.8.8.8
-#   - 8.8.4.4
+# Use correct service names
+docker compose exec ash-thrash python cli.py validate setup
+docker compose exec ash-thrash-api curl http://localhost:8884/health
+
+# Check container logs for startup issues
+docker compose logs ash-thrash
 ```
 
 ### **API & Testing Issues**
@@ -260,29 +284,29 @@ docker exec ash-thrash-api ping google.com
 
 **Diagnosis:**
 ```bash
-# Check API logs
-python main.py logs ash-thrash-api
+# Check API logs from persistent container
+docker compose logs ash-thrash-api
 
 # Test API endpoints manually
 curl -v http://localhost:8884/health
 
-# Check Python imports
-docker exec ash-thrash-api python -c "from src.ash_thrash_core import AshThrashTester"
+# Check Python imports in container
+docker compose exec ash-thrash-api python -c "from src.ash_thrash_core import AshThrashTester"
 ```
 
 **Solutions:**
 ```bash
 # Restart API service
-docker-compose restart ash-thrash-api
+docker compose restart ash-thrash-api
 
-# Check environment variables
-docker exec ash-thrash-api env | grep -E "(GLOBAL_|THRASH_)"
+# Check environment variables in container
+docker compose exec ash-thrash-api env | grep -E "(GLOBAL_|THRASH_)"
 
-# Validate Python dependencies
-docker exec ash-thrash-api pip list
+# Validate Python dependencies in container
+docker compose exec ash-thrash-api pip list
 
 # Check for code syntax errors
-python -m py_compile src/ash_thrash_api.py
+docker compose exec ash-thrash python -m py_compile src/ash_thrash_api.py
 ```
 
 #### **Issue: Tests Always Fail**
@@ -294,16 +318,16 @@ python -m py_compile src/ash_thrash_api.py
 
 **Diagnosis:**
 ```bash
-# Test NLP server directly
-curl -X POST http://10.20.30.253:8881/analyze \
+# Test NLP server directly from container
+docker compose exec ash-thrash curl -X POST http://10.20.30.253:8881/analyze \
   -H "Content-Type: application/json" \
   -d '{"message": "test message", "user_id": "test", "channel_id": "test"}'
 
-# Check network routing
-traceroute 10.20.30.253
+# Check network routing from container
+docker compose exec ash-thrash ping 10.20.30.253
 
-# Verify DNS resolution
-ping 10.20.30.253
+# Verify DNS resolution in container
+docker compose exec ash-thrash nslookup 10.20.30.253
 ```
 
 **Solutions:**
@@ -313,17 +337,17 @@ ping 10.20.30.253
 # GLOBAL_NLP_API_URL=http://correct-nlp-server:8881
 
 # Restart services with new config
-python main.py stop
-python main.py start
+docker compose down
+docker compose up -d
 
-# Test with different URL
-python cli.py api health --api-url http://alternative-server:8881
+# Test with different URL from container
+docker compose exec ash-thrash python cli.py api health
 
 # Check firewall settings
 sudo ufw status
 ```
 
-#### **Issue: Tests Take Too Long**
+#### **Issue: Tests Take Too Long or Timeout**
 
 **Symptoms:**
 - Tests timeout before completion
@@ -332,16 +356,14 @@ sudo ufw status
 
 **Diagnosis:**
 ```bash
-# Check NLP server performance
-time curl http://10.20.30.253:8881/health
+# Check NLP server performance from container
+docker compose exec ash-thrash bash -c "time curl http://10.20.30.253:8881/health"
 
-# Monitor system resources
-top
-htop
-docker stats
+# Monitor system resources during tests
+docker stats ash-thrash ash-thrash-api
 
-# Test single phrase
-python cli.py test category definite_high --sample-size 1
+# Test single phrase from container
+docker compose exec ash-thrash python cli.py test category definite_high --sample-size 1
 ```
 
 **Solutions:**
@@ -354,11 +376,11 @@ python cli.py test category definite_high --sample-size 1
 # Edit .env:
 # THRASH_REQUEST_TIMEOUT=60
 
-# Use quick test mode
-python cli.py test quick --sample-size 10
+# Use quick test mode from container
+docker compose exec ash-thrash python cli.py test quick --sample-size 10
 
 # Scale down other services temporarily
-docker-compose stop ash-dash  # If running
+docker compose stop ash-dash  # If running
 ```
 
 ### **Integration Issues**
@@ -372,16 +394,16 @@ docker-compose stop ash-dash  # If running
 
 **Diagnosis:**
 ```bash
-# Test webhook manually
-curl -X POST "$THRASH_DISCORD_WEBHOOK_URL" \
+# Test webhook manually from container
+docker compose exec ash-thrash-api curl -X POST "$THRASH_DISCORD_WEBHOOK_URL" \
   -H "Content-Type: application/json" \
   -d '{"content": "Test message"}'
 
-# Check webhook URL format
-echo $THRASH_DISCORD_WEBHOOK_URL
+# Check webhook URL format in container
+docker compose exec ash-thrash-api printenv THRASH_DISCORD_WEBHOOK_URL
 
 # View webhook logs
-python main.py logs ash-thrash-api | grep webhook
+docker compose logs ash-thrash-api | grep webhook
 ```
 
 **Solutions:**
@@ -397,7 +419,7 @@ python main.py logs ash-thrash-api | grep webhook
 # Verify bot has "Manage Webhooks" permission in Discord
 
 # Restart API with new webhook
-docker-compose restart ash-thrash-api
+docker compose restart ash-thrash-api
 ```
 
 #### **Issue: Ash-Dash Integration Broken**
@@ -412,8 +434,8 @@ docker-compose restart ash-thrash-api
 # Test API from dashboard server
 curl http://10.20.30.253:8884/api/test/latest
 
-# Check CORS configuration
-curl -H "Origin: http://dashboard-url" \
+# Check CORS configuration from container
+docker compose exec ash-thrash curl -H "Origin: http://dashboard-url" \
   -H "Access-Control-Request-Method: GET" \
   -H "Access-Control-Request-Headers: Content-Type" \
   -X OPTIONS http://localhost:8884/api/test/latest
@@ -427,7 +449,7 @@ curl -H "Origin: http://dashboard-url" \
 # THRASH_CORS_ORIGINS=http://dashboard-url,https://ashdash.alphabetcartel.net
 
 # Restart API service
-docker-compose restart ash-thrash-api
+docker compose restart ash-thrash-api
 
 # Verify dashboard configuration
 # Check ash-dash .env for correct API URL:
@@ -438,7 +460,7 @@ docker-compose restart ash-thrash-api
 
 ## 🐛 Debugging Techniques
 
-### **Verbose Logging**
+### **Verbose Logging for Persistent Containers**
 
 #### **Enable Debug Logging**
 ```bash
@@ -447,30 +469,17 @@ GLOBAL_LOG_LEVEL=DEBUG
 THRASH_ENABLE_DEBUG_LOGGING=true
 
 # Restart services
-python main.py stop
-python main.py start
+docker compose down
+docker compose up -d
 
 # View debug logs
-python main.py logs --follow
+docker compose logs -f
 ```
 
-#### **Python Debugging**
-```python
-# Add to src/ash_thrash_core.py for debugging
-import logging
-logging.basicConfig(level=logging.DEBUG)
-
-# Add debug prints
-print(f"DEBUG: Testing phrase: {phrase}")
-print(f"DEBUG: NLP response: {response}")
-```
-
-### **Manual Testing**
-
-#### **Test Individual Components**
+#### **Container-Based Debugging**
 ```bash
-# Test NLP integration directly
-python -c "
+# Add debug prints and test immediately
+docker compose exec ash-thrash python -c "
 import asyncio
 from src.ash_thrash_core import NLPClient
 
@@ -481,9 +490,14 @@ async def test_nlp():
 
 asyncio.run(test_nlp())
 "
+```
 
-# Test single phrase
-python -c "
+### **Manual Testing with Persistent Containers**
+
+#### **Test Individual Components**
+```bash
+# Test NLP integration directly from container
+docker compose exec ash-thrash python -c "
 import asyncio
 from src.ash_thrash_core import AshThrashTester
 
@@ -493,55 +507,46 @@ async def test_phrase():
 
 asyncio.run(test_phrase())
 "
+
+# Test single phrase from container
+docker compose exec ash-thrash python cli.py test phrase 'test phrase' --debug
 ```
 
-#### **API Endpoint Testing**
+#### **API Endpoint Testing from Containers**
 ```bash
-# Test each endpoint individually
-curl http://localhost:8884/
-curl http://localhost:8884/health
-curl http://localhost:8884/api/test/data
+# Test each endpoint from API container
+docker compose exec ash-thrash-api curl http://localhost:8884/
+docker compose exec ash-thrash-api curl http://localhost:8884/health
+docker compose exec ash-thrash-api curl http://localhost:8884/api/test/data
 
-# Test with verbose output
-curl -v -X POST http://localhost:8884/api/test/trigger \
+# Test with verbose output from container
+docker compose exec ash-thrash curl -v -X POST http://ash-thrash-api:8884/api/test/trigger \
   -H "Content-Type: application/json" \
   -d '{"test_type": "quick"}'
 ```
 
-### **Performance Debugging**
+### **Performance Debugging with Persistent Containers**
 
-#### **Profile Test Execution**
-```python
-# Add timing to test functions
-import time
-
-start_time = time.time()
-# ... test execution ...
-end_time = time.time()
-print(f"Test took {end_time - start_time:.2f} seconds")
-```
-
-#### **Monitor Resource Usage**
+#### **Monitor Resource Usage During Tests**
 ```bash
-# Monitor during test execution
-# Terminal 1: Start test
-python cli.py test comprehensive
+# Terminal 1: Start test from container
+docker compose exec ash-thrash python cli.py test comprehensive
 
 # Terminal 2: Monitor resources
-watch -n 1 'docker stats --no-stream'
+watch -n 1 'docker stats --no-stream ash-thrash ash-thrash-api'
 
-# Monitor network activity
-sudo netstat -i 1
+# Monitor network activity from container
+docker compose exec ash-thrash netstat -i
 
-# Monitor disk I/O
-iostat -x 1
+# Monitor container logs in real-time
+docker compose logs -f ash-thrash
 ```
 
 ---
 
 ## 📊 Performance Issues
 
-### **Slow Test Execution**
+### **Slow Test Execution with Persistent Containers**
 
 #### **Symptoms:**
 - Tests take >5 minutes for comprehensive
@@ -553,16 +558,16 @@ iostat -x 1
 # Check system resources
 free -h
 df -h
-top
+docker stats ash-thrash ash-thrash-api
 
-# Monitor network latency
-ping 10.20.30.253
+# Monitor network latency from container
+docker compose exec ash-thrash ping 10.20.30.253
 
-# Check NLP server performance
-time curl http://10.20.30.253:8881/health
+# Check NLP server performance from container
+docker compose exec ash-thrash bash -c "time curl http://10.20.30.253:8881/health"
 
-# Profile single test
-time python cli.py test category definite_high
+# Profile single test from container
+docker compose exec ash-thrash bash -c "time python cli.py test category definite_high"
 ```
 
 #### **Solutions:**
@@ -575,14 +580,14 @@ THRASH_MAX_CONCURRENT_TESTS=1
 THRASH_REQUEST_TIMEOUT=60
 NLP_SERVER_TIMEOUT=45
 
-# Use smaller test sets
-python cli.py test quick --sample-size 10
+# Use smaller test sets from container
+docker compose exec ash-thrash python cli.py test quick --sample-size 10
 
 # Check for resource constraints
 # Increase Docker memory limits in docker-compose.yml
 ```
 
-### **High Memory Usage**
+### **High Memory Usage with Persistent Containers**
 
 #### **Symptoms:**
 - Out of memory errors
@@ -592,7 +597,7 @@ python cli.py test quick --sample-size 10
 #### **Diagnosis:**
 ```bash
 # Check container memory usage
-docker stats --no-stream
+docker stats --no-stream ash-thrash ash-thrash-api
 
 # Check system memory
 free -h
@@ -617,15 +622,15 @@ THRASH_MAX_CONCURRENT_TESTS=1
 docker system prune -f
 
 # Restart with more memory
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 ```
 
 ---
 
 ## 🔐 Security Issues
 
-### **Permission Problems**
+### **Permission Problems with Persistent Containers**
 
 #### **Issue: File Permission Errors**
 
@@ -636,25 +641,22 @@ docker-compose up -d
 
 **Solutions:**
 ```bash
-# Fix script permissions
-chmod +x main.py cli.py
-
-# Fix directory permissions
-sudo chown -R $USER:$USER .
-chmod -R 755 .
-
-# Fix Docker volume permissions
+# Fix directory permissions for container access
 mkdir -p results logs reports
 chmod 777 results logs reports  # For Docker
 
-# Use proper user in Docker
-# Edit Dockerfile to match host user ID
+# Fix ownership if needed
+sudo chown -R $USER:$USER .
+
+# Test file access from container
+docker compose exec ash-thrash touch /app/results/test_file
+docker compose exec ash-thrash ls -la /app/results/
 ```
 
 #### **Issue: Network Security Blocking**
 
 **Symptoms:**
-- Connection refused errors
+- Connection refused errors from container
 - Timeout connecting to NLP server
 - Firewall blocks
 
@@ -667,24 +669,21 @@ sudo ufw status
 sudo ufw allow 8884
 sudo ufw allow from 10.20.30.0/24
 
-# Check iptables rules
-sudo iptables -L
-
-# Test with firewall disabled (temporarily)
+# Test with firewall disabled (temporarily) from container
 sudo ufw disable
-# Run test
+docker compose exec ash-thrash python cli.py api health
 sudo ufw enable
 ```
 
 ---
 
-## 🚨 Emergency Procedures
+## 🚨 Emergency Procedures for Persistent Containers
 
 ### **Production Emergency Response**
 
 #### **Crisis Detection Failure**
 1. **Immediate Action**: Lower detection thresholds
-2. **Validation**: Run emergency high-crisis test
+2. **Validation**: Run emergency high-crisis test from container
 3. **Communication**: Alert team via Discord
 4. **Monitoring**: Watch for continued issues
 5. **Documentation**: Log incident details
@@ -695,10 +694,10 @@ sudo ufw enable
 NLP_HIGH_CRISIS_THRESHOLD=0.5  # Emergency low threshold
 
 # Restart NLP service
-docker-compose restart ash-nlp
+docker compose restart ash-nlp
 
-# Emergency validation
-python cli.py test category definite_high
+# Emergency validation from persistent container
+docker compose exec ash-thrash python cli.py test category definite_high
 
 # If still failing, manual review required
 ```
@@ -712,32 +711,32 @@ python cli.py test category definite_high
 
 ```bash
 # Complete system restart
-python main.py stop
+docker compose down
 docker system prune -f
-python main.py start
+docker compose up -d
 
 # Wait for services to stabilize
 sleep 30
 
-# Full system validation
-python cli.py validate setup
-python cli.py test comprehensive
+# Full system validation from container
+docker compose exec ash-thrash python cli.py validate setup
+docker compose exec ash-thrash python cli.py test comprehensive
 ```
 
-### **Data Recovery**
+### **Data Recovery for Persistent Containers**
 
 #### **Lost Test Results**
 ```bash
-# Check backup locations
-ls -la results/
-ls -la logs/
+# Check backup locations from container
+docker compose exec ash-thrash ls -la /app/results/
+docker compose exec ash-thrash ls -la /app/logs/
 
 # Recover from Docker volumes
 docker volume ls
 docker run --rm -v ash-thrash_results:/backup alpine tar czf - /backup
 
-# Restore from recent backups
-# (Implementation depends on backup system)
+# Copy results from container to host
+docker compose cp ash-thrash:/app/results ./backup_results
 ```
 
 #### **Configuration Recovery**
@@ -748,8 +747,9 @@ cp .env.template .env
 # Restore from git
 git checkout HEAD -- .env.template
 
-# Restore from backup
-# (Implementation depends on backup system)
+# Restart containers with restored config
+docker compose down
+docker compose up -d
 ```
 
 ---
@@ -760,8 +760,8 @@ git checkout HEAD -- .env.template
 
 #### **Level 1: Self-Service**
 - Check this troubleshooting guide
-- Review error logs: `python main.py logs`
-- Verify configuration: `python cli.py validate setup`
+- Review container logs: `docker compose logs`
+- Verify configuration: `docker compose exec ash-thrash python cli.py validate setup`
 - Search GitHub Issues: https://github.com/the-alphabet-cartel/ash-thrash/issues
 
 #### **Level 2: Community Support**
@@ -776,78 +776,80 @@ git checkout HEAD -- .env.template
 
 ### **Information to Include When Asking for Help**
 
-#### **System Information**
+#### **System Information for Persistent Containers**
 ```bash
 # Collect diagnostic information
 echo "=== System Info ===" > debug_info.txt
 uname -a >> debug_info.txt
 docker version >> debug_info.txt
+docker compose version >> debug_info.txt
 python --version >> debug_info.txt
 
-echo "=== Service Status ===" >> debug_info.txt
-python main.py status >> debug_info.txt
+echo "=== Container Status ===" >> debug_info.txt
+docker compose ps >> debug_info.txt
 
 echo "=== Health Check ===" >> debug_info.txt
-python cli.py api health >> debug_info.txt 2>&1
+docker compose exec ash-thrash python cli.py api health >> debug_info.txt 2>&1
 
 echo "=== Recent Logs ===" >> debug_info.txt
-python main.py logs --tail 50 >> debug_info.txt 2>&1
+docker compose logs --tail 50 >> debug_info.txt 2>&1
 
 echo "=== Environment ===" >> debug_info.txt
 cat .env | grep -v '^#' >> debug_info.txt
 ```
 
 #### **Error Reproduction**
-- Exact command that failed
+- Exact command that failed (including `docker compose exec`)
 - Complete error message
-- Steps to reproduce
+- Steps to reproduce with persistent containers
 - Expected vs actual behavior
 - Recent changes made
 
 ### **Common Support Questions**
 
 #### **"Everything was working yesterday, now it's broken"**
-- Check if ash-nlp server is running
-- Verify network connectivity
+- Check if ash-nlp server is running: `docker compose exec ash-thrash curl http://10.20.30.253:8881/health`
+- Verify network connectivity from containers
 - Review recent configuration changes
-- Check Docker container status
+- Check Docker container status: `docker compose ps`
 
 #### **"Tests are failing but NLP server seems fine"**
-- Validate test data structure
-- Check environment variables
+- Validate test data structure: `docker compose exec ash-thrash python cli.py validate data`
+- Check environment variables in containers
 - Review NLP server response format
-- Test individual phrases manually
+- Test individual phrases manually from container
 
 #### **"Performance is much slower than expected"**
-- Check system resources
-- Monitor network latency
+- Check system resources: `docker stats`
+- Monitor network latency from container
 - Review concurrent test settings
-- Verify NLP server performance
+- Verify NLP server performance from container
 
 ---
 
-## 🔧 Advanced Troubleshooting
+## 🔧 Advanced Troubleshooting with Persistent Containers
 
 ### **Custom Debugging Scripts**
 
-#### **Network Connectivity Test**
+#### **Network Connectivity Test for Containers**
 ```python
 #!/usr/bin/env python3
+# Save as debug_connectivity.py and run: docker compose exec ash-thrash python debug_connectivity.py
 import requests
 import time
 
 def test_connectivity():
     nlp_url = "http://10.20.30.253:8881"
-    api_url = "http://localhost:8884"
+    api_url = "http://ash-thrash-api:8884"
     
-    print("Testing NLP Server...")
+    print("Testing NLP Server from container...")
     try:
         response = requests.get(f"{nlp_url}/health", timeout=5)
         print(f"✅ NLP Server: {response.status_code}")
     except Exception as e:
         print(f"❌ NLP Server: {e}")
     
-    print("Testing API Server...")
+    print("Testing API Server from container...")
     try:
         response = requests.get(f"{api_url}/health", timeout=5)
         print(f"✅ API Server: {response.status_code}")
@@ -858,70 +860,26 @@ if __name__ == "__main__":
     test_connectivity()
 ```
 
-#### **Performance Benchmark**
-```python
-#!/usr/bin/env python3
-import time
-import requests
-
-def benchmark_api():
-    base_url = "http://localhost:8884"
-    
-    # Test response times
-    endpoints = [
-        "/health",
-        "/api/test/data", 
-        "/api/test/goals"
-    ]
-    
-    for endpoint in endpoints:
-        start_time = time.time()
-        try:
-            response = requests.get(f"{base_url}{endpoint}")
-            end_time = time.time()
-            print(f"{endpoint}: {(end_time - start_time)*1000:.1f}ms")
-        except Exception as e:
-            print(f"{endpoint}: ERROR - {e}")
-
-if __name__ == "__main__":
-    benchmark_api()
-```
-
-### **Log Analysis Tools**
+### **Log Analysis Tools for Persistent Containers**
 
 #### **Error Pattern Detection**
 ```bash
-# Find common error patterns
-grep -i error logs/ash-thrash.log | sort | uniq -c | sort -nr
+# Find common error patterns in persistent container logs
+docker compose logs ash-thrash | grep -i error | sort | uniq -c | sort -nr
 
 # Check for specific issues
-grep -i "nlp.*unreachable" logs/ash-thrash.log
-grep -i "timeout" logs/ash-thrash.log
-grep -i "failed.*test" logs/ash-thrash.log
+docker compose logs ash-thrash | grep -i "nlp.*unreachable"
+docker compose logs ash-thrash | grep -i "timeout"
+docker compose logs ash-thrash-api | grep -i "failed.*test"
 
 # Analyze timing patterns
-grep -E "\d{4}-\d{2}-\d{2}.*ERROR" logs/ash-thrash.log | \
+docker compose logs ash-thrash | grep -E "\d{4}-\d{2}-\d{2}.*ERROR" | \
   awk '{print $1, $2}' | sort | uniq -c
-```
-
-#### **Performance Analysis**
-```bash
-# Extract response times
-grep -o "processing_time_ms.*" logs/ash-thrash.log | \
-  sed 's/.*: //' | sort -n
-
-# Find slow operations
-grep -E "(took|duration).*[0-9]+.*ms" logs/ash-thrash.log | \
-  grep -E "[0-9]{4,}ms"  # Over 1 second
-
-# Analyze test patterns
-grep "test.*completed" logs/ash-thrash.log | \
-  awk '{print $NF}' | sort | uniq -c
 ```
 
 ---
 
-**This troubleshooting guide covers the most common issues encountered with Ash-Thrash v3.0. For issues not covered here, please create a GitHub issue with detailed diagnostic information.**
+**This troubleshooting guide covers the most common issues encountered with Ash-Thrash v3.0 persistent container deployment. For issues not covered here, please create a GitHub issue with detailed diagnostic information.**
 
 **Emergency Contact**: [Discord #ash-development](https://discord.gg/alphabetcartel)  
 **Repository**: [https://github.com/the-alphabet-cartel/ash-thrash](https://github.com/the-alphabet-cartel/ash-thrash)  
