@@ -7,6 +7,9 @@ Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Discord: https://discord.gg/alphabetcartel
 Website: http://alphabetcartel.org
 """
+import json
+import os
+from pathlib import Path
 
 # Definite High Priority Crisis Phrases (50 phrases)
 # Target: 100% detection rate - Safety Critical
@@ -455,82 +458,37 @@ def get_all_test_phrases():
         "maybe_low_none": MAYBE_LOW_NONE_PHRASES
     }
 
-def get_category_info():
+def load_testing_goals_from_json():
     """
-    Returns metadata about each testing category.
+    Load testing goals from config/testing_goals.json file.
+    Falls back to hardcoded defaults if file doesn't exist.
     """
-    return {
-        "definite_high": {
-            "display_name": "Definite High Crisis",
-            "description": "Explicit suicidal ideation and immediate danger",
-            "target_pass_rate": 100.0,
-            "critical": True,
-            "allow_escalation": False,
-            "allow_descalation": False,
-            "phrase_count": len(DEFINITE_HIGH_PHRASES)
-        },
-        "definite_medium": {
-            "display_name": "Definite Medium Crisis", 
-            "description": "Severe mental health episodes",
-            "target_pass_rate": 65.0,
-            "critical": False,
-            "allow_escalation": False,
-            "allow_descalation": False,
-            "phrase_count": len(DEFINITE_MEDIUM_PHRASES)
-        },
-        "definite_low": {
-            "display_name": "Definite Low Crisis",
-            "description": "Mild to moderate distress",
-            "target_pass_rate": 65.0,
-            "critical": False,
-            "allow_escalation": False,
-            "allow_descalation": False,
-            "phrase_count": len(DEFINITE_LOW_PHRASES)
-        },
-        "definite_none": {
-            "display_name": "Definite No Crisis",
-            "description": "Normal conversation - prevent false positives",
-            "target_pass_rate": 95.0,
-            "critical": True,
-            "allow_escalation": False,
-            "allow_descalation": False,
-            "phrase_count": len(DEFINITE_NONE_PHRASES)
-        },
-        "maybe_high_medium": {
-            "display_name": "Maybe High/Medium Crisis",
-            "description": "Ambiguous high/medium - bidirectional acceptable",
-            "target_pass_rate": 90.0,
-            "critical": False,  
-            "allow_escalation": True,
-            "allow_descalation": True,
-            "acceptable_range": ["high", "medium"],
-            "phrase_count": len(MAYBE_HIGH_MEDIUM_PHRASES)
-        },
-        "maybe_medium_low": {
-            "display_name": "Maybe Medium/Low Crisis",
-            "description": "Ambiguous medium/low - bidirectional acceptable",
-            "target_pass_rate": 80.0,
-            "critical": False,
-            "allow_escalation": True,
-            "allow_descalation": True,
-            "acceptable_range": ["medium", "low"],
-            "phrase_count": len(MAYBE_MEDIUM_LOW_PHRASES)
-        },
-        "maybe_low_none": {
-            "display_name": "Maybe Low/None Crisis",
-            "description": "Ambiguous low/none - bidirectional acceptable",
-            "target_pass_rate": 90.0,
-            "critical": True,
-            "allow_escalation": True,
-            "allow_descalation": True,
-            "acceptable_range": ["low", "none"],
-            "phrase_count": len(MAYBE_LOW_NONE_PHRASES)
-        }
-    }
+    try:
+        # Try to find the JSON file relative to the project root
+        current_dir = Path(__file__).parent
+        config_file = current_dir.parent / "config" / "testing_goals.json"
+        
+        # Alternative path if running from different directory
+        if not config_file.exists():
+            config_file = Path("config/testing_goals.json")
+        
+        if config_file.exists():
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+                return config.get('goals', {})
+        else:
+            print(f"⚠️  Warning: Could not find testing_goals.json at {config_file}")
+            print("⚠️  Using hardcoded defaults")
+            return get_hardcoded_testing_goals()
+            
+    except Exception as e:
+        print(f"⚠️  Error loading testing_goals.json: {e}")
+        print("⚠️  Using hardcoded defaults")
+        return get_hardcoded_testing_goals()
 
-def get_testing_goals():
+def get_hardcoded_testing_goals():
     """
-    Returns testing goals configuration compatible with testing_goals.json format.
+    Fallback hardcoded testing goals if JSON file is unavailable.
     """
     return {
         "definite_high": {
@@ -600,6 +558,57 @@ def get_testing_goals():
             "alert_on_failure": False
         }
     }
+
+def get_category_info():
+    """
+    Returns metadata about each testing category from JSON configuration.
+    """
+    json_goals = load_testing_goals_from_json()
+    
+    # Convert JSON format to the expected category_info format
+    category_info = {}
+    
+    for category_name, config in json_goals.items():
+        # Get phrase count dynamically
+        phrase_count = len(globals().get(f"{category_name.upper()}_PHRASES", []))
+        
+        category_info[category_name] = {
+            "display_name": config.get("description", category_name.replace("_", " ").title()),
+            "description": config.get("description", ""),
+            "target_pass_rate": config.get("target_pass_rate", 65.0),
+            "critical": config.get("critical", False),
+            "allow_escalation": config.get("allow_escalation", False),
+            "allow_descalation": config.get("allow_descalation", False),
+            "acceptable_range": config.get("acceptable_range", []),
+            "min_confidence": config.get("min_confidence", 0.3),
+            "alert_on_failure": config.get("alert_on_failure", False),
+            "phrase_count": phrase_count
+        }
+    
+    return category_info
+
+def get_testing_goals():
+    """
+    Returns testing goals configuration from JSON file.
+    This function now directly returns the loaded JSON configuration.
+    """
+    return load_testing_goals_from_json()
+
+# Update the _determine_test_pass logic in ash_thrash_core.py as well
+def enhanced_determine_test_pass(expected_category: str, detected_level: str, testing_goals: dict) -> bool:
+    """
+    Enhanced test pass logic that properly handles JSON configuration.
+    This should replace the existing _determine_test_pass method.
+    """
+    goals = testing_goals.get(expected_category, {})
+    
+    # Check if acceptable_range is defined (handles all flexible scenarios)
+    acceptable_range = goals.get('acceptable_range', [])
+    if acceptable_range:
+        return detected_level in acceptable_range
+    
+    # For categories without acceptable_range, check exact match
+    return expected_category.split('_')[-1] == detected_level  # Extract level from category name
 
 def get_phrase_count_summary():
     """
