@@ -4,20 +4,24 @@
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20Server-7289da)](https://discord.gg/alphabetcartel)
 [![Website](https://img.shields.io/badge/Website-alphabetcartel.org-blue)](http://alphabetcartel.org)
-[![GitHub](https://img.shields.io/badge/Branch-v3.0-green)](https://github.com/the-alphabet-cartel/ash-thrash)
+[![GitHub](https://img.shields.io/badge/Version-v3.0-green)](https://github.com/the-alphabet-cartel/ash-thrash)
+[![Docker](https://img.shields.io/badge/Docker-ghcr.io-blue)](https://github.com/orgs/the-alphabet-cartel/packages/container/package/ash-thrash)
 
 ## 🚀 What is Ash-Thrash v3.0?
 
-Ash-Thrash v3.0 is a **comprehensive testing suite** designed to validate and tune the Ash NLP crisis detection system. Built with **pure Python** and **Docker Compose**, it provides:
+Ash-Thrash v3.0 is a **comprehensive testing suite** designed to validate and tune the Ash NLP crisis detection system. Built with **pure Python** and **Docker Compose**, it provides enterprise-grade testing capabilities for mental health crisis detection systems.
+
+### Key Features
 
 - **🧪 350 Test Phrases**: Carefully curated phrases across 7 crisis categories
 - **⚡ Multiple Test Modes**: Comprehensive, quick validation, and category-specific testing
 - **🔧 NLP Tuning Suggestions**: Automated recommendations for improving detection accuracy
-- **📊 REST API**: Full API for integration with ash-dash and external systems
+- **📊 REST API**: Full API on port 8884 for integration with ash-dash and external systems
 - **🎯 Goal-Based Testing**: Pass/fail criteria based on safety-first principles
 - **📱 Discord Integration**: Automated result notifications via webhooks
 - **🐍 Python-First**: Standard Python CLI with no external UI dependencies
 - **🐳 Docker Native**: Full Docker Compose orchestration and deployment
+- **🔄 Modern FastAPI**: Latest patterns with lifespan event handlers
 
 ## 🎯 Testing Categories & Goals
 
@@ -32,28 +36,21 @@ Ash-Thrash v3.0 is a **comprehensive testing suite** designed to validate and tu
 - **🔄 Maybe Medium/Low** (50 phrases) - **80% target** - Either medium OR low acceptable  
 - **🔄 Maybe Low/None** (50 phrases) - **90% target** - Either low OR none acceptable
 
-## 🏗️ Project Structure
+## 🏗️ Architecture Overview
 
+### System Integration
 ```
-ash-thrash/
-├── src/
-│   ├── ash_thrash_core.py          # Core testing engine
-│   ├── ash_thrash_api.py           # REST API server (port 8884)
-│   └── test_data.py                # 350 test phrases + categories
-├── config/
-│   └── testing_goals.json          # Pass/fail criteria configuration
-├── results/                        # Test results storage (auto-created)
-├── logs/                           # Application logs (auto-created)
-├── reports/                        # Test reports (auto-created)
-├── cli.py                          # Python CLI interface
-├── main.py                       # Docker Compose management
-├── docker-compose.yml              # Docker orchestration
-├── Dockerfile                      # Container build configuration
-├── requirements.txt                # Python dependencies
-├── .env.template                   # Environment configuration template
-├── .env                            # Your environment file (created from template)
-└── README.md                       # This file
+Discord Messages → Ash-Bot → Ash-NLP → Crisis Detection
+                                ↑
+                          Ash-Thrash Testing
 ```
+
+### Core Components
+- **Testing Engine**: 350 phrase validation with bidirectional category support
+- **REST API**: Port 8884 for integration and automation
+- **CLI Interface**: Direct Python commands for testing and validation
+- **Docker Services**: Orchestrated deployment with health monitoring
+- **GitHub Workflow**: Automated Docker image builds
 
 ## 🚀 Quick Start
 
@@ -134,9 +131,9 @@ python main.py test-all comprehensive
 python main.py test-all quick
 
 # Run tests directly via Docker Compose
-docker-compose run --rm ash-thrash-cli test comprehensive
-docker-compose run --rm ash-thrash-cli test category definite_high
-docker-compose run --rm ash-thrash-cli validate setup
+docker-compose run --rm ash-thrash test comprehensive
+docker-compose run --rm ash-thrash test category definite_high
+docker-compose run --rm ash-thrash validate setup
 ```
 
 ### API-Based Testing
@@ -272,8 +269,8 @@ Ash-Thrash automatically generates tuning suggestions based on test results:
 ### Applying Suggestions
 
 1. **Manual Tuning**: Update ash-nlp's `.env` file with suggested threshold values
-2. **Automated Integration**: Use suggestions to automatically adjust NLP parameters
-3. **Iterative Testing**: Re-run tests after adjustments to validate improvements
+2. **Iterative Testing**: Re-run tests after adjustments to validate improvements
+3. **Performance Tracking**: Use historical data to track tuning effectiveness
 
 ## 🔌 Integration with Ash Ecosystem
 
@@ -293,8 +290,8 @@ Configure Discord webhooks for automated test notifications:
 ```bash
 # In .env file
 THRASH_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your/webhook/url
-THRASH_DISCORD_NOTIFICATIONS_ENABLED=true
-THRASH_NOTIFY_ON_COMPREHENSIVE_TESTS=true
+DISCORD_NOTIFICATIONS_ENABLED=true
+NOTIFY_ON_COMPREHENSIVE_TESTS=true
 ```
 
 ### Example Discord Notification
@@ -340,7 +337,7 @@ GLOBAL_THRASH_API_PORT=8884
 
 # Discord Integration
 THRASH_DISCORD_WEBHOOK_URL=your_webhook_url
-THRASH_DISCORD_NOTIFICATIONS_ENABLED=true
+DISCORD_NOTIFICATIONS_ENABLED=true
 
 # Testing Configuration
 THRASH_MAX_CONCURRENT_TESTS=3
@@ -349,6 +346,53 @@ THRASH_QUICK_TEST_SAMPLE_SIZE=50
 # Tuning Suggestions
 THRASH_GENERATE_SUGGESTIONS=true
 THRASH_SUGGESTION_THRESHOLD=10.0
+```
+
+## 📈 Performance Expectations
+
+### Test Duration Estimates
+- **Comprehensive Test**: ~3 minutes (350 phrases)
+- **Quick Validation**: ~30 seconds (50 phrases)  
+- **Category Test**: ~25 seconds (50 phrases)
+
+### System Requirements
+- **Memory**: 2GB RAM for API container, 1GB for CLI
+- **CPU**: 1-2 cores recommended for concurrent testing
+- **Network**: Stable connection to ash-nlp server
+- **Storage**: ~100MB for results and logs
+
+## 🐳 Docker Deployment
+
+### Using Pre-built Images
+
+```bash
+# Pull latest image
+docker pull ghcr.io/the-alphabet-cartel/ash-thrash:latest
+
+# Run API server
+docker run -d --name ash-thrash-api \
+  --env-file .env \
+  -p 8884:8884 \
+  ghcr.io/the-alphabet-cartel/ash-thrash:latest
+
+# Run CLI tests
+docker run --rm \
+  --env-file .env \
+  ghcr.io/the-alphabet-cartel/ash-thrash:latest \
+  python cli.py test comprehensive
+```
+
+### Docker Compose (Recommended)
+
+```bash
+# Start all services
+python main.py start
+
+# Scale API for high load
+docker-compose up -d --scale ash-thrash-api=2
+
+# View service logs
+python main.py logs --follow ash-thrash-api
 ```
 
 ## 🔍 Troubleshooting
@@ -401,27 +445,12 @@ python main.py setup
 python main.py start
 ```
 
-**Permission Issues**
-```bash
-# Create required directories
-mkdir -p results logs reports
+## 📚 Documentation
 
-# Fix permissions
-chmod +x cli.py main.py
-```
-
-## 📈 Performance Expectations
-
-### Test Duration Estimates
-- **Comprehensive Test**: ~3 minutes (350 phrases)
-- **Quick Validation**: ~30 seconds (50 phrases)  
-- **Category Test**: ~25 seconds (50 phrases)
-
-### System Requirements
-- **Memory**: 1GB RAM minimum, 2GB recommended
-- **CPU**: 2 cores minimum for concurrent testing
-- **Network**: Stable connection to ash-nlp server
-- **Storage**: 100MB for results and logs
+- **[API Documentation](docs/tech/api_v3_0.md)** - Complete REST API reference
+- **[Team Guide](docs/team/team_guide_v3_0.md)** - Setup and usage for team members
+- **[Troubleshooting](docs/troubleshooting_v3_0.md)** - Detailed problem resolution
+- **[GitHub Release](docs/git/github_release_v3_0.md)** - Release notes and deployment guide
 
 ## 🤝 Contributing
 
@@ -443,9 +472,8 @@ python main.py setup
 
 ### API Improvements
 1. Modify `src/ash_thrash_api.py`
-2. Add appropriate tests
-3. Update API documentation
-4. Test with ash-dash integration
+2. Update API documentation
+3. Test with ash-dash integration
 
 ### Development Workflow
 ```bash
