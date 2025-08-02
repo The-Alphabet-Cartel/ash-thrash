@@ -131,9 +131,9 @@ class AshThrashTester:
         """Determine if test passed based on expected vs detected levels"""
         goals = self.testing_goals.get(expected_category, {})
         
-        # Handle bidirectional "maybe" categories
-        if goals.get('allow_escalation') and goals.get('allow_descalation'):
-            acceptable_range = goals.get('acceptable_range', [])
+        # Check if acceptable_range is defined (handles all flexible scenarios)
+        acceptable_range = goals.get('acceptable_range', [])
+        if acceptable_range:
             return detected_level in acceptable_range
         
         # Handle definite categories - exact match required
