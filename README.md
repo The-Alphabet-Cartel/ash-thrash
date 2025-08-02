@@ -20,7 +20,7 @@ Ash-Thrash v3.0 is a **comprehensive testing suite** designed to validate and tu
 - **🎯 Goal-Based Testing**: Pass/fail criteria based on safety-first principles
 - **📱 Discord Integration**: Automated result notifications via webhooks
 - **🐍 Python-First**: Standard Python CLI with no external UI dependencies
-- **🐳 Docker Native**: Full Docker Compose orchestration and deployment
+- **🐳 Docker Native**: Full Docker Compose orchestration and deployment with persistent containers
 - **🔄 Modern FastAPI**: Latest patterns with lifespan event handlers
 
 ## 🎯 Testing Categories & Goals
@@ -47,8 +47,8 @@ Discord Messages → Ash-Bot → Ash-NLP → Crisis Detection
 
 ### Core Components
 - **Testing Engine**: 350 phrase validation with bidirectional category support
-- **REST API**: Port 8884 for integration and automation
-- **CLI Interface**: Direct Python commands for testing and validation
+- **REST API Server**: Persistent API container on port 8884 for integration and automation
+- **CLI Container**: Persistent container for executing tests and validation commands
 - **Docker Services**: Orchestrated deployment with health monitoring
 - **GitHub Workflow**: Automated Docker image builds
 
@@ -67,11 +67,12 @@ python main.py setup
 # 3. Configure environment
 # Edit .env file with your NLP server URL and settings
 
-# 4. Start services
-python main.py start
+# 4. Start all services (persistent containers)
+docker compose up -d
 
 # 5. Verify health
-python main.py status
+docker compose ps
+docker compose exec ash-thrash python cli.py validate setup
 ```
 
 ### Option 2: Local Development
@@ -98,7 +99,38 @@ python cli.py test comprehensive
 
 ## 🧪 Running Tests
 
-### Python CLI Testing
+### Docker Compose Testing (Recommended - Persistent Containers)
+
+```bash
+# Start all services (containers remain running)
+docker compose up -d
+
+# Full comprehensive test (350 phrases)
+docker compose exec ash-thrash python cli.py test comprehensive
+
+# Quick validation test (subset)
+docker compose exec ash-thrash python cli.py test quick --sample-size 30
+
+# Category-specific tests
+docker compose exec ash-thrash python cli.py test category definite_high
+docker compose exec ash-thrash python cli.py test category maybe_high_medium
+
+# Output options
+docker compose exec ash-thrash python cli.py test comprehensive --output json
+docker compose exec ash-thrash python cli.py test comprehensive --output file
+
+# System validation
+docker compose exec ash-thrash python cli.py validate setup
+docker compose exec ash-thrash python cli.py validate data
+
+# API health check
+docker compose exec ash-thrash python cli.py api health
+
+# Stop all services when done
+docker compose down
+```
+
+### Local Python CLI Testing
 
 ```bash
 # Full comprehensive test (350 phrases)
@@ -120,33 +152,15 @@ python cli.py test comprehensive --output file
 # maybe_high_medium, maybe_medium_low, maybe_low_none
 ```
 
-### Docker Compose Testing
-
-```bash
-# Start API server first
-python main.py start
-
-# Run tests via management script
-python main.py test-all comprehensive
-python main.py test-all quick
-
-# Run tests directly via Docker Compose
-docker-compose run --rm ash-thrash test comprehensive
-docker-compose run --rm ash-thrash test category definite_high
-docker-compose run --rm ash-thrash validate setup
-```
-
 ### API-Based Testing
 
 ```bash
-# Start API server
-python cli.py api start --port 8884
-# OR via Docker
-python main.py start
+# Start API server (automatically starts with docker compose up -d)
+docker compose up -d
 
 # Trigger tests via API (Python CLI)
-python cli.py api trigger comprehensive --wait
-python cli.py api health
+docker compose exec ash-thrash python cli.py api trigger comprehensive --wait
+docker compose exec ash-thrash python cli.py api health
 
 # Trigger tests via API (direct HTTP)
 curl -X POST http://localhost:8884/api/test/trigger \
@@ -201,7 +215,34 @@ results = requests.get(f'http://localhost:8884/api/test/results/{test_id}').json
 print(f"Overall pass rate: {results['overall_pass_rate']:.1f}%")
 ```
 
-## 🐍 Python Management Commands
+## 🐍 Container Management Commands
+
+### Docker Compose Operations
+
+```bash
+# Start all services (persistent containers)
+docker compose up -d
+
+# Check service status
+docker compose ps
+
+# View logs
+docker compose logs ash-thrash-api
+docker compose logs ash-thrash
+docker compose logs -f  # Follow all logs
+
+# Stop all services
+docker compose down
+
+# Restart specific services
+docker compose restart ash-thrash-api
+docker compose restart ash-thrash
+
+# Rebuild and restart
+docker compose down
+docker compose build
+docker compose up -d
+```
 
 ### Management Script (`main.py`)
 
@@ -213,7 +254,7 @@ python main.py stop                     # Stop all services
 python main.py status                   # Check service status
 python main.py logs --follow            # View logs (follow mode)
 
-# Testing
+# Testing (via persistent containers)
 python main.py test-all comprehensive   # Run comprehensive tests
 python main.py test-all quick           # Run quick tests
 
@@ -369,30 +410,28 @@ THRASH_SUGGESTION_THRESHOLD=10.0
 # Pull latest image
 docker pull ghcr.io/the-alphabet-cartel/ash-thrash:latest
 
-# Run API server
-docker run -d --name ash-thrash-api \
-  --env-file .env \
-  -p 8884:8884 \
-  ghcr.io/the-alphabet-cartel/ash-thrash:latest
+# Run with persistent containers
+docker compose up -d
 
-# Run CLI tests
-docker run --rm \
-  --env-file .env \
-  ghcr.io/the-alphabet-cartel/ash-thrash:latest \
-  python cli.py test comprehensive
+# Execute tests in running container
+docker compose exec ash-thrash python cli.py test comprehensive
 ```
 
 ### Docker Compose (Recommended)
 
 ```bash
-# Start all services
-python main.py start
+# Start all services as persistent containers
+docker compose up -d
 
-# Scale API for high load
-docker-compose up -d --scale ash-thrash-api=2
+# Check service status
+docker compose ps
+
+# Execute commands in running containers
+docker compose exec ash-thrash python cli.py test comprehensive
+docker compose exec ash-thrash python cli.py validate setup
 
 # View service logs
-python main.py logs --follow ash-thrash-api
+docker compose logs -f ash-thrash-api
 ```
 
 ## 🔍 Troubleshooting
@@ -401,20 +440,20 @@ python main.py logs --follow ash-thrash-api
 
 **NLP Server Unreachable**
 ```bash
-# Check connectivity
-python cli.py api health
+# Check connectivity from within container
+docker compose exec ash-thrash python cli.py api health
 
 # Test direct connection
 curl http://10.20.30.253:8881/health
 
 # Verify environment variable
-echo $GLOBAL_NLP_API_URL
+docker compose exec ash-thrash printenv GLOBAL_NLP_API_URL
 ```
 
 **Test Data Validation Errors**
 ```bash
-# Validate test data
-python cli.py validate data
+# Validate test data from container
+docker compose exec ash-thrash python cli.py validate data
 
 # Should show: "🎉 Test data validation PASSED!"
 ```
@@ -424,25 +463,29 @@ python cli.py validate data
 # Check port availability
 netstat -tulpn | grep 8884
 
-# Check via management script
-python main.py status
+# Check service status
+docker compose ps
 
 # View detailed logs
-python main.py logs --follow ash-thrash-api
+docker compose logs ash-thrash-api
 ```
 
-**Docker Issues**
+**Containers Won't Stay Running**
 ```bash
-# Rebuild containers
-python main.py build
+# Check container status
+docker compose ps
 
-# Check service status
-python main.py status
+# View container logs for exit reasons
+docker compose logs ash-thrash
+docker compose logs ash-thrash-api
 
-# Clean and restart
-python main.py clean --force
-python main.py setup
-python main.py start
+# Restart services
+docker compose restart
+
+# Rebuild if needed
+docker compose down
+docker compose build
+docker compose up -d
 ```
 
 ## 📚 Documentation
@@ -467,7 +510,7 @@ python main.py setup
 ### Adding Test Phrases
 1. Edit `src/test_data.py`
 2. Add phrases to appropriate category
-3. Run validation: `python cli.py validate data`
+3. Run validation: `docker compose exec ash-thrash python cli.py validate data`
 4. Test locally before submitting PR
 
 ### API Improvements
@@ -480,17 +523,18 @@ python main.py setup
 # Make changes to code
 # ...
 
-# Validate changes
-python cli.py validate setup
+# Validate changes with persistent containers
+docker compose up -d
+docker compose exec ash-thrash python cli.py validate setup
 
 # Test changes
-python cli.py test quick
+docker compose exec ash-thrash python cli.py test quick
 
 # Build and test with Docker
-python main.py build
-python main.py start
-python main.py test-all
-python main.py stop
+docker compose down
+docker compose build
+docker compose up -d
+docker compose exec ash-thrash python cli.py test comprehensive
 ```
 
 ## 📞 Support & Community
