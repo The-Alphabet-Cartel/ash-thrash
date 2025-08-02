@@ -1,79 +1,82 @@
 {
   "version": "1.1",
-  "description": "Ash-Thrash Testing Goals - Bidirectional Maybe Tests",
-  "last_updated": "2025-07-26",
+  "description": "Ash-Thrash Testing Goals - Enhanced with Escalation Logic",
+  "last_updated": "2025-08-02",
   "goals": {
       "definite_high": {
-          "target_pass_rate": 90.0,
+          "target_pass_rate": 95.0,
           "description": "High Priority Crisis (Safety First!)",
-          "critical": True,
-          "allow_escalation": False,
-          "allow_descalation": False,
+          "critical": true,
+          "allow_escalation": false,
+          "allow_descalation": false,
           "min_confidence": 0.8,
-          "alert_on_failure": True
+          "alert_on_failure": true
       },
       "definite_medium": {
-          "target_pass_rate": 65.0,
-          "description": "Medium Priority Crisis",
-          "critical": False,
-          "allow_escalation": False,
-          "allow_descalation": False,
+          "target_pass_rate": 75.0,
+          "description": "Medium Priority Crisis - ESCALATION TO HIGH ALLOWED",
+          "critical": false,
+          "allow_escalation": true,
+          "allow_descalation": false,
+          "acceptable_range": ["medium", "high"],
           "min_confidence": 0.5,
-          "alert_on_failure": False
+          "alert_on_failure": false
       },
       "definite_low": {
-          "target_pass_rate": 65.0,
-          "description": "Low Priority Crisis",
-          "critical": False,
-          "allow_escalation": False,
-          "allow_descalation": False,
+          "target_pass_rate": 75.0,
+          "description": "Low Priority Crisis - ESCALATION ALLOWED",
+          "critical": false,
+          "allow_escalation": true,
+          "allow_descalation": false,
+          "acceptable_range": ["low", "medium", "high"],
           "min_confidence": 0.3,
-          "alert_on_failure": False
+          "alert_on_failure": false
       },
       "definite_none": {
           "target_pass_rate": 95.0,
           "description": "No Priority Crisis (Prevent False Positives)",
-          "critical": True,
-          "allow_escalation": False,
-          "allow_descalation": False,
+          "critical": true,
+          "allow_escalation": false,
+          "allow_descalation": false,
           "min_confidence": 0.0,
-          "alert_on_failure": True
+          "alert_on_failure": true
       },
       "maybe_high_medium": {
           "target_pass_rate": 90.0,
           "description": "Maybe High/Medium (Bidirectional Flexibility)",
-          "critical": False,
-          "allow_escalation": True,
-          "allow_descalation": True,
+          "critical": false,
+          "allow_escalation": true,
+          "allow_descalation": true,
           "acceptable_range": ["medium", "high"],
           "min_confidence": 0.4,
-          "alert_on_failure": False
+          "alert_on_failure": false
       },
       "maybe_medium_low": {
           "target_pass_rate": 80.0,
           "description": "Maybe Medium/Low (Bidirectional Flexibility)", 
-          "critical": False,
-          "allow_escalation": True,
-          "allow_descalation": True,
+          "critical": false,
+          "allow_escalation": true,
+          "allow_descalation": true,
           "acceptable_range": ["low", "medium"],
           "min_confidence": 0.3,
-          "alert_on_failure": False
+          "alert_on_failure": false
       },
       "maybe_low_none": {
           "target_pass_rate": 90.0,
           "description": "Maybe Low/None (Bidirectional Flexibility)",
-          "critical": True,
-          "allow_escalation": True,
-          "allow_descalation": True,
+          "critical": true,
+          "allow_escalation": true,
+          "allow_descalation": true,
           "acceptable_range": ["none", "low"],
           "min_confidence": 0.2,
-          "alert_on_failure": False
+          "alert_on_failure": false
       }
-  },
-  "overall_targets": {
-      "minimum_overall_pass_rate": 90.0,
-      "maximum_avg_response_time_ms": 500.0,
-      "minimum_tests_per_second": 1.5,
-      "maximum_error_rate": 5.0
+    },
+    "overall_targets": {
+        "minimum_overall_pass_rate": 90.0,
+        "maximum_avg_response_time_ms": 500.0,
+        "minimum_tests_per_second": 1.5,
+        "maximum_error_rate": 5.0
+    }
   }
 }
