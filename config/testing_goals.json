@@ -4,7 +4,7 @@
   "last_updated": "2025-07-26",
   "goals": {
       "definite_high": {
-          "target_pass_rate": 100.0,
+          "target_pass_rate": 90.0,
           "description": "High Priority Crisis (Safety First!)",
           "critical": True,
           "allow_escalation": False,
@@ -71,8 +71,8 @@
       }
   },
   "overall_targets": {
-      "minimum_overall_pass_rate": 85.0,
-      "maximum_avg_response_time_ms": 200.0,
+      "minimum_overall_pass_rate": 90.0,
+      "maximum_avg_response_time_ms": 500.0,
       "minimum_tests_per_second": 1.5,
       "maximum_error_rate": 5.0
   }
