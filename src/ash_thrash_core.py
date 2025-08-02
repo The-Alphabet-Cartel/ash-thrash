@@ -128,73 +128,27 @@ class AshThrashTester:
         self.testing_goals = get_testing_goals()
         
     def _determine_test_pass(self, expected_category: str, detected_level: str) -> bool:
-        """
-        Enhanced test pass logic that accepts appropriate escalations as success.
-        Safety-first approach: escalation to higher crisis levels is acceptable.
-        """
+        """Determine if test passed based on expected vs detected levels"""
+        goals = self.testing_goals.get(expected_category, {})
         
-        # Exact matches always pass
-        if expected_category == detected_level:
-            return True
+        # Handle bidirectional "maybe" categories
+        if goals.get('allow_escalation') and goals.get('allow_descalation'):
+            acceptable_range = goals.get('acceptable_range', [])
+            return detected_level in acceptable_range
         
-        # ESCALATION ACCEPTANCE LOGIC - Safety-first approach
-        escalation_rules = {
-            # Medium crises can escalate to high (safety conservative)
-            'definite_medium': ['high', 'medium'],
-            
-            # Low crises can escalate to medium or high (safety conservative)  
-            'definite_low': ['medium', 'high', 'low'],
-            
-            # Maybe categories allow bidirectional movement
-            'maybe_high_medium': ['high', 'medium'],
-            'maybe_medium_low': ['medium', 'low'], 
-            'maybe_low_none': ['low', 'none'],
-        }
-        
-        # Check if escalation/movement is acceptable
-        if expected_category in escalation_rules:
-            return detected_level in escalation_rules[expected_category]
-        
-        # STRICT CATEGORIES - No escalation allowed (critical for safety)
-        strict_rules = {
-            # High crisis must be detected as high (no de-escalation allowed)
+        # Handle definite categories - exact match required
+        expected_mapping = {
             'definite_high': ['high'],
-            
-            # Normal conversation must not trigger crisis (false positive control)
-            'definite_none': ['none'],
+            'definite_medium': ['medium'], 
+            'definite_low': ['low'],
+            'definite_none': ['none']
         }
         
-        if expected_category in strict_rules:
-            return detected_level in strict_rules[expected_category]
+        if expected_category in expected_mapping:
+            return detected_level in expected_mapping[expected_category]
         
-        # Fallback for any unlisted categories - exact match required
-        return False
-
-    def _print_test_result(self, result: TestResult):
-        """Enhanced test result printing with escalation indicators"""
-        status = "✅ PASS" if result.passed else "❌ FAIL"
-        escalation_note = ""
-        
-        # Add escalation indicator for passed tests with different levels
-        if result.passed and result.expected_category != result.detected_level:
-            # Determine if this was escalation or bidirectional movement
-            if self._is_escalation(result.expected_category, result.detected_level):
-                escalation_note = " (ESCALATED - Safety Conservative)"
-            else:
-                escalation_note = " (BIDIRECTIONAL - Acceptable Range)"
-        
-        print(f"{status} | Expected: {result.expected_category} | Got: {result.detected_level}{escalation_note}")
-
-    def _is_escalation(self, expected: str, detected: str) -> bool:
-        """Determine if detected level is an escalation from expected"""
-        escalation_map = {
-            'definite_medium': ['high'],
-            'definite_low': ['medium', 'high'],
-            'maybe_medium_low': ['medium'] if detected == 'medium' else [],
-            'maybe_low_none': ['low'] if detected == 'low' else []
-        }
-        
-        return detected in escalation_map.get(expected, [])
+        # Fallback - exact category name match
+        return expected_category == detected_level
     
     async def run_category_test(self, category_name: str, phrases: List[str]) -> CategoryResults:
         """Run tests for a specific category"""
