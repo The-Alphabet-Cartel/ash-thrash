@@ -7,124 +7,6 @@
 
 services:
   # =========================================================================
-  # Ash-Thrash API Server
-  # =========================================================================
-  ash-thrash-api:
-    #build:
-      #context: .
-      #dockerfile: ./Dockerfile
-    image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
-    container_name: ash-thrash-api
-    restart: unless-stopped
-    networks:
-      ash-network:
-        ipv4_address: 172.20.0.13
-    ports:
-      - 8884:8884
-    # Override default command to start the API server
-    command: ["python", "-m", "uvicorn", "src.ash_thrash_api:app", "--host", "0.0.0.0", "--port", "8884"]
-    environment:
-      # Core Configuration
-      - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL:-http://10.20.30.253:8881}
-      - GLOBAL_THRASH_API_PORT=${GLOBAL_THRASH_API_PORT:-8884}
-      - GLOBAL_LOG_LEVEL=${GLOBAL_LOG_LEVEL:-INFO}
-      - GLOBAL_ENABLE_CORS=${GLOBAL_ENABLE_CORS:-true}
-      - GLOBAL_CORS_ORIGINS=${GBLOABL_CORS_ORIGINS:-*}
-      
-      # API Configuration
-      - THRASH_API_HOST=${THRASH_API_HOST:-0.0.0.0}
-      - THRASH_ENABLE_API_DOCS=${THRASH_ENABLE_API_DOCS:-true}
-      - THRASH_API_RATE_LIMIT=${THRASH_API_RATE_LIMIT:-100}
-      - THRASH_ENABLE_API_AUTHENTICATION=${THRASH_ENABLE_API_AUTHENTICATION:-false}
-
-      # Testing Configuration
-      - THRASH_MAX_CONCURRENT_TESTS=${THRASH_MAX_CONCURRENT_TESTS:-3}
-      - THRASH_QUICK_TEST_SAMPLE_SIZE=${THRASH_QUICK_TEST_SAMPLE_SIZE:-50}
-      - THRASH_REQUEST_TIMEOUT=${THRASH_REQUEST_TIMEOUT:-30}
-      - THRASH_AUTO_CLEANUP_RESULTS=${THRASH_AUTO_CLEANUP_RESULTS:-true}
-      
-      # Discord Integration
-      - THRASH_DISCORD_WEBHOOK_URL=${THRASH_DISCORD_WEBHOOK_URL:-}
-      - THRASH_DISCORD_WEBHOOK_USERNAME=${THRASH_DISCORD_WEBHOOK_USERNAME:-Ash-Thrash}
-      - THRASH_DISCORD_NOTIFICATIONS_ENABLED=${THRASH_DISCORD_NOTIFICATIONS_ENABLED:-true}
-      - THRASH_NOTIFY_ON_CATEGORY_TESTS=${THRASH_NOTIFY_ON_CATEGORY_TESTS:-false}
-      - THRASH_NOTIFY_ON_FAILURES_ONLY=${THRASH_NOTIFY_ON_FAILURES_ONLY:-false}
-      - THRASH_NOTIFY_ON_COMPREHENSIVE_TESTS=${NOTIFY_ON_COMPREHENSIVE_TESTS:-true}
-      - THRASH_NOTIFY_ON_QUICK_TESTS=${NOTIFY_ON_QUICK_TESTS:-false}
-      
-      # Logging
-      - THRASH_LOG_FILE=ash-thrash.log
-      
-      # Tuning Suggestions
-      - THRASH_GENERATE_SUGGESTIONS=${THRASH_GENERATE_SUGGESTIONS:-true}
-      - THRASH_SUGGESTION_THRESHOLD=${THRASH_SUGGESTION_THRESHOLD:-10.0}
-      - THRASH_CRITICAL_THRESHOLD=${THRASH_CRITICAL_THRESHOLD:-20.0}
-      
-      # Performance
-      - THRASH_ENABLE_RESULT_CACHING=${THRASH_ENABLE_RESULT_CACHING:-true}
-      - THRASH_CACHE_TTL_SECONDS=${THRASH_CACHE_TTL_SECONDS:-300}
-      - THRASH_REQUEST_TIMEOUT=${THRASH_REQUEST_TIMEOUT:-30}
-      - THRASH_CONNECTION_POOL_SIZE=${THRASH_CONNECTION_POOL_SIZE:-10}
-      
-      # Tuning Suggestions
-      - THRASH_GENERATE_SUGGESTIONS=${THRASH_GENERATE_SUGGESTIONS:-true}
-      - THRASH_SUGGESTION_THRESHOLD=${THRASH_SUGGESTION_THRESHOLD:-10.0}
-      - THRASH_CRITICAL_THRESHOLD=${THRASH_CRITICAL_THRESHOLD:-20.0}
-      
-      # Test Execution
-      - THRASH_RETRY_FAILED_TESTS=${THRASH_RETRY_FAILED_TESTS:-true}
-      - THRASH_MAX_RETRIES=${THRASH_MAX_RETRIES:-3}
-      - THRASH_RETRY_DELAY_SECONDS=${THRASH_RETRY_DELAY_SECONDS:-5}
-      
-      # API Response Caching
-      - THRASH_ENABLE_RESULT_CACHING=${THRASH_ENABLE_RESULT_CACHING:-true}
-      - THRASH_CACHE_TTL_SECONDS=${THRASH_CACHE_TTL_SECONDS:-300}
-      
-      # Health Check Settings
-      - THRASH_HEALTH_CHECK_INTERVAL=${THRASH_HEALTH_CHECK_INTERVAL:-30}
-      - THRASH_NLP_HEALTH_CHECK_TIMEOUT=${THRASH_NLP_HEALTH_CHECK_TIMEOUT:-5}
-      
-      # Development Mode
-      - THRASH_DEVELOPMENT_MODE=${THRASH_DEVELOPMENT_MODE:-false}
-      - THRASH_ENABLE_API_DOCS=${THRASH_ENABLE_API_DOCS:-true}
-      
-      # Test Data Validation
-      - THRASH_VALIDATE_DATA_ON_STARTUP=${THRASH_VALIDATE_DATA_ON_STARTUP:-true}
-      - THRASH_STRICT_VALIDATION=${THRASH_STRICT_VALIDATION:-true}
-
-    volumes:
-      # Results and logs persistence
-      - ./results:/app/results
-      - ./logs:/app/logs
-      - ./reports:/app/reports
-      
-      # Configuration (read-only)
-      - ./config:/app/config:ro
-      
-      # Secrets
-      - ./secrets:/run/secrets:ro
-    depends_on:
-      - ash-nlp-check
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-          cpus: '1.0'
-        reservations:
-          memory: 512M
-          cpus: '0.5'
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8884/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    labels:
-      - "traefik.enable=false"
-      - "ash.service=thrash-api"
-      - "ash.version=v3.0"
-
-  # =========================================================================
   # Ash-Thrash Service
   # =========================================================================
   ash-thrash:
@@ -143,16 +25,8 @@ services:
     command: ["tail", "-f", "/dev/null"]
     
     environment:
-      - GLOBAL_NLP_API_URL=${GLOBAL_NLP_API_URL:-http://10.20.30.253:8881}
-      - GLOBAL_LOG_LEVEL=${GLOBAL_LOG_LEVEL:-INFO}
-      - THRASH_REQUEST_TIMEOUT=${THRASH_REQUEST_TIMEOUT:-30}
-      - THRASH_MAX_CONCURRENT_TESTS=${THRASH_MAX_CONCURRENT_TESTS:-3}
-      - THRASH_QUICK_TEST_SAMPLE_SIZE=${THRASH_QUICK_TEST_SAMPLE_SIZE:-50}
+      - TZ=America/Los_Angeles
     volumes:
-      - ./results:/app/results
-      - ./logs:/app/logs
-      - ./reports:/app/reports
-      - ./config:/app/config:ro
       - ./secrets:/run/secrets:ro
     depends_on:
       - ash-nlp-check
@@ -164,9 +38,6 @@ services:
         reservations:
           memory: 256M
           cpus: '0.25'
-    labels:
-      - "ash.service=thrash-cli"
-      - "ash.version=v3.0"
 
   # =========================================================================
   # NLP Server Health Check (dependency)
@@ -178,8 +49,6 @@ services:
     networks:
       ash-network:
         ipv4_address: 172.20.0.15
-    
-    # Health check command
     command: >
       sh -c "
         echo 'Checking NLP server health...';
@@ -191,10 +60,6 @@ services:
         exit 0;
       "
 
-    labels:
-      - "ash.service=nlp-health-check"
-      - "ash.temporary=true"
-
 networks:
   ash-network:
     name: ash-network
@@ -203,12 +68,3 @@ networks:
       config:
         - subnet: 172.20.0.0/16
           gateway: 172.20.0.1
-
-volumes:
-  ash-thrash-results:
-    name: ash-thrash-results
-    driver: local
-  
-  ash-thrash-logs:
-    name: ash-thrash-logs
-    driver: local
