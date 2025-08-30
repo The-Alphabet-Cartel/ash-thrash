@@ -4,7 +4,7 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Centralized Logging Configuration Manager for Ash Thrash
 ---
-FILE VERSION: v3.1-1
+FILE VERSION: v3.1-1a-1
 LAST MODIFIED: 2025-08-29
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -265,7 +265,7 @@ class LoggingConfigManager:
         try:
             return {
                 'manager_status': 'operational',
-                'manager_version': 'v3.1-1',
+                'manager_version': 'v3.1-1a-1',
                 'configuration_source': 'unified_config_manager',
                 'get_config_section_patterns': 'implemented',
                 'global_settings': self.get_global_logging_settings(),
@@ -279,7 +279,7 @@ class LoggingConfigManager:
             logger.error(f"Error getting logging status: {e}")
             return {
                 'manager_status': 'error',
-                'manager_version': 'v3.1-1',
+                'manager_version': 'v3.1-1a-1',
                 'error': str(e),
                 'fallback_mode': 'active'
             }
@@ -292,7 +292,7 @@ class LoggingConfigManager:
             all_settings = self.get_all_logging_settings()
             
             return {
-                'manager_version': 'v3.1-1',
+                'manager_version': 'v3.1-1a-1',
                 'log_level': self.get_log_level(),
                 'log_directory': self.get_log_directory(),
                 'log_file': self.get_log_file(),
@@ -308,7 +308,7 @@ class LoggingConfigManager:
         except Exception as e:
             logger.error(f"Error generating configuration summary: {e}")
             return {
-                'manager_version': 'v3.1-1',
+                'manager_version': 'v3.1-1a-1',
                 'error': str(e),
                 'initialization_status': 'error'
             }
@@ -340,4 +340,4 @@ def create_logging_config_manager(unified_config_manager) -> LoggingConfigManage
 # Export public interface
 __all__ = ['LoggingConfigManager', 'create_logging_config_manager']
 
-logger.info("LoggingConfigManager v3.1-1 Loaded")
+logger.info("LoggingConfigManager v3.1-1a-1 Loaded")
