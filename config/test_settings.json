@@ -1,0 +1,356 @@
+{
+  "_metadata": {
+    "title": "Ash-Thrash Test Settings Configuration",
+    "file_version": "v3.1-1",
+    "last_modified": "2025-08-30",
+    "clean_architecture": "v3.1",
+    "description": "Test execution configuration for Ash-Thrash testing suite",
+    "compliance": "Clean Architecture Standards"
+  },
+
+  "nlp_server": {
+    "description": "NLP server connection settings",
+    "analyze_endpoint": "/analyze",
+    "health_endpoint": "/health",
+    "base_url": "${GLOBAL_NLP_API_URL}",
+    "timeout_seconds": "${GLOBAL_REQUEST_TIMEOUT}",
+    "max_retries": "${THRASH_MAX_RETRIES}",
+    "retry_delay_ms": "${THRASH_RETRY_DELAY}",
+    "defaults": {
+      "base_url": "http://172.20.0.11:8881",
+      "timeout_seconds": 30,
+      "max_retries": 3,
+      "retry_delay_ms": 1000
+    },
+    "validation": {
+      "base_url": {
+        "type": "string",
+        "description": "Base URL for NLP server API"
+      },
+      "timeout_seconds": {
+        "type": "integer",
+        "range": [5, 120],
+        "description": "Request timeout in seconds"
+      },
+      "max_retries": {
+        "type": "integer",
+        "range": [0, 10],
+        "description": "Maximum retry attempts for failed requests"
+      },
+      "retry_delay_ms": {
+        "type": "integer",
+        "range": [0, 5000],
+        "description": "Delay between retrie attempts for failed requests"
+      }
+    }
+  },
+
+  "test_execution": {
+    "description": "Test execution parameters and timing",
+    "test_user_id": "ash_thrash_test",
+    "test_channel_id": "testing_channel",
+    "enable_early_termination": "${THRASH_ENABLE_EARLY_TERMINATION}",
+    "max_concurrent_tests": "${THRASH_MAX_CONCURRENT_TESTS}",
+    "test_delay_ms": "${THRASH_TEST_DELAY_MS}",
+    "failure_halt_threshold": "${THRASH_FAILURE_HALT_THRESHOLD}",
+    "progress_report_interval": "${THRASH_PROGRESS_REPORT_INTERVAL}",
+    "defaults": {
+      "enable_early_termination": true,
+      "max_concurrent_tests": 3,
+      "test_delay_ms": 500,
+      "failure_halt_threshold": 60,
+      "progress_report_interval": 10
+    },
+    "validation": {
+      "enable_early_termination": {
+        "type": "boolean"
+      },
+      "max_concurrent_tests": {
+        "type": "integer",
+        "range": [1, 10],
+        "description": "Maximum concurrent test requests"
+      },
+      "test_delay_ms": {
+        "type": "integer",
+        "range": [100, 5000],
+        "description": "Delay between test requests in milliseconds"
+      },
+      "failure_halt_threshold": {
+        "type": "integer",
+        "range": [1, 100],
+        "description": "Halt testing if pass rate drops below this percentage"
+      },
+      "progress_report_interval": {
+        "type": "integer"
+        "range": [1, 100]
+      }
+    }
+  },
+
+  "test_categories": {
+    "description": "Test category definitions and target pass rates",
+    "definite_high": {
+      "file": "high_priority.json",
+      "expected_priority": ["high"],
+      "target_pass_rate": "${THRASH_HIGH_TARGET}",
+      "critical": "${THRASH_HIGH_CRITIAL}",
+      "allow_escalation": "${THRASH_HIGH_ESCALATION}",
+      "allow_de_escalation": "${THRASH_HIGH_DEESCALATION}",
+      "defaults": {
+        "target_pass_rate": 98,
+        "critical": true,
+        "allow_escalation": false,
+        "allow_de_escalation": false
+      },
+      "validation": {
+        "target_pass_rate": {
+          "type": "float",
+          "range": [0.01, 100.00]
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "allow_escalation": {
+          "type": "boolean"
+        },
+        "allow_de_escalation": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "definite_medium": {
+      "file": "medium_priority.json", 
+      "expected_priority": ["medium"],
+      "target_pass_rate": "${THRASH_MEDIUM_TARGET}",
+      "critical": "${THRASH_MEDIUM_CRITIAL}",
+      "allow_escalation": "${THRASH_MEDIUM_ESCALATION}",
+      "allow_de_escalation": "${THRASH_MEDIUM_DEESCALATION}",
+      "defaults": {
+        "target_pass_rate": 85,
+        "critical": false,
+        "allow_escalation": false,
+        "allow_de_escalation": false
+      },
+      "validation": {
+        "target_pass_rate": {
+          "type": "float",
+          "range": [0.01, 100.00]
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "allow_escalation": {
+          "type": "boolean"
+        },
+        "allow_de_escalation": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "definite_low": {
+      "file": "low_priority.json",
+      "expected_priority": ["low"], 
+      "target_pass_rate": "${THRASH_LOW_TARGET}",
+      "critical": "${THRASH_LOW_CRITIAL}",
+      "allow_escalation": "${THRASH_LOW_ESCALATION}",
+      "allow_de_escalation": "${THRASH_LOW_DEESCALATION}",
+      "defaults": {
+        "target_pass_rate": 85,
+        "critical": false,
+        "allow_escalation": false,
+        "allow_de_escalation": false
+      },
+      "validation": {
+        "target_pass_rate": {
+          "type": "float",
+          "range": [0.01, 100.00]
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "allow_escalation": {
+          "type": "boolean"
+        },
+        "allow_de_escalation": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "definite_none": {
+      "file": "none_priority.json",
+      "expected_priority": ["none"],
+      "target_pass_rate": "${THRASH_NONE_TARGET}",
+      "critical": "${THRASH_NONE_CRITIAL}",
+      "allow_escalation": "${THRASH_NONE_ESCALATION}",
+      "allow_de_escalation": "${THRASH_NONE_DEESCALATION}",
+      "defaults": {
+        "target_pass_rate": 95,
+        "critical": false,
+        "allow_escalation": true,
+        "allow_de_escalation": false
+      },
+      "validation": {
+        "target_pass_rate": {
+          "type": "float",
+          "range": [0.01, 100.00]
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "allow_escalation": {
+          "type": "boolean"
+        },
+        "allow_de_escalation": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "maybe_high_medium": {
+      "file": "maybe_high_medium.json",
+      "expected_priority": ["high", "medium"],
+      "target_pass_rate": "${THRASH_MEDIUM_HIGH_TARGET}",
+      "critical": "${THRASH_MEDIUM_HIGH_CRITIAL}",
+      "allow_escalation": "${THRASH_MEDIUM_HIGH_ESCALATION}",
+      "allow_de_escalation": "${THRASH_MEDIUM_HIGH_DEESCALATION}",
+      "defaults": {
+        "target_pass_rate": 90,
+        "critical": true,
+        "allow_escalation": true,
+        "allow_de_escalation": true
+      },
+      "validation": {
+        "target_pass_rate": {
+          "type": "float",
+          "range": [0.01, 100.00]
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "allow_escalation": {
+          "type": "boolean"
+        },
+        "allow_de_escalation": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "maybe_medium_low": {
+      "file": "maybe_medium_low.json",
+      "expected_priority": ["medium", "low"],
+      "target_pass_rate": "${THRASH_LOW_MEDIUM_TARGET}",
+      "critical": "${THRASH_LOW_MEDIUM_CRITIAL}",
+      "allow_escalation": "${THRASH_LOW_MEDIUM_ESCALATION}",
+      "allow_de_escalation": "${THRASH_LOW_MEDIUM_DEESCALATION}",
+      "defaults": {
+        "target_pass_rate": 85,
+        "critical": false,
+        "allow_escalation": true,
+        "allow_de_escalation": true
+      },
+      "validation": {
+        "target_pass_rate": {
+          "type": "float",
+          "range": [0.01, 100.00]
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "allow_escalation": {
+          "type": "boolean"
+        },
+        "allow_de_escalation": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "maybe_low_none": {
+      "file": "maybe_low_none.json",
+      "expected_priority": ["low", "none"],
+      "target_pass_rate": "${THRASH_LOW_NONE_TARGET}",
+      "critical": "${THRASH_LOW_NONE_CRITIAL}",
+      "allow_escalation": "${THRASH_LOW_NONE_ESCALATION}",
+      "allow_de_escalation": "${THRASH_LOW_NONE_DEESCALATION}",
+      "defaults": {
+        "target_pass_rate": 90,
+        "critical": false,
+        "allow_escalation": true,
+        "allow_de_escalation": true
+      },
+      "validation": {
+        "target_pass_rate": {
+          "type": "float",
+          "range": [0.01, 100.00]
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "allow_escalation": {
+          "type": "boolean"
+        },
+        "allow_de_escalation": {
+          "type": "boolean"
+        }
+      }
+    },
+  },
+
+  "failure_weighting": {
+    "description": "Weighting factors for different types of failures",
+    "false_negative_multiplier": "${THRASH_FALSE_NEGATIVE_MULTIPLIER}",
+    "critical_category_multiplier": "${THRASH_CRITICAL_CATEGORY_MULTIPLIER}",
+    "severity_weights": {
+      "1_level_miss": 1.0,
+      "2_level_miss": 2.0, 
+      "3_level_miss": 3.0
+    },
+    "defaults": {
+      "false_negative_multiplier": 3.0,
+      "critical_category_multiplier": 1.5
+    },
+    "validation": {
+      "false_negative_multiplier": {
+        "type": "float",
+        "range": [1.0, 10.0],
+        "description": "Multiplier for false negative failure scoring"
+      },
+      "critical_category_multiplier": {
+        "type": "float",
+        "range": [1.0, 10.0],
+        "description": "Multiplier for critical category failure scoring"
+      }
+    }
+  },
+
+  "storage": {
+    "description": "Storage paths and file management",
+    "results_directory": "${THRASH_RESULTS_DIR}",
+    "reports_directory": "${THRASH_REPORTS_DIR}",
+    "phrase_files_directory": "${THRASH_PHRASES_DIR}",
+    "timestamp_format": "%Y-%m-%d_%H-%M-%S",
+    "defaults": {
+      "results_directory": "./results",
+      "reports_directory": "./reports",
+      "phrase_files_directory": "./config/phrases"
+    },
+    "validation": {
+      "results_directory": {
+        "type": "string",
+        "description": "Directory for storing test results"
+      },
+      "reports_directory": {
+        "type": "string",
+        "description": "Directory for storing test reports"
+      },
+      "phrase_files_directory": {
+        "type": "string",
+        "description": "Directory for storing phrase definitions"
+      }
+    }
+  }
+}
