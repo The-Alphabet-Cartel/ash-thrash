@@ -10,9 +10,8 @@ services:
   # Ash-Thrash Service
   # =========================================================================
   ash-thrash:
-    #build:
-      #context: .
-      #dockerfile: ./Dockerfile
+    build:
+      context: .
     image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
     container_name: ash-thrash
     restart: unless-stopped
@@ -27,17 +26,20 @@ services:
     environment:
       - TZ=America/Los_Angeles
     volumes:
-      - ./secrets:/run/secrets:ro
+      - ./results:/app/results
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+#      - ./secrets:/run/secrets:ro
     depends_on:
       - ash-nlp-check
     deploy:
       resources:
         limits:
           memory: 1G
-          cpus: '0.5'
+          cpus: '2'
         reservations:
           memory: 256M
-          cpus: '0.25'
+          cpus: '1'
 
   # =========================================================================
   # NLP Server Health Check (dependency)
@@ -52,7 +54,7 @@ services:
     command: >
       sh -c "
         echo 'Checking NLP server health...';
-        until curl -f ${GLOBAL_NLP_API_URL:-http://10.20.30.253:8881}/health; do
+        until curl -f ${GLOBAL_NLP_API_URL:-http://172.20.0.11:8881}/health; do
           echo 'NLP server not ready, waiting...';
           sleep 5;
         done;
@@ -68,3 +70,14 @@ networks:
       config:
         - subnet: 172.20.0.0/16
           gateway: 172.20.0.1
+
+volumes:
+  ash-thrash-reports:
+    name: ash-thrash-reports
+    driver: local
+  ash-thrash-results:
+    name: ash-thrash-results
+    driver: local
+  ash-thrash-logs:
+    name: ash-thrash-logs
+    driver: local
