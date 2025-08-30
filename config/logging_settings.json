@@ -1,7 +1,7 @@
 {
   "_metadata": {
-    "file_version": "v3.1-1",
-    "last_modified": "2025-08-29",
+    "file_version": "v3.1-1a-1",
+    "last_modified": "2025-08-30",
     "clean_architecture": "v3.1",
     "description": "Unified logging configuration for Ash-Thrash",
     "compliance": "Clean Architecture Standards",
