@@ -4,7 +4,7 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Unified Configuration Manager for Ash NLP Service
 ---
-FILE VERSION: v3.1-1
+FILE VERSION: v3.1-1a-1
 LAST MODIFIED: 2025-08-29
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -712,7 +712,7 @@ class UnifiedConfigManager:
         """Get status of UnifiedConfigManager with caching and optimization info"""
         status = {
             'status': 'operational',
-            'version': 'v3.1-1',
+            'version': 'v3.1-1a-1',
             'enhancement': 'Helper File Architecture with Enhanced Performance and Intelligent Caching',
             'config_files': len(self.config_files),
             'variables_managed': len([k for k in os.environ.keys() if k.startswith('NLP_') or k.startswith('GLOBAL_')]),
