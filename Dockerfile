@@ -52,7 +52,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8884/health || exit 1
 
 # Expose API port
-EXPOSE 8884
+# EXPOSE 8884
 
-# Default command - runs the API server
-CMD ["python", "main.py"]
+# Default command
+CMD ["tail", "-f", "/dev/null"]
