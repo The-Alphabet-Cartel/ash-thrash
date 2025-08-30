@@ -4,7 +4,7 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 NLP API Communication Manager for Ash-Thrash Service
 ---
-FILE VERSION: v3.1-1
+FILE VERSION: v3.1-1a-1
 LAST MODIFIED: 2025-08-30
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -304,4 +304,4 @@ def create_nlp_client_manager(unified_config_manager) -> NLPClientManager:
 # Export public interface
 __all__ = ['NLPClientManager', 'AnalysisResult', 'HealthCheckResult', 'HealthStatus', 'create_nlp_client_manager']
 
-logger.info("NLPClientManager v3.1-1 loaded")
+logger.info("NLPClientManager v3.1-1a-1 loaded")
