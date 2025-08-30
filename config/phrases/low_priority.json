@@ -1,0 +1,348 @@
+{
+  "_metadata": {
+    "title": "Low Priority Crisis Test Phrases",
+    "file_version": "v3.1-1",
+    "last_modified": "2025-08-30",
+    "clean_architecture": "v3.1",
+    "description": "These phrases represent mild distress or emotional difficulty that benefits from gentle support but doesn't indicate crisis.",
+    "Target": "85% catch rate",
+    "note": "All phrases should be detected as 'low' priority.",
+    "compliance": "Clean Architecture Standards"
+  },
+  
+  "category_info": {
+    "name": "definite_low",
+    "description": "Low Priority Crisis",
+    "total_phrases": 50,
+    "target_pass_rate": "${THRASH_LOW_TARGET}",
+    "critical": "${THRASH_LOW_CRITIAL}",
+    "allow_escalation": "${THRASH_LOW_ESCALATION}",
+    "allow_de-escalation": "${THRASH_LOW_DEESCALATION}",
+    "defaults": {
+      "target_pass_rate": 85,
+      "critical": false,
+      "allow_escalation": false,
+      "allow_de-escalation": false,
+    },
+    "validation": {
+      "target_pass_rate": {
+        "type": "float",
+        "range": [0.01, 100.00]
+      },
+      "critical": {
+        "type": "boolean"
+      },
+      "allow_escalation": {
+        "type": "boolean"
+      },
+      "allow_de-escalation": {
+        "type": "boolean"
+      },
+    }
+  },
+  
+  "category": {
+    "name": "definite_low",
+    "expected_priority": ["low"],
+    "subcategories": {
+      "achievement_concerns": [
+        {
+          "message": "I feel like I'm not achieving anything",
+          "description": "Feeling unaccomplished or unproductive"
+        }
+      ],
+      "appearance_anxiety": [
+        {
+          "message": "I'm worried about my appearance",
+          "description": "Anxiety about physical appearance"
+        }
+      ],
+      "attractiveness_concerns": [
+        {
+          "message": "I feel like I'm not attractive enough",
+          "description": "Insecurity about physical attractiveness"
+        }
+      ],
+      "belonging_issues": [
+        {
+          "message": "I feel like I don't belong",
+          "description": "Feeling out of place or not belonging"
+        }
+      ],
+      "body_image_issues": [
+        {
+          "message": "I'm having trouble with body image",
+          "description": "Concerns about physical appearance"
+        }
+      ],
+      "boundary_issues": [
+        {
+          "message": "I'm having trouble with boundaries",
+          "description": "Difficulty setting or maintaining boundaries"
+        }
+      ],
+      "career_anxiety": [
+        {
+          "message": "I'm worried about my career",
+          "description": "Professional development concerns"
+        }
+      ],
+      "comparison_concerns": [
+        {
+          "message": "I feel like I'm falling behind",
+          "description": "Feeling behind peers or expectations"
+        }
+      ],
+      "comparison_issues": [
+        {
+          "message": "I'm struggling with comparison to others",
+          "description": "Negative social comparison patterns"
+        }
+      ],
+      "concentration_issues": [
+        {
+          "message": "I'm having trouble focusing",
+          "description": "Difficulty with focus and concentration"
+        }
+      ],
+      "confidence_issues": [
+        {
+          "message": "I'm having trouble with confidence",
+          "description": "Low self-confidence"
+        }
+      ],
+      "contribution_concerns": [
+        {
+          "message": "I feel like I'm not contributing enough",
+          "description": "Feeling inadequate in contributions to others"
+        }
+      ],
+      "courage_concerns": [
+        {
+          "message": "I feel like I'm not brave enough",
+          "description": "Doubts about personal courage or bravery"
+        }
+      ],
+      "decision_difficulty": [
+        {
+          "message": "I'm struggling with decision-making",
+          "description": "Difficulty making choices and decisions"
+        }
+      ],
+      "difficult_period": [
+        {
+          "message": "I'm going through a rough patch",
+          "description": "Temporary difficult life period"
+        }
+      ],
+      "disappointment_fear": [
+        {
+          "message": "I'm worried about disappointing others",
+          "description": "Fear of letting others down"
+        }
+      ],
+      "expectation_pressure": [
+        {
+          "message": "I feel like I'm not living up to expectations",
+          "description": "Pressure from personal or external expectations"
+        }
+      ],
+      "fatigue": [
+        {
+          "message": "I feel tired all the time",
+          "description": "Persistent tiredness or fatigue"
+        }
+      ],
+      "fomo": [
+        {
+          "message": "I feel like I'm missing out on life",
+          "description": "Fear of missing out on experiences"
+        }
+      ],
+      "friendship_concerns": [
+        {
+          "message": "I feel like I don't have enough friends",
+          "description": "Concerns about social connections"
+        }
+      ],
+      "future_anxiety": [
+        {
+          "message": "I'm worried about my future",
+          "description": "Concerns about future prospects"
+        }
+      ],
+      "happiness_worthiness": [
+        {
+          "message": "I feel like I'm not deserving of happiness",
+          "description": "Doubts about deserving happiness and joy"
+        }
+      ],
+      "identity_questions": [
+        {
+          "message": "I'm struggling with my identity",
+          "description": "Identity exploration and questioning"
+        }
+      ],
+      "imposter_syndrome": [
+        {
+          "message": "I'm struggling with imposter syndrome",
+          "description": "Feeling like a fraud or impostor"
+        }
+      ],
+      "inadequacy_feelings": [
+        {
+          "message": "I feel like I'm not good enough",
+          "description": "Feelings of inadequacy"
+        }
+      ],
+      "insecurity": [
+        {
+          "message": "I feel insecure about myself",
+          "description": "General insecurity feelings"
+        }
+      ],
+      "intellectual_insecurity": [
+        {
+          "message": "I feel like I'm not smart enough",
+          "description": "Doubts about intelligence or capability"
+        }
+      ],
+      "judgment_fear": [
+        {
+          "message": "I'm worried about being judged",
+          "description": "Fear of negative evaluation by others"
+        }
+      ],
+      "life_direction_concerns": [
+        {
+          "message": "I feel like I'm wasting my life",
+          "description": "Concerns about life direction and purpose"
+        }
+      ],
+      "love_worthiness": [
+        {
+          "message": "I feel like I'm not worthy of love",
+          "description": "Doubts about deserving love and affection"
+        }
+      ],
+      "low_self_esteem": [
+        {
+          "message": "I'm struggling with low self-esteem",
+          "description": "Poor self-regard and self-worth"
+        }
+      ],
+      "mild_anxiety": [
+        {
+          "message": "I've been having some anxiety lately",
+          "description": "Recent onset of mild anxiety"
+        }
+      ],
+      "mild_depression": [
+        {
+          "message": "I'm dealing with mild depression",
+          "description": "Acknowledged mild depressive symptoms"
+        }
+      ],
+      "mild_sadness": [
+        {
+          "message": "I'm feeling pretty down today",
+          "description": "Temporary low mood"
+        }
+      ],
+      "motivation_issues": [
+        {
+          "message": "I'm having trouble with motivation",
+          "description": "Lack of motivation and drive"
+        }
+      ],
+      "occasional_loneliness": [
+        {
+          "message": "I feel lonely sometimes",
+          "description": "Periodic loneliness"
+        }
+      ],
+      "perfectionism": [
+        {
+          "message": "I'm struggling with perfectionism",
+          "description": "Perfectionist tendencies causing stress"
+        }
+      ],
+      "personality_insecurity": [
+        {
+          "message": "I feel like I'm not interesting enough",
+          "description": "Doubts about personal interest or charisma"
+        }
+      ],
+      "procrastination": [
+        {
+          "message": "I'm having trouble with procrastination",
+          "description": "Difficulties with task completion and motivation"
+        }
+      ],
+      "relationship_stress": [
+        {
+          "message": "I'm stressed about my relationships",
+          "description": "Relationship-related stress"
+        }
+      ],
+      "self_acceptance_issues": [
+        {
+          "message": "I'm having trouble with self-acceptance",
+          "description": "Difficulty accepting oneself as is"
+        }
+      ],
+      "self_doubt": [
+        {
+          "message": "I'm having self-doubt issues",
+          "description": "Self-doubt and uncertainty"
+        }
+      ],
+      "sensitivity_concerns": [
+        {
+          "message": "I feel like I'm too sensitive",
+          "description": "Concerns about emotional sensitivity"
+        }
+      ],
+      "sleep_issues": [
+        {
+          "message": "I'm having trouble sleeping",
+          "description": "Sleep difficulties"
+        }
+      ],
+      "social_anxiety": [
+        {
+          "message": "I feel anxious about social situations",
+          "description": "Social anxiety concerns"
+        },
+        {
+          "message": "I'm having trouble with social anxiety",
+          "description": "Anxiety in social interactions"
+        }
+      ],
+      "social_disconnection": [
+        {
+          "message": "I feel disconnected from my friends",
+          "description": "Feeling distant from friends"
+        }
+      ],
+      "talent_insecurity": [
+        {
+          "message": "I feel like I'm not talented enough",
+          "description": "Doubts about personal abilities or talents"
+        }
+      ],
+      "unexplained_sadness": [
+        {
+          "message": "I feel sad and don't know why",
+          "description": "Sadness without clear cause"
+        }
+      ],
+      "work_stress": [
+        {
+          "message": "I feel a bit overwhelmed with work",
+          "description": "Work-related overwhelm"
+        }
+      ]
+    }
+  }
+}
