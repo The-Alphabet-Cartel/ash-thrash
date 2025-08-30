@@ -4,7 +4,7 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Value Conversion Helper for UnifiedConfigManager
 ---
-FILE VERSION: v3.1-1
+FILE VERSION: v3.1-1a-1
 LAST MODIFIED: 2025-08-29
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
