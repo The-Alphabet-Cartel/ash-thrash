@@ -1,0 +1,155 @@
+{
+  "needs_response": false,
+  "crisis_level": "none",
+  "confidence_score": 0.03931337231770158,
+  "detected_categories": [
+    "automated_analysis"
+  ],
+  "method": "performance_optimized",
+  "processing_time_ms": 742.5012588500977,
+  "model_info": "Clean Architecture - CrisisAnalyzer Complete",
+  "reasoning": "Single analysis via CrisisAnalyzer with enhanced validation",
+  "analysis": {
+    "complete_analysis": {
+      "crisis_score": 0.03931337231770158,
+      "crisis_level": "none",
+      "confidence_score": 0.13931337231770158,
+      "message": "Today was wonderful.  I spent time with my family and friends.  It was a good day.",
+      "user_id": "test_user",
+      "channel_id": "test_channel",
+      "method": "performance_optimized",
+      "ensemble_score": 0.0655222871961693,
+      "pattern_score": 0,
+      "needs_response": false,
+      "requires_staff_review": false,
+      "detected_categories": [
+        "automated_analysis"
+      ],
+      "processing_start_time": 1756576896.3657105,
+      "processing_time": 742.04421043396,
+      "optimization_version": "v3.1-4a-1",
+      "optimization_applied": true,
+      "target_achievement": false,
+      "analysis_results": {
+        "crisis_score": 0.03931337231770158,
+        "crisis_level": "none",
+        "confidence_score": 0.13931337231770158,
+        "message": "Today was wonderful.  I spent time with my family and friends.  It was a good day.",
+        "user_id": "test_user",
+        "channel_id": "test_channel",
+        "method": "performance_optimized",
+        "ensemble_score": 0.0655222871961693,
+        "pattern_score": 0,
+        "needs_response": false,
+        "requires_staff_review": false,
+        "detected_categories": [
+          "automated_analysis"
+        ],
+        "processing_start_time": 1756576896.3657105,
+        "processing_time": 735.5372905731201,
+        "optimization_version": "v3.1-4a-1",
+        "model_analysis": {
+          "individual_models": {
+            "depression": {
+              "score": 0.005042436998337507,
+              "confidence": 0.10504243699833751,
+              "weight": 0.4
+            },
+            "sentiment": {
+              "score": 0.004311048425734043,
+              "confidence": 0.10431104842573405,
+              "weight": 0.3
+            },
+            "emotional_distress": {
+              "score": 0.18721337616443634,
+              "confidence": 0.2872133761644363,
+              "weight": 0.3
+            }
+          },
+          "ensemble_method": "optimized_direct_ensemble",
+          "model_agreement": 0.9703822011119385,
+          "model_confidence": 0.1655222871961693,
+          "individual_scores": {
+            "depression": 0.005042436998337507,
+            "sentiment": 0.004311048425734043,
+            "emotional_distress": 0.18721337616443634
+          }
+        },
+        "pattern_analysis": {
+          "pattern_matches": [
+            {
+              "pattern_name": "context_temporal_urgency",
+              "pattern_type": "context_phrase",
+              "crisis_level": "low",
+              "confidence": 0.6,
+              "details": {
+                "phrase_type": "temporal_urgency",
+                "matched_phrase": "today",
+                "crisis_level": "low",
+                "confidence": 0.6,
+                "boost_multiplier": "1.5",
+                "phase_3e_extraction": true
+              },
+              "phase_3e_analysis": true
+            },
+            {
+              "pattern_name": "temporal_recent",
+              "pattern_type": "temporal",
+              "crisis_level": "medium",
+              "confidence": 0.8,
+              "urgency_multiplier": 0.2,
+              "details": {
+                "indicator_type": "recent",
+                "matched_phrase": "today",
+                "crisis_level": "medium",
+                "confidence": 0.8,
+                "urgency_multiplier": 0.2,
+                "time_sensitivity": "normal",
+                "auto_escalate": false,
+                "phase_3e_analysis": true
+              },
+              "phase_3e_analysis": true
+            }
+          ],
+          "pattern_confidence": 0.2,
+          "pattern_severity": "low",
+          "critical_patterns": [],
+          "enhanced_patterns": {},
+          "community_patterns": []
+        },
+        "context_analysis": {
+          "temporal_factors": [],
+          "linguistic_indicators": [],
+          "severity_indicators": []
+        }
+      },
+      "learning_adjusted_score": 0.03931337231770158,
+      "learning_metadata": {
+        "original_score": 0.03931337231770158,
+        "adjustment_factor": 1,
+        "learning_enabled": true,
+        "user_id": "test_user",
+        "channel_id": "test_channel"
+      },
+      "learning_applied": true,
+      "api_processing_time": 742.1166896820068,
+      "analysis_execution_tracking": {
+        "tracking_enabled": false,
+        "message_metadata": {
+          "message_length": 82,
+          "user_id": "test_user",
+          "channel_id": "test_channel",
+          "timestamp": 1756576896.3655832
+        },
+        "total_processing_time_ms": 742.2451972961426
+      }
+    },
+    "architecture": "clean",
+    "redundant_processing": false,
+    "feature_flags_respected": true,
+    "api_processing_time_ms": 742.5012588500977,
+    "phase_3e_enhanced": true,
+    "enhanced_validation": true,
+    "context_analysis_available": true
+  }
+}
