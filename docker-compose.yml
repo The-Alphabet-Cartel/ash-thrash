@@ -18,11 +18,6 @@ services:
     networks:
       ash-network:
         ipv4_address: 172.20.0.14
-    
-    # Keep the container running with a long-lived command
-    # This allows you to exec into it for CLI operations
-    command: ["tail", "-f", "/dev/null"]
-    
     environment:
       - TZ=America/Los_Angeles
     volumes:
