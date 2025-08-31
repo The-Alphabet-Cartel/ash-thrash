@@ -55,4 +55,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # EXPOSE 8884
 
 # Default command
-CMD ["python", "main.py"]
+CMD ["python", "startup.py"]
