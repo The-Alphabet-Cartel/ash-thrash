@@ -88,7 +88,6 @@
   },
 
   "test_categories": {
-    "description": "Test category definitions and target pass rates",
     "definite_high": {
       "file": "high_priority.json",
       "expected_priority": ["high"],
