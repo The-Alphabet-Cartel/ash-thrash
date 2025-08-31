@@ -31,7 +31,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY --chown=thrash:thrash . .
 
 # Create directories for results and logs
-RUN mkdir -p ./results ./logs ./reports && \
+RUN mkdir -p ./logs ./reports ./results && \
     chown -R thrash:thrash /app  && \
     chmod 755 /app
 
