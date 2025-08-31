@@ -137,7 +137,7 @@ THRASH_API_RATE_LIMIT  # Existing variable
 - **Reduces confusion between team members**
 - **Reduces frustration between team members**
 
-### **Rule #10: All files need to stay wtihin ~1,000 lines of code - STANDARD**
+### **Rule #10: All files need to stay within ~1,000 lines of code - STANDARD**
 - **Code going over ~1,000 lines need to be split into helper files**
 - **Helper files will be stored in the same directory under a sub-directory named `helpers`**
   - **Helper files will be named `*_helper.py`**
@@ -146,6 +146,14 @@ THRASH_API_RATE_LIMIT  # Existing variable
 - **Manageable file sizes**
 - **Ease of artifact creation**
 - **Less chance of artifacts corrupting**
+
+### **Rule #11: All files will use the LoggingConfigManager for debug and informational log output - MANDATORY**
+- **This colorizes and unifies the output so that it is human readable**
+- **Logging is essential to debugging and ensuring the systems are working as intended**
+
+#### **Benefits of Rule #11**:
+- **Human readable, colorized logs based on priority**
+- **Uses the built in python logger system, no need for other methods**
 
 ---
 
