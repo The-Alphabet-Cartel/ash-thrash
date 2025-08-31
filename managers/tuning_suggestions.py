@@ -3,7 +3,7 @@ Ash-Thrash: Testing Suite for Ash-NLP Backend for The Alphabet Cartel Discord Co
 ********************************************************************************
 Advanced Tuning Intelligence Manager for Ash-Thrash Service
 ---
-FILE VERSION: v3.1-3a-1
+FILE VERSION: v3.1-3a-3
 LAST MODIFIED: 2025-08-31
 PHASE: 3a Step 1
 CLEAN ARCHITECTURE: v3.1 Compliant
@@ -294,9 +294,16 @@ class TuningSuggestionsManager:
         """
         try:
             logger.info("Analyzing failure patterns for threshold recommendations")
+            logger.debug("=" * 50)
+            logger.debug("🔍 FAILURE PATTERN ANALYSIS DEBUG")
+            logger.debug("=" * 50)
             
             current_mode = self.get_current_ensemble_mode()
             category_results = test_results.get('category_results', {})
+            
+            logger.debug(f"Current ensemble mode: {current_mode.value}")
+            logger.debug(f"Number of categories to analyze: {len(category_results)}")
+            logger.debug(f"Category names: {list(category_results.keys())}")
             
             failure_analysis = {
                 'ensemble_mode': current_mode.value,
@@ -308,7 +315,12 @@ class TuningSuggestionsManager:
             
             # Analyze each category for failure patterns
             for category, results in category_results.items():
+                logger.debug(f"--- Analyzing category: {category} ---")
+                logger.debug(f"Results type: {type(results)}")
+                logger.debug(f"Results keys: {list(results.keys()) if results else 'None'}")
+                
                 if not results or 'summary' not in results:
+                    logger.warning(f"No summary found for category {category}")
                     continue
                     
                 summary = results['summary']
@@ -316,8 +328,15 @@ class TuningSuggestionsManager:
                 total_tests = summary.get('total_tests', 0)
                 failed_tests = summary.get('failed_tests', 0)
                 
+                logger.debug(f"Category {category} stats:")
+                logger.debug(f"  Pass rate: {pass_rate}%")
+                logger.debug(f"  Total tests: {total_tests}")
+                logger.debug(f"  Failed tests: {failed_tests}")
+                logger.debug(f"  Has failed_tests_details: {'failed_tests_details' in results}")
+                
                 # Identify critical failure patterns
-                if category.startswith('definite_high') and pass_rate < 0.95:
+                if category.startswith('definite_high') and pass_rate < 95:
+                    logger.warning(f"🚨 CRITICAL FAILURE: {category} pass rate {pass_rate}% < 95%")
                     failure_analysis['critical_failures'].append({
                         'category': category,
                         'issue': 'Critical safety category under-performing',
@@ -325,7 +344,8 @@ class TuningSuggestionsManager:
                         'risk': 'HIGH - False negatives in crisis detection',
                         'priority': 1
                     })
-                elif category.startswith('definite_') and pass_rate < 0.80:
+                elif category.startswith('definite_') and pass_rate < 80:
+                    logger.warning(f"⚠️  SIGNIFICANT FAILURE: {category} pass rate {pass_rate}% < 80%")
                     failure_analysis['critical_failures'].append({
                         'category': category,
                         'issue': 'Definite category significantly under-performing', 
@@ -333,15 +353,34 @@ class TuningSuggestionsManager:
                         'risk': 'MODERATE - Classification accuracy compromised',
                         'priority': 2
                     })
+                else:
+                    logger.debug(f"Category {category} does not meet critical failure criteria")
                 
                 # Identify threshold adjustment candidates
-                if failed_tests > 0 and 'failed_tests_details' in results:
-                    self._analyze_threshold_candidates(
-                        category, 
-                        results['failed_tests_details'],
-                        current_mode,
-                        failure_analysis['threshold_candidates']
-                    )
+                if failed_tests > 0:
+                    logger.debug(f"Processing {failed_tests} failed tests for threshold candidates...")
+                    
+                    if 'failed_tests_details' in results:
+                        failed_test_details = results['failed_tests_details']
+                        logger.debug(f"Found {len(failed_test_details)} failed test details")
+                        
+                        # Log first few failed tests for inspection
+                        for i, failed_test in enumerate(failed_test_details[:3], 1):
+                            logger.debug(f"  Failed test {i}: {failed_test.get('expected_crisis_level', 'unknown')} → {failed_test.get('actual_crisis_level', 'unknown')}")
+                        
+                        self._analyze_threshold_candidates(
+                            category, 
+                            failed_test_details,
+                            current_mode,
+                            failure_analysis['threshold_candidates']
+                        )
+                    else:
+                        logger.warning(f"Category {category} has {failed_tests} failed tests but no failed_tests_details")
+                else:
+                    logger.debug(f"Category {category} has no failed tests to analyze")
+            
+            logger.debug(f"Critical failures found: {len(failure_analysis['critical_failures'])}")
+            logger.debug(f"Threshold candidates found: {len(failure_analysis['threshold_candidates'])}")
             
             # Generate pattern insights
             failure_analysis['pattern_insights'] = self._generate_pattern_insights(
@@ -353,11 +392,20 @@ class TuningSuggestionsManager:
                 failure_analysis['critical_failures']
             )
             
+            logger.debug("=" * 50)
+            logger.debug("🔍 FAILURE ANALYSIS SUMMARY")
+            logger.debug("=" * 50)
+            logger.debug(f"Critical failures: {len(failure_analysis['critical_failures'])}")
+            logger.debug(f"Threshold candidates: {len(failure_analysis['threshold_candidates'])}")
+            logger.debug(f"Safety concerns: {len(failure_analysis['safety_concerns'])}")
+            
             logger.info(f"Failure pattern analysis complete: {len(failure_analysis['critical_failures'])} critical issues found")
             return failure_analysis
             
         except Exception as e:
             logger.error(f"Error analyzing failure patterns: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return {
                 'ensemble_mode': self.get_current_ensemble_mode().value,
                 'critical_failures': [],
@@ -371,7 +419,12 @@ class TuningSuggestionsManager:
                                     mode: EnsembleMode, candidates: List[Dict]):
         """Analyze failed tests to identify specific threshold adjustment candidates"""
         try:
+            logger.debug(f"🔍 Analyzing threshold candidates for category: {category}")
+            logger.debug(f"Failed tests count: {len(failed_tests)}")
+            logger.debug(f"Ensemble mode: {mode.value}")
+            
             mode_mappings = self.threshold_mappings.get(mode.value, {})
+            logger.debug(f"Available threshold mappings: {list(mode_mappings.keys())}")
             
             # Map category to expected crisis levels
             category_mapping = {
@@ -385,16 +438,22 @@ class TuningSuggestionsManager:
             }
             
             expected_levels = category_mapping.get(category, [])
+            logger.debug(f"Expected crisis levels for {category}: {expected_levels}")
+            
             if not expected_levels:
+                logger.warning(f"No expected levels found for category: {category}")
                 return
                 
             # Analyze failure patterns
             misclassification_patterns = {}
             
-            for failed_test in failed_tests:
+            logger.debug("Processing individual failed tests...")
+            for i, failed_test in enumerate(failed_tests):
                 actual_level = failed_test.get('actual_crisis_level', 'unknown')
                 expected_level = failed_test.get('expected_crisis_level', expected_levels[0])
                 confidence = failed_test.get('confidence_score', 0.0)
+                
+                logger.debug(f"  Test {i+1}: Expected={expected_level}, Actual={actual_level}, Confidence={confidence}")
                 
                 pattern_key = f"{expected_level}_to_{actual_level}"
                 if pattern_key not in misclassification_patterns:
@@ -407,28 +466,46 @@ class TuningSuggestionsManager:
                 misclassification_patterns[pattern_key]['count'] += 1
                 misclassification_patterns[pattern_key]['confidences'].append(confidence)
             
+            logger.debug(f"Misclassification patterns found: {list(misclassification_patterns.keys())}")
+            
             # Calculate average confidences and identify threshold candidates
             for pattern, data in misclassification_patterns.items():
                 data['avg_confidence'] = sum(data['confidences']) / len(data['confidences'])
+                logger.debug(f"Pattern {pattern}: {data['count']} occurrences, avg confidence: {data['avg_confidence']:.3f}")
                 
                 # Find relevant thresholds for this misclassification pattern
                 relevant_thresholds = self._find_relevant_thresholds(pattern, mode_mappings)
+                logger.debug(f"  Relevant thresholds: {list(relevant_thresholds.keys())}")
                 
                 for threshold_var, threshold_info in relevant_thresholds.items():
-                    candidates.append({
+                    suggested_adjustment = self._calculate_suggested_adjustment(
+                        pattern, data['avg_confidence'], threshold_info
+                    )
+                    
+                    candidate = {
                         'category': category,
                         'misclassification_pattern': pattern,
                         'threshold_variable': threshold_var,
                         'threshold_info': threshold_info,
                         'failure_count': data['count'],
                         'avg_confidence': data['avg_confidence'],
-                        'suggested_adjustment': self._calculate_suggested_adjustment(
-                            pattern, data['avg_confidence'], threshold_info
-                        )
-                    })
+                        'suggested_adjustment': suggested_adjustment
+                    }
+                    
+                    candidates.append(candidate)
+                    
+                    logger.debug(f"  Added threshold candidate:")
+                    logger.debug(f"    Variable: {threshold_var}")
+                    logger.debug(f"    Adjustment: {suggested_adjustment.get('adjustment', 0):.3f}")
+                    logger.debug(f"    Direction: {suggested_adjustment.get('direction', 'none')}")
+                    logger.debug(f"    Confidence: {suggested_adjustment.get('confidence', 0):.3f}")
+            
+            logger.debug(f"Total threshold candidates added: {len([c for c in candidates if c['category'] == category])}")
                     
         except Exception as e:
             logger.error(f"Error analyzing threshold candidates for {category}: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
     
     def _find_relevant_thresholds(self, pattern: str, mode_mappings: Dict) -> Dict[str, Any]:
         """Find threshold variables relevant to a misclassification pattern"""
