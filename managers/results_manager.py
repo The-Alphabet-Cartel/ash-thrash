@@ -286,9 +286,9 @@ class ResultsManager:
             # Analyze each category
             for category_result in suite_result.category_results:
                 category_name = category_result.category_name
-                pass_rate = category_result.pass_rate
-                target = category_result.target_pass_rate
-                
+                pass_rate = float(category_result.pass_rate)
+                target = float(category_result.target_pass_rate)
+                    
                 logger.debug(f"Category: {category_name}, pass_rate type: {type(pass_rate)}, target type: {type(target)}")
                 logger.debug(f"Values: pass_rate={pass_rate}, target={target}")
 
@@ -339,8 +339,8 @@ class ResultsManager:
             
             for category_result in suite_result.category_results:
                 category_name = category_result.category_name
-                pass_rate = category_result.pass_rate
-                target = category_result.target_pass_rate
+                pass_rate = float(category_result.pass_rate)
+                target = float(category_result.target_pass_rate)
                 
                 # High priority recommendations for critical categories
                 if category_result.is_critical and pass_rate < float(target):
