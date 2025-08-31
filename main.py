@@ -4,7 +4,7 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Ash-Thrash Main Application Entry Point for Ash Thrash Service
 ---
-FILE VERSION: v3.1-3a-2
+FILE VERSION: v3.1-3a-3
 LAST MODIFIED: 2025-08-31
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -98,12 +98,12 @@ def setup_unified_logging(unified_config_manager):
         logging.info("Using fallback basic logging configuration")
 
 # ============================================================================
-# UNIFIED MANAGER INITIALIZATION
+# UNIFIED MANAGER INITIALIZATION - PHASE 3A ENHANCED
 # ============================================================================
 
 def initialize_managers():
     """
-    Initialize all managers using factory functions (Clean Architecture v3.1)
+    Initialize all managers using factory functions (Clean Architecture v3.1) - Phase 3a Enhanced
     """
     logger = logging.getLogger(__name__)
     logger.info("=" * 70)
@@ -123,7 +123,7 @@ def initialize_managers():
         results_manager = create_results_manager(unified_config)
         analyze_manager = create_analyze_results_manager(unified_config, results_manager, logging_config)
         
-        # Advanced tuning intelligence manager
+        # PHASE 3A: Advanced tuning intelligence manager
         tuning_manager = create_tuning_suggestions_manager(unified_config, results_manager, analyze_manager)
 
         managers = {
@@ -133,11 +133,11 @@ def initialize_managers():
             'test_engine': test_engine,
             'results_manager': results_manager,
             'analyze_manager': analyze_manager,
-            'tuning_manager': tuning_manager
+            'tuning_manager': tuning_manager,  # Phase 3a addition
         }
         
         logger.info(f"All managers initialized successfully: {len(managers)} total")
-        logger.info("✅ Advanced Tuning Intelligence enabled")
+        logger.info("✅ Phase 3a: Advanced Tuning Intelligence enabled")
         return managers
         
     except Exception as e:
@@ -145,16 +145,16 @@ def initialize_managers():
         raise
 
 # ============================================================================
-# ENHANCED TEST EXECUTION FUNCTIONS WITH TUNING INTELLIGENCE
+# ENHANCED TEST EXECUTION FUNCTIONS WITH PHASE 3A TUNING INTELLIGENCE
 # ============================================================================
 
 def run_comprehensive_test(managers):
-    """Run comprehensive test suite across all categories with integrated reporting and tuning intelligence"""
+    """Run comprehensive test suite across all categories with integrated reporting and Phase 3a tuning intelligence"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
     results_manager = managers['results_manager']
     analyze_manager = managers['analyze_manager']
-    tuning_manager = managers['tuning_manager']
+    tuning_manager = managers['tuning_manager']  # Phase 3a addition
     
     logger.info("Starting comprehensive test suite...")
     
@@ -183,10 +183,10 @@ def run_comprehensive_test(managers):
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
         
-        # Generate advanced tuning intelligence and recommendations
+        # PHASE 3A: Generate advanced tuning intelligence and recommendations
         try:
             logger.info("=" * 50)
-            logger.info("🧠 GENERATING ADVANCED TUNING INTELLIGENCE")
+            logger.info("🧠 PHASE 3A: GENERATING ADVANCED TUNING INTELLIGENCE")
             logger.info("=" * 50)
             
             # Convert suite result to format needed by tuning manager
@@ -242,7 +242,7 @@ def run_comprehensive_test(managers):
                     logger.info(f"   ... and {len(tuning_analysis.implementation_order) - 3} more")
             
         except Exception as e:
-            logger.error(f"Tuning intelligence failed: {e}")
+            logger.error(f"Phase 3a tuning intelligence failed: {e}")
             logger.warning("Continuing with standard test reporting...")
         
         # Log test execution summary
@@ -275,12 +275,12 @@ def run_comprehensive_test(managers):
         return None
 
 def run_category_test(managers, category_name: str):
-    """Run test for specific category with integrated reporting and tuning intelligence"""
+    """Run test for specific category with integrated reporting and Phase 3a tuning intelligence"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
     results_manager = managers['results_manager']
     analyze_manager = managers['analyze_manager']
-    tuning_manager = managers['tuning_manager']
+    tuning_manager = managers['tuning_manager']  # Phase 3a addition
     
     logger.info(f"Starting test for category: {category_name}")
     
@@ -305,7 +305,7 @@ def run_category_test(managers, category_name: str):
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
         
-        # Generate targeted tuning intelligence for single category
+        # PHASE 3A: Generate targeted tuning intelligence for single category
         try:
             logger.info("=" * 50)
             logger.info("🧠 GENERATING CATEGORY-SPECIFIC TUNING ANALYSIS")
@@ -355,7 +355,7 @@ def run_category_test(managers, category_name: str):
                     logger.info(f"   ⚙️  Settings: {env_file}")
             
         except Exception as e:
-            logger.error(f"Category tuning analysis failed: {e}")
+            logger.error(f"Phase 3a category tuning analysis failed: {e}")
             logger.warning("Continuing with standard category reporting...")
         
         # Log category results
@@ -395,7 +395,15 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
     Returns:
         Dictionary format compatible with tuning analysis
     """
+    logger = logging.getLogger(__name__)
+    
     try:
+        logger.debug("=" * 50)
+        logger.debug("🔍 CONVERTING SUITE RESULT TO DICT")
+        logger.debug("=" * 50)
+        logger.debug(f"Suite result type: {type(suite_result)}")
+        logger.debug(f"Suite result attributes: {dir(suite_result)}")
+        
         # Create the expected dictionary structure
         test_results = {
             'metadata': {
@@ -414,10 +422,21 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
             'category_results': {}
         }
         
+        logger.debug(f"Basic metadata created:")
+        logger.debug(f"  Overall pass rate: {test_results['summary']['overall_pass_rate']}")
+        logger.debug(f"  Total failed: {test_results['summary']['total_failed']}")
+        
         # Convert category results
         if hasattr(suite_result, 'category_results') and suite_result.category_results:
-            for category_result in suite_result.category_results:
+            logger.debug(f"Processing {len(suite_result.category_results)} category results...")
+            
+            for i, category_result in enumerate(suite_result.category_results):
+                logger.debug(f"--- Processing category {i+1} ---")
+                logger.debug(f"Category result type: {type(category_result)}")
+                logger.debug(f"Category result attributes: {dir(category_result)}")
+                
                 category_name = getattr(category_result, 'category_name', 'unknown')
+                logger.debug(f"Category name: {category_name}")
                 
                 # Create category summary
                 category_data = {
@@ -434,33 +453,93 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                     }
                 }
                 
+                logger.debug(f"Category summary created:")
+                logger.debug(f"  Pass rate: {category_data['summary']['pass_rate']}%")
+                logger.debug(f"  Failed tests: {category_data['summary']['failed_tests']}")
+                logger.debug(f"  False positives: {category_data['summary']['false_positives']}")
+                
                 # Add failed test details if available
-                if hasattr(category_result, 'test_details') and category_result.test_details:
-                    failed_tests = []
+                test_details_attr = None
+                for attr_name in ['test_details', 'test_results', 'details', 'results']:
+                    if hasattr(category_result, attr_name):
+                        test_details_attr = attr_name
+                        break
+                
+                if test_details_attr:
+                    test_details = getattr(category_result, test_details_attr)
+                    logger.debug(f"Found test details in attribute: {test_details_attr}")
+                    logger.debug(f"Test details type: {type(test_details)}")
+                    logger.debug(f"Test details length: {len(test_details) if test_details else 0}")
                     
-                    for test_detail in category_result.test_details:
-                        if not getattr(test_detail, 'passed', True):  # Failed test
-                            failed_test = {
-                                'phrase': getattr(test_detail, 'test_phrase', ''),
-                                'expected_crisis_level': getattr(test_detail, 'expected_crisis_level', 'unknown'),
-                                'actual_crisis_level': getattr(test_detail, 'actual_crisis_level', 'unknown'),
-                                'confidence_score': getattr(test_detail, 'confidence_score', 0.0),
-                                'processing_time_ms': getattr(test_detail, 'processing_time_ms', 0),
-                                'severity_score': getattr(test_detail, 'severity_score', 0),
-                                'error_message': getattr(test_detail, 'error_message', '')
-                            }
-                            failed_tests.append(failed_test)
-                    
-                    if failed_tests:
-                        category_data['failed_tests_details'] = failed_tests
+                    if test_details:
+                        failed_tests = []
+                        passed_count = 0
+                        failed_count = 0
+                        
+                        for j, test_detail in enumerate(test_details):
+                            logger.debug(f"  Test {j+1} attributes: {dir(test_detail)}")
+                            
+                            test_passed = getattr(test_detail, 'passed', True)
+                            if test_passed:
+                                passed_count += 1
+                            else:
+                                failed_count += 1
+                                
+                            if not test_passed:  # Failed test
+                                failed_test = {
+                                    'phrase': getattr(test_detail, 'test_phrase', getattr(test_detail, 'phrase', '')),
+                                    'expected_crisis_level': getattr(test_detail, 'expected_crisis_level', 'unknown'),
+                                    'actual_crisis_level': getattr(test_detail, 'actual_crisis_level', 'unknown'),
+                                    'confidence_score': getattr(test_detail, 'confidence_score', 0.0),
+                                    'processing_time_ms': getattr(test_detail, 'processing_time_ms', 0),
+                                    'severity_score': getattr(test_detail, 'severity_score', 0),
+                                    'error_message': getattr(test_detail, 'error_message', '')
+                                }
+                                failed_tests.append(failed_test)
+                                
+                                # Log first few failed tests for debugging
+                                if len(failed_tests) <= 3:
+                                    logger.debug(f"  Failed test {len(failed_tests)}:")
+                                    logger.debug(f"    Phrase: {failed_test['phrase'][:50]}...")
+                                    logger.debug(f"    Expected: {failed_test['expected_crisis_level']}")
+                                    logger.debug(f"    Actual: {failed_test['actual_crisis_level']}")
+                                    logger.debug(f"    Confidence: {failed_test['confidence_score']}")
+                        
+                        logger.debug(f"Processed test details: {passed_count} passed, {failed_count} failed")
+                        
+                        if failed_tests:
+                            category_data['failed_tests_details'] = failed_tests
+                            logger.debug(f"Added {len(failed_tests)} failed test details to category data")
+                        else:
+                            logger.warning(f"No failed tests found despite failed_tests count = {category_data['summary']['failed_tests']}")
+                else:
+                    logger.warning(f"No test details found for category {category_name}")
+                    logger.warning(f"Tried attributes: test_details, test_results, details, results")
                 
                 test_results['category_results'][category_name] = category_data
+        else:
+            logger.warning("No category results found in suite result")
+        
+        logger.debug("=" * 50)
+        logger.debug("🔍 FINAL CONVERTED DICTIONARY STRUCTURE")
+        logger.debug("=" * 50)
+        logger.debug(f"Categories in result: {list(test_results['category_results'].keys())}")
+        
+        for cat_name, cat_data in test_results['category_results'].items():
+            logger.debug(f"Category {cat_name}:")
+            logger.debug(f"  Failed tests: {cat_data['summary']['failed_tests']}")
+            logger.debug(f"  Has failed_tests_details: {'failed_tests_details' in cat_data}")
+            if 'failed_tests_details' in cat_data:
+                logger.debug(f"  Failed test details count: {len(cat_data['failed_tests_details'])}")
         
         return test_results
         
     except Exception as e:
-        logger = logging.getLogger(__name__)
         logger.error(f"Error converting suite result to dictionary: {e}")
+        logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        
         # Return minimal structure as fallback
         return {
             'metadata': {'error': str(e)},
@@ -473,7 +552,7 @@ def show_usage():
     logger = logging.getLogger(__name__)
     
     logger.info("Ash-Thrash Crisis Detection Testing Suite v3.1")
-    logger.info("Advanced Tuning Intelligence Enabled")
+    logger.info("Phase 3a: Advanced Tuning Intelligence Enabled")
     logger.info("")
     logger.info("Usage:")
     logger.info("  python main.py                    # Run comprehensive test suite")
@@ -495,7 +574,7 @@ def show_usage():
     logger.info("  🧠 results/tuning_analysis/*.json          # Advanced tuning intelligence")
     logger.info("  ⚙️  reports/recommended_thresholds_*.env   # Recommended threshold settings")
     logger.info("")
-    logger.info("Tuning Intelligence Features:")
+    logger.info("Phase 3a Features:")
     logger.info("  🎯 Intelligent threshold mapping by ensemble mode")
     logger.info("  🔍 Confidence-based recommendations with risk assessment") 
     logger.info("  📊 Boundary testing suggestions for optimal values")
@@ -504,7 +583,7 @@ def show_usage():
     logger.info("")
 
 # ============================================================================
-# MAIN APPLICATION ENTRY POINT
+# MAIN APPLICATION ENTRY POINT - PHASE 3A ENHANCED
 # ============================================================================
 
 if __name__ == "__main__":
@@ -518,17 +597,17 @@ if __name__ == "__main__":
         
         logger = logging.getLogger(__name__)
         logger.info("Starting Ash-Thrash Crisis Detection Testing Suite v3.1")
-        logger.info("Advanced Tuning Intelligence")
+        logger.info("Phase 3a: Advanced Tuning Intelligence")
         logger.info("Serving The Alphabet Cartel LGBTQIA+ Community")
         logger.info("Repository: https://github.com/the-alphabet-cartel/ash-thrash")
         logger.info("Discord: https://discord.gg/alphabetcartel")
         logger.info("Website: https://alphabetcartel.org")
         logger.info("")
         logger.info("=" * 70)
-        logger.info("          ASH-THRASH STARTUP")
+        logger.info("          ASH-THRASH STARTUP - PHASE 3A")
         logger.info("=" * 70)
         
-        # Initialize all managers
+        # Initialize all managers (including Phase 3a tuning manager)
         managers = initialize_managers()
         
         # Parse command line arguments
