@@ -1077,7 +1077,7 @@ class TuningSuggestionsManager:
             
             # Check for high-priority category involvement
             high_priority_changes = [r for r in recommendations 
-                                   if any('high' in str(r.reasoning).lower())]
+                                   if 'high' in str(r.reasoning).lower()]
             if high_priority_changes:
                 risk_assessment['risk_factors'].append(
                     "Changes affect high-priority crisis detection thresholds"
