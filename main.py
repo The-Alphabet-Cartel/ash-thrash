@@ -4,7 +4,7 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Ash-Thrash Main Application Entry Point for Ash Thrash Service
 ---
-FILE VERSION: v3.1-2a-1
+FILE VERSION: v3.1-3a-2
 LAST MODIFIED: 2025-08-31
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -24,6 +24,7 @@ from managers.nlp_client import create_nlp_client_manager
 from managers.test_engine import create_test_engine_manager
 from managers.results_manager import create_results_manager
 from managers.analyze_results import create_analyze_results_manager
+from managers.tuning_suggestions import create_tuning_suggestions_manager
 
 # ============================================================================
 # UNIFIED CONFIGURATION LOGGING SETUP
@@ -121,6 +122,9 @@ def initialize_managers():
         # Results and analysis managers
         results_manager = create_results_manager(unified_config)
         analyze_manager = create_analyze_results_manager(unified_config, results_manager, logging_config)
+        
+        # Advanced tuning intelligence manager
+        tuning_manager = create_tuning_suggestions_manager(unified_config, results_manager, analyze_manager)
 
         managers = {
             'unified_config': unified_config,
@@ -129,9 +133,11 @@ def initialize_managers():
             'test_engine': test_engine,
             'results_manager': results_manager,
             'analyze_manager': analyze_manager,
+            'tuning_manager': tuning_manager
         }
         
         logger.info(f"All managers initialized successfully: {len(managers)} total")
+        logger.info("✅ Advanced Tuning Intelligence enabled")
         return managers
         
     except Exception as e:
@@ -139,15 +145,16 @@ def initialize_managers():
         raise
 
 # ============================================================================
-# ENHANCED TEST EXECUTION FUNCTIONS WITH INTEGRATED REPORTING
+# ENHANCED TEST EXECUTION FUNCTIONS WITH TUNING INTELLIGENCE
 # ============================================================================
 
 def run_comprehensive_test(managers):
-    """Run comprehensive test suite across all categories with integrated reporting"""
+    """Run comprehensive test suite across all categories with integrated reporting and tuning intelligence"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
     results_manager = managers['results_manager']
     analyze_manager = managers['analyze_manager']
+    tuning_manager = managers['tuning_manager']
     
     logger.info("Starting comprehensive test suite...")
     
@@ -162,7 +169,7 @@ def run_comprehensive_test(managers):
         except Exception as e:
             logger.error(f"Failed to save test results: {e}")
         
-        # PHASE 2A ENHANCEMENT: Generate markdown reports automatically
+        # PHASE 2A: Generate markdown reports automatically
         try:
             logger.info("Generating comprehensive markdown reports...")
             report_success = analyze_manager.generate_all_reports()
@@ -175,6 +182,68 @@ def run_comprehensive_test(managers):
                 logger.warning("⚠️  Some markdown reports failed to generate")
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
+        
+        # Generate advanced tuning intelligence and recommendations
+        try:
+            logger.info("=" * 50)
+            logger.info("🧠 GENERATING ADVANCED TUNING INTELLIGENCE")
+            logger.info("=" * 50)
+            
+            # Convert suite result to format needed by tuning manager
+            test_results_dict = _convert_suite_result_to_dict(suite_result)
+            
+            # Generate comprehensive tuning analysis
+            logger.info("Analyzing failure patterns and generating threshold recommendations...")
+            tuning_analysis = tuning_manager.generate_tuning_recommendations(test_results_dict)
+            
+            # Save tuning analysis to persistent files
+            analysis_file = tuning_manager.save_tuning_analysis(tuning_analysis)
+            env_file = tuning_manager.generate_env_file_recommendations(tuning_analysis)
+            
+            # Log tuning intelligence summary
+            logger.info("=" * 50)
+            logger.info("🎯 TUNING INTELLIGENCE SUMMARY")
+            logger.info("=" * 50)
+            logger.info(f"Current ensemble mode: {tuning_analysis.ensemble_mode.value}")
+            logger.info(f"Critical issues identified: {len(tuning_analysis.critical_issues)}")
+            logger.info(f"Threshold recommendations: {len(tuning_analysis.recommendations)}")
+            logger.info(f"Risk level: {tuning_analysis.risk_assessment.get('overall_risk_level', 'unknown')}")
+            
+            # Display confidence summary
+            confidence_summary = tuning_analysis.confidence_summary
+            if confidence_summary.get('total_recommendations', 0) > 0:
+                logger.info("Recommendation confidence breakdown:")
+                logger.info(f"  🟢 High confidence: {confidence_summary.get('high', 0)} recommendations")
+                logger.info(f"  🟡 Medium confidence: {confidence_summary.get('medium', 0)} recommendations")
+                logger.info(f"  🟠 Low confidence: {confidence_summary.get('low', 0)} recommendations")
+                logger.info(f"  🔴 Uncertain: {confidence_summary.get('uncertain', 0)} recommendations")
+            
+            # Display critical issues
+            if tuning_analysis.critical_issues:
+                logger.warning("🚨 Critical issues requiring immediate attention:")
+                for issue in tuning_analysis.critical_issues[:3]:  # Show first 3
+                    logger.warning(f"   • {issue}")
+                if len(tuning_analysis.critical_issues) > 3:
+                    logger.warning(f"   • ... and {len(tuning_analysis.critical_issues) - 3} more")
+            
+            # Display file locations
+            logger.info("📁 Analysis files generated:")
+            if analysis_file:
+                logger.info(f"   📊 Detailed analysis: {analysis_file}")
+            if env_file:
+                logger.info(f"   ⚙️  Recommended settings: {env_file}")
+            
+            # Show implementation order preview
+            if tuning_analysis.implementation_order:
+                logger.info("🔄 Implementation priority order (top 3):")
+                for i, order_item in enumerate(tuning_analysis.implementation_order[:3], 1):
+                    logger.info(f"   {i}. {order_item}")
+                if len(tuning_analysis.implementation_order) > 3:
+                    logger.info(f"   ... and {len(tuning_analysis.implementation_order) - 3} more")
+            
+        except Exception as e:
+            logger.error(f"Tuning intelligence failed: {e}")
+            logger.warning("Continuing with standard test reporting...")
         
         # Log test execution summary
         logger.info("=" * 50)
@@ -190,7 +259,7 @@ def run_comprehensive_test(managers):
         if suite_result.early_termination:
             logger.warning(f"Early termination: {suite_result.termination_reason}")
         
-        # PHASE 2A ENHANCEMENT: Display quick analysis summary using the manager
+        # Display quick analysis summary
         try:
             logger.info("=" * 50)
             logger.info("ANALYSIS SUMMARY")
@@ -206,11 +275,12 @@ def run_comprehensive_test(managers):
         return None
 
 def run_category_test(managers, category_name: str):
-    """Run test for specific category with integrated reporting"""
+    """Run test for specific category with integrated reporting and tuning intelligence"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
     results_manager = managers['results_manager']
     analyze_manager = managers['analyze_manager']
+    tuning_manager = managers['tuning_manager']
     
     logger.info(f"Starting test for category: {category_name}")
     
@@ -224,7 +294,7 @@ def run_category_test(managers, category_name: str):
         except Exception as e:
             logger.error(f"Failed to save test results: {e}")
         
-        # PHASE 2A ENHANCEMENT: Generate reports for single category tests too
+        # PHASE 2A: Generate reports for single category tests too
         try:
             logger.info("Generating markdown reports for category test...")
             report_success = analyze_manager.generate_all_reports()
@@ -234,6 +304,59 @@ def run_category_test(managers, category_name: str):
                 logger.warning("⚠️  Some markdown reports failed to generate")
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
+        
+        # Generate targeted tuning intelligence for single category
+        try:
+            logger.info("=" * 50)
+            logger.info("🧠 GENERATING CATEGORY-SPECIFIC TUNING ANALYSIS")
+            logger.info("=" * 50)
+            
+            # Convert suite result to format needed by tuning manager
+            test_results_dict = _convert_suite_result_to_dict(suite_result)
+            
+            # Generate tuning analysis focused on this category
+            logger.info(f"Analyzing {category_name} for threshold optimization opportunities...")
+            tuning_analysis = tuning_manager.generate_tuning_recommendations(test_results_dict)
+            
+            # Filter recommendations relevant to this category
+            category_specific_recs = [
+                rec for rec in tuning_analysis.recommendations
+                if category_name in rec.reasoning or category_name in rec.expected_improvement
+            ]
+            
+            # Log category-specific tuning insights
+            logger.info(f"🎯 {category_name.upper()} TUNING ANALYSIS")
+            logger.info(f"Category-specific recommendations: {len(category_specific_recs)}")
+            
+            if category_specific_recs:
+                logger.info("Top recommendations for this category:")
+                for i, rec in enumerate(category_specific_recs[:2], 1):  # Show top 2
+                    logger.info(f"  {i}. {rec.variable_name}: {rec.current_value:.3f} → {rec.recommended_value:.3f}")
+                    logger.info(f"     Risk: {rec.risk_level.value}, Confidence: {rec.confidence_level.value}")
+            else:
+                # Show general recommendations that might help
+                if tuning_analysis.recommendations:
+                    logger.info("General recommendations that may impact this category:")
+                    for i, rec in enumerate(tuning_analysis.recommendations[:2], 1):
+                        logger.info(f"  {i}. {rec.variable_name}: {rec.current_value:.3f} → {rec.recommended_value:.3f}")
+                        logger.info(f"     Risk: {rec.risk_level.value}, Confidence: {rec.confidence_level.value}")
+                else:
+                    logger.info("No specific threshold recommendations generated for this category")
+            
+            # Save analysis files with category prefix
+            if tuning_analysis.recommendations:
+                analysis_file = tuning_manager.save_tuning_analysis(tuning_analysis)
+                env_file = tuning_manager.generate_env_file_recommendations(tuning_analysis)
+                
+                logger.info("📁 Category analysis files:")
+                if analysis_file:
+                    logger.info(f"   📊 Analysis: {analysis_file}")
+                if env_file:
+                    logger.info(f"   ⚙️  Settings: {env_file}")
+            
+        except Exception as e:
+            logger.error(f"Category tuning analysis failed: {e}")
+            logger.warning("Continuing with standard category reporting...")
         
         # Log category results
         if suite_result.category_results:
@@ -262,11 +385,96 @@ def run_category_test(managers, category_name: str):
         logger.error(f"Category test failed: {e}")
         return None
 
+def _convert_suite_result_to_dict(suite_result) -> dict:
+    """
+    Convert TestSuiteResult to dictionary format expected by TuningSuggestionsManager
+    
+    Args:
+        suite_result: TestSuiteResult object from test execution
+        
+    Returns:
+        Dictionary format compatible with tuning analysis
+    """
+    try:
+        # Create the expected dictionary structure
+        test_results = {
+            'metadata': {
+                'timestamp': getattr(suite_result, 'timestamp', ''),
+                'early_termination': getattr(suite_result, 'early_termination', False),
+                'termination_reason': getattr(suite_result, 'termination_reason', ''),
+                'total_execution_time_ms': getattr(suite_result, 'total_execution_time_ms', 0)
+            },
+            'summary': {
+                'overall_pass_rate': getattr(suite_result, 'overall_pass_rate', 0.0),
+                'total_phrases': getattr(suite_result, 'total_phrases', 0),
+                'total_passed': getattr(suite_result, 'total_passed', 0),
+                'total_failed': getattr(suite_result, 'total_failed', 0),
+                'total_errors': getattr(suite_result, 'total_errors', 0)
+            },
+            'category_results': {}
+        }
+        
+        # Convert category results
+        if hasattr(suite_result, 'category_results') and suite_result.category_results:
+            for category_result in suite_result.category_results:
+                category_name = getattr(category_result, 'category_name', 'unknown')
+                
+                # Create category summary
+                category_data = {
+                    'summary': {
+                        'category_name': category_name,
+                        'pass_rate': getattr(category_result, 'pass_rate', 0.0),
+                        'target_pass_rate': getattr(category_result, 'target_pass_rate', 85.0),
+                        'total_tests': getattr(category_result, 'total_tests', 0),
+                        'passed_tests': getattr(category_result, 'passed_tests', 0),
+                        'failed_tests': getattr(category_result, 'failed_tests', 0),
+                        'false_negatives': getattr(category_result, 'false_negatives', 0),
+                        'false_positives': getattr(category_result, 'false_positives', 0),
+                        'is_critical': getattr(category_result, 'is_critical', False)
+                    }
+                }
+                
+                # Add failed test details if available
+                if hasattr(category_result, 'test_details') and category_result.test_details:
+                    failed_tests = []
+                    
+                    for test_detail in category_result.test_details:
+                        if not getattr(test_detail, 'passed', True):  # Failed test
+                            failed_test = {
+                                'phrase': getattr(test_detail, 'test_phrase', ''),
+                                'expected_crisis_level': getattr(test_detail, 'expected_crisis_level', 'unknown'),
+                                'actual_crisis_level': getattr(test_detail, 'actual_crisis_level', 'unknown'),
+                                'confidence_score': getattr(test_detail, 'confidence_score', 0.0),
+                                'processing_time_ms': getattr(test_detail, 'processing_time_ms', 0),
+                                'severity_score': getattr(test_detail, 'severity_score', 0),
+                                'error_message': getattr(test_detail, 'error_message', '')
+                            }
+                            failed_tests.append(failed_test)
+                    
+                    if failed_tests:
+                        category_data['failed_tests_details'] = failed_tests
+                
+                test_results['category_results'][category_name] = category_data
+        
+        return test_results
+        
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error converting suite result to dictionary: {e}")
+        # Return minimal structure as fallback
+        return {
+            'metadata': {'error': str(e)},
+            'summary': {'overall_pass_rate': 0.0},
+            'category_results': {}
+        }
+
 def show_usage():
-    """Show usage information"""
+    """Show usage information with Phase 3a enhancements"""
     logger = logging.getLogger(__name__)
     
-    logger.info("Ash-Thrash Crisis Detection Testing Suite")
+    logger.info("Ash-Thrash Crisis Detection Testing Suite v3.1")
+    logger.info("Advanced Tuning Intelligence Enabled")
+    logger.info("")
     logger.info("Usage:")
     logger.info("  python main.py                    # Run comprehensive test suite")
     logger.info("  python main.py [category]         # Run specific category test")
@@ -280,10 +488,19 @@ def show_usage():
     logger.info("  maybe_medium_low    # Medium/low boundary tests")
     logger.info("  maybe_low_none      # Low/none boundary tests")
     logger.info("")
-    logger.info("Reports generated:")
-    logger.info("  reports/latest_run_summary.md      # Latest test results")
-    logger.info("  reports/threshold_recommendations.md # NLP tuning suggestions")
-    logger.info("  reports/historical_performance.md   # Performance trends")
+    logger.info("Generated reports and analysis:")
+    logger.info("  📄 reports/latest_run_summary.md           # Latest test results")
+    logger.info("  🔧 reports/threshold_recommendations.md    # NLP tuning suggestions")
+    logger.info("  📈 reports/historical_performance.md       # Performance trends")
+    logger.info("  🧠 results/tuning_analysis/*.json          # Advanced tuning intelligence")
+    logger.info("  ⚙️  reports/recommended_thresholds_*.env   # Recommended threshold settings")
+    logger.info("")
+    logger.info("Tuning Intelligence Features:")
+    logger.info("  🎯 Intelligent threshold mapping by ensemble mode")
+    logger.info("  🔍 Confidence-based recommendations with risk assessment") 
+    logger.info("  📊 Boundary testing suggestions for optimal values")
+    logger.info("  🚨 Safety-first analysis for LGBTQIA+ community protection")
+    logger.info("  📁 Automated .env file generation with recommended settings")
     logger.info("")
 
 # ============================================================================
@@ -300,7 +517,8 @@ if __name__ == "__main__":
         setup_unified_logging(unified_config)
         
         logger = logging.getLogger(__name__)
-        logger.info("Starting Ash-Thrash Crisis Detection Testing Suite")
+        logger.info("Starting Ash-Thrash Crisis Detection Testing Suite v3.1")
+        logger.info("Advanced Tuning Intelligence")
         logger.info("Serving The Alphabet Cartel LGBTQIA+ Community")
         logger.info("Repository: https://github.com/the-alphabet-cartel/ash-thrash")
         logger.info("Discord: https://discord.gg/alphabetcartel")
@@ -332,11 +550,11 @@ if __name__ == "__main__":
             sys.exit(1)
         elif result.early_termination:
             logger.warning("Tests terminated early due to poor performance")
-            logger.info("Check generated reports for detailed analysis and recommendations")
+            logger.info("💡 Check generated tuning analysis files for intelligent threshold recommendations")
             sys.exit(2)
         else:
             logger.info("Test execution completed successfully")
-            logger.info("Markdown reports available in ./reports/ directory")
+            logger.info("📁 Analysis files and recommendations available in ./reports/ and ./results/ directories")
             sys.exit(0)
         
     except KeyboardInterrupt:
