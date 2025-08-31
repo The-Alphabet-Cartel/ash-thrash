@@ -81,7 +81,7 @@
         "description": "Halt testing if pass rate drops below this percentage"
       },
       "progress_report_interval": {
-        "type": "integer"
+        "type": "integer",
         "range": [1, 100]
       }
     }
