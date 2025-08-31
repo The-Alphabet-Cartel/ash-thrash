@@ -450,6 +450,7 @@ class TestEngineManager:
             overall_pass_rate=0.0,
             weighted_safety_score=0.0,
             early_termination=False,
+            termination_reason=None,
             server_info=self.nlp_client.get_server_info()
         )
         
