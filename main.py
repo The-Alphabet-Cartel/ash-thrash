@@ -479,7 +479,7 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                         for j, test_detail in enumerate(test_details):
                             logger.debug(f"  Test {j+1} attributes: {dir(test_detail)}")
                             
-                            test_passed = getattr(test_detail, 'passed', True)
+                            test_passed = getattr(test_detail, 'result', True)
                             if test_passed:
                                 passed_count += 1
                             else:
@@ -488,8 +488,8 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                             if not test_passed:  # Failed test
                                 failed_test = {
                                     'phrase': getattr(test_detail, 'test_phrase', getattr(test_detail, 'phrase', '')),
-                                    'expected_crisis_level': getattr(test_detail, 'expected_crisis_level', 'unknown'),
-                                    'actual_crisis_level': getattr(test_detail, 'actual_crisis_level', 'unknown'),
+                                    'expected_crisis_level': test_detail.expected_priorities[0] if test_detail.expected_priorities else 'low',
+                                    'actual_crisis_level': getattr(test_detail, 'actual_priority', 'unknown'),
                                     'confidence_score': getattr(test_detail, 'confidence_score', 0.0),
                                     'processing_time_ms': getattr(test_detail, 'processing_time_ms', 0),
                                     'severity_score': getattr(test_detail, 'severity_score', 0),
