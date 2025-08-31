@@ -479,7 +479,10 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                         for j, test_detail in enumerate(test_details):
                             logger.debug(f"  Test {j+1} attributes: {dir(test_detail)}")
                             
-                            test_passed = getattr(test_detail, 'result', True)
+                            is_false_positive = getattr(test_detail, 'is_false_positive', False)
+                            is_false_negative = getattr(test_detail, 'is_false_negative', False)
+                            test_passed = not (is_false_positive or is_false_negative)
+#                            test_passed = getattr(test_detail, 'result', True)
                             if test_passed:
                                 passed_count += 1
                             else:
