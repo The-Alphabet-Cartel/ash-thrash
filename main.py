@@ -460,7 +460,7 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                 
                 # Add failed test details if available
                 test_details_attr = None
-                for attr_name in ['test_details', 'test_results', 'details', 'results']:
+                for attr_name in ['phrase_results', 'test_details', 'test_results', 'details', 'results']:
                     if hasattr(category_result, attr_name):
                         test_details_attr = attr_name
                         break
