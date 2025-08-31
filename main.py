@@ -401,8 +401,6 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
         logger.debug("=" * 50)
         logger.debug("🔍 CONVERTING SUITE RESULT TO DICT")
         logger.debug("=" * 50)
-        logger.debug(f"Suite result type: {type(suite_result)}")
-        logger.debug(f"Suite result attributes: {dir(suite_result)}")
         
         # Create the expected dictionary structure
         test_results = {
@@ -432,8 +430,6 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
             
             for i, category_result in enumerate(suite_result.category_results):
                 logger.debug(f"--- Processing category {i+1} ---")
-                logger.debug(f"Category result type: {type(category_result)}")
-                logger.debug(f"Category result attributes: {dir(category_result)}")
                 
                 category_name = getattr(category_result, 'category_name', 'unknown')
                 logger.debug(f"Category name: {category_name}")
@@ -468,8 +464,7 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                 if test_details_attr:
                     test_details = getattr(category_result, test_details_attr)
                     logger.debug(f"Found test details in attribute: {test_details_attr}")
-                    logger.debug(f"Test details type: {type(test_details)}")
-                    logger.debug(f"Test details length: {len(test_details) if test_details else 0}")
+                    logger.debug(f"Test details count: {len(test_details) if test_details else 0}")
                     
                     if test_details:
                         failed_tests = []
@@ -477,18 +472,15 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                         failed_count = 0
                         
                         for j, test_detail in enumerate(test_details):
-                            logger.debug(f"  Test {j+1} attributes: {dir(test_detail)}")
-                            
                             is_false_positive = getattr(test_detail, 'is_false_positive', False)
                             is_false_negative = getattr(test_detail, 'is_false_negative', False)
                             test_passed = not (is_false_positive or is_false_negative)
-#                            test_passed = getattr(test_detail, 'result', True)
+                            
                             if test_passed:
                                 passed_count += 1
                             else:
                                 failed_count += 1
                                 
-                            if not test_passed:  # Failed test
                                 failed_test = {
                                     'phrase': getattr(test_detail, 'test_phrase', getattr(test_detail, 'phrase', '')),
                                     'expected_crisis_level': test_detail.expected_priorities[0] if test_detail.expected_priorities else 'low',
@@ -502,11 +494,7 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                                 
                                 # Log first few failed tests for debugging
                                 if len(failed_tests) <= 3:
-                                    logger.debug(f"  Failed test {len(failed_tests)}:")
-                                    logger.debug(f"    Phrase: {failed_test['phrase'][:50]}...")
-                                    logger.debug(f"    Expected: {failed_test['expected_crisis_level']}")
-                                    logger.debug(f"    Actual: {failed_test['actual_crisis_level']}")
-                                    logger.debug(f"    Confidence: {failed_test['confidence_score']}")
+                                    logger.debug(f"  Failed test {len(failed_tests)}: {failed_test['expected_crisis_level']} → {failed_test['actual_crisis_level']}")
                         
                         logger.debug(f"Processed test details: {passed_count} passed, {failed_count} failed")
                         
@@ -517,7 +505,6 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                             logger.warning(f"No failed tests found despite failed_tests count = {category_data['summary']['failed_tests']}")
                 else:
                     logger.warning(f"No test details found for category {category_name}")
-                    logger.warning(f"Tried attributes: test_details, test_results, details, results")
                 
                 test_results['category_results'][category_name] = category_data
         else:
