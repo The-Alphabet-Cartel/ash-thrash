@@ -1,18 +1,18 @@
 <!-- ash-thrash/docs/project_instructions.md -->
 <!--
 Project Instructions for Ash-Thrash Service
-FILE VERSION: v3.1-1a-1
-LAST MODIFIED: 2025-08-30
-CLEAN ARCHITECTURE: v3.1 Compliant
+FILE VERSION: v3.1-3a-1
+LAST MODIFIED: 2025-08-31
+CLEAN ARCHITECTURE: v3.1
 -->
 # Ash-Thrash Project Instructions
 
 **Repository**: https://github.com/the-alphabet-cartel/ash-thrash  
-**Project**: Ash-Thrash v3.1
+**Project**: Ash-Thrash v3.1  
 **Community**: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org  
-**FILE VERSION**: v3.1-1a-1
-**LAST UPDATED**: 2025-08-30
-**CLEAN ARCHITECTURE**: v3.1 Compliant  
+**FILE VERSION**: v3.1-3a-1  
+**LAST UPDATED**: 2025-08-31  
+**CLEAN ARCHITECTURE**: v3.1  
 
 ---
 
