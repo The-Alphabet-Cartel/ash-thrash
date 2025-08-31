@@ -22,6 +22,7 @@ from managers.unified_config import create_unified_config_manager
 from managers.logging_config import create_logging_config_manager
 from managers.nlp_client import create_nlp_client_manager
 from managers.test_engine import create_test_engine_manager
+from managers.results_manager import create_results_manager
 
 # ============================================================================
 # UNIFIED CONFIGURATION LOGGING SETUP
@@ -115,12 +116,16 @@ def initialize_managers():
         # Testing managers
         nlp_client = create_nlp_client_manager(unified_config)
         test_engine = create_test_engine_manager(unified_config, nlp_client)
+        
+        # FIXED: Add results manager initialization
+        results_manager = create_results_manager(unified_config)
 
         managers = {
             'unified_config': unified_config,
             'logging_config': logging_config,
             'nlp_client': nlp_client,
             'test_engine': test_engine,
+            'results_manager': results_manager,  # FIXED: Add to managers dict
         }
         
         logger.info(f"All managers initialized successfully: {len(managers)} total")
@@ -138,12 +143,20 @@ def run_comprehensive_test(managers):
     """Run comprehensive test suite across all categories"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
+    results_manager = managers['results_manager']  # FIXED: Get results manager
     
     logger.info("Starting comprehensive test suite...")
     
     try:
         # Run all category tests
         suite_result = test_engine.run_test_suite()
+        
+        # FIXED: Store test results to disk
+        try:
+            result_path = results_manager.store_test_results(suite_result)
+            logger.info(f"Test results saved to: {result_path}")
+        except Exception as e:
+            logger.error(f"Failed to save test results: {e}")
         
         # Log summary
         logger.info("=" * 50)
@@ -169,11 +182,19 @@ def run_category_test(managers, category_name: str):
     """Run test for specific category"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
+    results_manager = managers['results_manager']  # FIXED: Get results manager
     
     logger.info(f"Starting test for category: {category_name}")
     
     try:
         suite_result = test_engine.run_test_suite([category_name])
+        
+        # FIXED: Store test results to disk
+        try:
+            result_path = results_manager.store_test_results(suite_result)
+            logger.info(f"Test results saved to: {result_path}")
+        except Exception as e:
+            logger.error(f"Failed to save test results: {e}")
         
         if suite_result.category_results:
             category_result = suite_result.category_results[0]
