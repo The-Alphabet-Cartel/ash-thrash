@@ -273,6 +273,8 @@ class ResultsManager:
     def _analyze_performance(self, suite_result) -> Dict[str, Any]:
         """Analyze test performance and identify issues"""
         try:
+            logger.debug("Starting performance analysis...")
+
             analysis = {
                 'overall_status': 'pass' if suite_result.overall_pass_rate >= 85.0 else 'fail',
                 'safety_assessment': 'acceptable' if suite_result.weighted_safety_score <= 1.0 else 'needs_attention',
@@ -287,6 +289,9 @@ class ResultsManager:
                 pass_rate = category_result.pass_rate
                 target = category_result.target_pass_rate
                 
+                logger.debug(f"Category: {category_name}, pass_rate type: {type(pass_rate)}, target type: {type(target)}")
+                logger.debug(f"Values: pass_rate={pass_rate}, target={target}")
+
                 # Critical failures
                 if category_result.is_critical and pass_rate < target:
                     analysis['critical_failures'].append({
