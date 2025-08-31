@@ -1,8 +1,8 @@
 <!-- ash-thrash/docs/clean_architecture_charter.md -->
 <!--
 Clean Architecture Charter for Ash-Thrash Service
-FILE VERSION: v3.1-1a-1
-LAST MODIFIED: 2025-08-309
+FILE VERSION: v3.1-3a-1
+LAST MODIFIED: 2025-08-31
 CLEAN ARCHITECTURE: v3.1
 -->
 # Clean Architecture Charter - Ash-Thrash
@@ -10,10 +10,10 @@ CLEAN ARCHITECTURE: v3.1
 ## Sacred Principles - NEVER TO BE VIOLATED
 
 **Repository**: https://github.com/the-alphabet-cartel/ash-thrash  
-**Project**: Ash-Thrash v3.1
-**Community**: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
-**FILE VERSION**: v3.1-1a-1
-**LAST UPDATED**: 2025-08-30
+**Project**: Ash-Thrash v3.1  
+**Community**: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org  
+**FILE VERSION**: v3.1-3a-1  
+**LAST UPDATED**: 2025-08-31  
 **CLEAN ARCHITECTURE**: v3.1
 
 ---
