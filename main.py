@@ -4,7 +4,7 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Ash-Thrash Main Application Entry Point for Ash Thrash Service
 ---
-FILE VERSION: v3.1-2a-1
+FILE VERSION: v3.1-3a-3
 LAST MODIFIED: 2025-08-31
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -24,6 +24,7 @@ from managers.nlp_client import create_nlp_client_manager
 from managers.test_engine import create_test_engine_manager
 from managers.results_manager import create_results_manager
 from managers.analyze_results import create_analyze_results_manager
+from managers.tuning_suggestions import create_tuning_suggestions_manager
 
 # ============================================================================
 # UNIFIED CONFIGURATION LOGGING SETUP
@@ -97,12 +98,12 @@ def setup_unified_logging(unified_config_manager):
         logging.info("Using fallback basic logging configuration")
 
 # ============================================================================
-# UNIFIED MANAGER INITIALIZATION
+# UNIFIED MANAGER INITIALIZATION - PHASE 3A ENHANCED
 # ============================================================================
 
 def initialize_managers():
     """
-    Initialize all managers using factory functions (Clean Architecture v3.1)
+    Initialize all managers using factory functions (Clean Architecture v3.1) - Phase 3a Enhanced
     """
     logger = logging.getLogger(__name__)
     logger.info("=" * 70)
@@ -121,6 +122,9 @@ def initialize_managers():
         # Results and analysis managers
         results_manager = create_results_manager(unified_config)
         analyze_manager = create_analyze_results_manager(unified_config, results_manager, logging_config)
+        
+        # PHASE 3A: Advanced tuning intelligence manager
+        tuning_manager = create_tuning_suggestions_manager(unified_config, results_manager, analyze_manager)
 
         managers = {
             'unified_config': unified_config,
@@ -129,9 +133,11 @@ def initialize_managers():
             'test_engine': test_engine,
             'results_manager': results_manager,
             'analyze_manager': analyze_manager,
+            'tuning_manager': tuning_manager,  # Phase 3a addition
         }
         
         logger.info(f"All managers initialized successfully: {len(managers)} total")
+        logger.info("✅ Phase 3a: Advanced Tuning Intelligence enabled")
         return managers
         
     except Exception as e:
@@ -139,15 +145,16 @@ def initialize_managers():
         raise
 
 # ============================================================================
-# ENHANCED TEST EXECUTION FUNCTIONS WITH INTEGRATED REPORTING
+# ENHANCED TEST EXECUTION FUNCTIONS WITH PHASE 3A TUNING INTELLIGENCE
 # ============================================================================
 
 def run_comprehensive_test(managers):
-    """Run comprehensive test suite across all categories with integrated reporting"""
+    """Run comprehensive test suite across all categories with integrated reporting and Phase 3a tuning intelligence"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
     results_manager = managers['results_manager']
     analyze_manager = managers['analyze_manager']
+    tuning_manager = managers['tuning_manager']  # Phase 3a addition
     
     logger.info("Starting comprehensive test suite...")
     
@@ -162,7 +169,7 @@ def run_comprehensive_test(managers):
         except Exception as e:
             logger.error(f"Failed to save test results: {e}")
         
-        # PHASE 2A ENHANCEMENT: Generate markdown reports automatically
+        # PHASE 2A: Generate markdown reports automatically
         try:
             logger.info("Generating comprehensive markdown reports...")
             report_success = analyze_manager.generate_all_reports()
@@ -175,6 +182,68 @@ def run_comprehensive_test(managers):
                 logger.warning("⚠️  Some markdown reports failed to generate")
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
+        
+        # PHASE 3A: Generate advanced tuning intelligence and recommendations
+        try:
+            logger.info("=" * 50)
+            logger.info("🧠 PHASE 3A: GENERATING ADVANCED TUNING INTELLIGENCE")
+            logger.info("=" * 50)
+            
+            # Convert suite result to format needed by tuning manager
+            test_results_dict = _convert_suite_result_to_dict(suite_result)
+            
+            # Generate comprehensive tuning analysis
+            logger.info("Analyzing failure patterns and generating threshold recommendations...")
+            tuning_analysis = tuning_manager.generate_tuning_recommendations(test_results_dict)
+            
+            # Save tuning analysis to persistent files
+            analysis_file = tuning_manager.save_tuning_analysis(tuning_analysis)
+            env_file = tuning_manager.generate_env_file_recommendations(tuning_analysis)
+            
+            # Log tuning intelligence summary
+            logger.info("=" * 50)
+            logger.info("🎯 TUNING INTELLIGENCE SUMMARY")
+            logger.info("=" * 50)
+            logger.info(f"Current ensemble mode: {tuning_analysis.ensemble_mode.value}")
+            logger.info(f"Critical issues identified: {len(tuning_analysis.critical_issues)}")
+            logger.info(f"Threshold recommendations: {len(tuning_analysis.recommendations)}")
+            logger.info(f"Risk level: {tuning_analysis.risk_assessment.get('overall_risk_level', 'unknown')}")
+            
+            # Display confidence summary
+            confidence_summary = tuning_analysis.confidence_summary
+            if confidence_summary.get('total_recommendations', 0) > 0:
+                logger.info("Recommendation confidence breakdown:")
+                logger.info(f"  🟢 High confidence: {confidence_summary.get('high', 0)} recommendations")
+                logger.info(f"  🟡 Medium confidence: {confidence_summary.get('medium', 0)} recommendations")
+                logger.info(f"  🟠 Low confidence: {confidence_summary.get('low', 0)} recommendations")
+                logger.info(f"  🔴 Uncertain: {confidence_summary.get('uncertain', 0)} recommendations")
+            
+            # Display critical issues
+            if tuning_analysis.critical_issues:
+                logger.warning("🚨 Critical issues requiring immediate attention:")
+                for issue in tuning_analysis.critical_issues[:3]:  # Show first 3
+                    logger.warning(f"   • {issue}")
+                if len(tuning_analysis.critical_issues) > 3:
+                    logger.warning(f"   • ... and {len(tuning_analysis.critical_issues) - 3} more")
+            
+            # Display file locations
+            logger.info("📁 Analysis files generated:")
+            if analysis_file:
+                logger.info(f"   📊 Detailed analysis: {analysis_file}")
+            if env_file:
+                logger.info(f"   ⚙️  Recommended settings: {env_file}")
+            
+            # Show implementation order preview
+            if tuning_analysis.implementation_order:
+                logger.info("🔄 Implementation priority order (top 3):")
+                for i, order_item in enumerate(tuning_analysis.implementation_order[:3], 1):
+                    logger.info(f"   {i}. {order_item}")
+                if len(tuning_analysis.implementation_order) > 3:
+                    logger.info(f"   ... and {len(tuning_analysis.implementation_order) - 3} more")
+            
+        except Exception as e:
+            logger.error(f"Phase 3a tuning intelligence failed: {e}")
+            logger.warning("Continuing with standard test reporting...")
         
         # Log test execution summary
         logger.info("=" * 50)
@@ -190,7 +259,7 @@ def run_comprehensive_test(managers):
         if suite_result.early_termination:
             logger.warning(f"Early termination: {suite_result.termination_reason}")
         
-        # PHASE 2A ENHANCEMENT: Display quick analysis summary using the manager
+        # Display quick analysis summary
         try:
             logger.info("=" * 50)
             logger.info("ANALYSIS SUMMARY")
@@ -206,11 +275,12 @@ def run_comprehensive_test(managers):
         return None
 
 def run_category_test(managers, category_name: str):
-    """Run test for specific category with integrated reporting"""
+    """Run test for specific category with integrated reporting and Phase 3a tuning intelligence"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
     results_manager = managers['results_manager']
     analyze_manager = managers['analyze_manager']
+    tuning_manager = managers['tuning_manager']  # Phase 3a addition
     
     logger.info(f"Starting test for category: {category_name}")
     
@@ -224,7 +294,7 @@ def run_category_test(managers, category_name: str):
         except Exception as e:
             logger.error(f"Failed to save test results: {e}")
         
-        # PHASE 2A ENHANCEMENT: Generate reports for single category tests too
+        # PHASE 2A: Generate reports for single category tests too
         try:
             logger.info("Generating markdown reports for category test...")
             report_success = analyze_manager.generate_all_reports()
@@ -234,6 +304,59 @@ def run_category_test(managers, category_name: str):
                 logger.warning("⚠️  Some markdown reports failed to generate")
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
+        
+        # PHASE 3A: Generate targeted tuning intelligence for single category
+        try:
+            logger.info("=" * 50)
+            logger.info("🧠 GENERATING CATEGORY-SPECIFIC TUNING ANALYSIS")
+            logger.info("=" * 50)
+            
+            # Convert suite result to format needed by tuning manager
+            test_results_dict = _convert_suite_result_to_dict(suite_result)
+            
+            # Generate tuning analysis focused on this category
+            logger.info(f"Analyzing {category_name} for threshold optimization opportunities...")
+            tuning_analysis = tuning_manager.generate_tuning_recommendations(test_results_dict)
+            
+            # Filter recommendations relevant to this category
+            category_specific_recs = [
+                rec for rec in tuning_analysis.recommendations
+                if category_name in rec.reasoning or category_name in rec.expected_improvement
+            ]
+            
+            # Log category-specific tuning insights
+            logger.info(f"🎯 {category_name.upper()} TUNING ANALYSIS")
+            logger.info(f"Category-specific recommendations: {len(category_specific_recs)}")
+            
+            if category_specific_recs:
+                logger.info("Top recommendations for this category:")
+                for i, rec in enumerate(category_specific_recs[:2], 1):  # Show top 2
+                    logger.info(f"  {i}. {rec.variable_name}: {rec.current_value:.3f} → {rec.recommended_value:.3f}")
+                    logger.info(f"     Risk: {rec.risk_level.value}, Confidence: {rec.confidence_level.value}")
+            else:
+                # Show general recommendations that might help
+                if tuning_analysis.recommendations:
+                    logger.info("General recommendations that may impact this category:")
+                    for i, rec in enumerate(tuning_analysis.recommendations[:2], 1):
+                        logger.info(f"  {i}. {rec.variable_name}: {rec.current_value:.3f} → {rec.recommended_value:.3f}")
+                        logger.info(f"     Risk: {rec.risk_level.value}, Confidence: {rec.confidence_level.value}")
+                else:
+                    logger.info("No specific threshold recommendations generated for this category")
+            
+            # Save analysis files with category prefix
+            if tuning_analysis.recommendations:
+                analysis_file = tuning_manager.save_tuning_analysis(tuning_analysis)
+                env_file = tuning_manager.generate_env_file_recommendations(tuning_analysis)
+                
+                logger.info("📁 Category analysis files:")
+                if analysis_file:
+                    logger.info(f"   📊 Analysis: {analysis_file}")
+                if env_file:
+                    logger.info(f"   ⚙️  Settings: {env_file}")
+            
+        except Exception as e:
+            logger.error(f"Phase 3a category tuning analysis failed: {e}")
+            logger.warning("Continuing with standard category reporting...")
         
         # Log category results
         if suite_result.category_results:
@@ -262,11 +385,165 @@ def run_category_test(managers, category_name: str):
         logger.error(f"Category test failed: {e}")
         return None
 
-def show_usage():
-    """Show usage information"""
+def _convert_suite_result_to_dict(suite_result) -> dict:
+    """
+    Convert TestSuiteResult to dictionary format expected by TuningSuggestionsManager
+    
+    Args:
+        suite_result: TestSuiteResult object from test execution
+        
+    Returns:
+        Dictionary format compatible with tuning analysis
+    """
     logger = logging.getLogger(__name__)
     
-    logger.info("Ash-Thrash Crisis Detection Testing Suite")
+    try:
+        logger.debug("=" * 50)
+        logger.debug("🔍 CONVERTING SUITE RESULT TO DICT")
+        logger.debug("=" * 50)
+        
+        # Create the expected dictionary structure
+        test_results = {
+            'metadata': {
+                'timestamp': getattr(suite_result, 'timestamp', ''),
+                'early_termination': getattr(suite_result, 'early_termination', False),
+                'termination_reason': getattr(suite_result, 'termination_reason', ''),
+                'total_execution_time_ms': getattr(suite_result, 'total_execution_time_ms', 0)
+            },
+            'summary': {
+                'overall_pass_rate': getattr(suite_result, 'overall_pass_rate', 0.0),
+                'total_phrases': getattr(suite_result, 'total_phrases', 0),
+                'total_passed': getattr(suite_result, 'total_passed', 0),
+                'total_failed': getattr(suite_result, 'total_failed', 0),
+                'total_errors': getattr(suite_result, 'total_errors', 0)
+            },
+            'category_results': {}
+        }
+        
+        logger.debug(f"Basic metadata created:")
+        logger.debug(f"  Overall pass rate: {test_results['summary']['overall_pass_rate']}")
+        logger.debug(f"  Total failed: {test_results['summary']['total_failed']}")
+        
+        # Convert category results
+        if hasattr(suite_result, 'category_results') and suite_result.category_results:
+            logger.debug(f"Processing {len(suite_result.category_results)} category results...")
+            
+            for i, category_result in enumerate(suite_result.category_results):
+                logger.debug(f"--- Processing category {i+1} ---")
+                
+                category_name = getattr(category_result, 'category_name', 'unknown')
+                logger.debug(f"Category name: {category_name}")
+                
+                # Create category summary
+                category_data = {
+                    'summary': {
+                        'category_name': category_name,
+                        'pass_rate': getattr(category_result, 'pass_rate', 0.0),
+                        'target_pass_rate': getattr(category_result, 'target_pass_rate', 85.0),
+                        'total_tests': getattr(category_result, 'total_tests', 0),
+                        'passed_tests': getattr(category_result, 'passed_tests', 0),
+                        'failed_tests': getattr(category_result, 'failed_tests', 0),
+                        'false_negatives': getattr(category_result, 'false_negatives', 0),
+                        'false_positives': getattr(category_result, 'false_positives', 0),
+                        'is_critical': getattr(category_result, 'is_critical', False)
+                    }
+                }
+                
+                logger.debug(f"Category summary created:")
+                logger.debug(f"  Pass rate: {category_data['summary']['pass_rate']}%")
+                logger.debug(f"  Failed tests: {category_data['summary']['failed_tests']}")
+                logger.debug(f"  False positives: {category_data['summary']['false_positives']}")
+                
+                # Add failed test details if available
+                test_details_attr = None
+                for attr_name in ['phrase_results', 'test_details', 'test_results', 'details', 'results']:
+                    if hasattr(category_result, attr_name):
+                        test_details_attr = attr_name
+                        break
+                
+                if test_details_attr:
+                    test_details = getattr(category_result, test_details_attr)
+                    logger.debug(f"Found test details in attribute: {test_details_attr}")
+                    logger.debug(f"Test details count: {len(test_details) if test_details else 0}")
+                    
+                    if test_details:
+                        failed_tests = []
+                        passed_count = 0
+                        failed_count = 0
+                        
+                        for j, test_detail in enumerate(test_details):
+                            is_false_positive = getattr(test_detail, 'is_false_positive', False)
+                            is_false_negative = getattr(test_detail, 'is_false_negative', False)
+                            test_passed = not (is_false_positive or is_false_negative)
+                            
+                            if test_passed:
+                                passed_count += 1
+                            else:
+                                failed_count += 1
+                                
+                                failed_test = {
+                                    'phrase': getattr(test_detail, 'test_phrase', getattr(test_detail, 'phrase', '')),
+                                    'expected_crisis_level': test_detail.expected_priorities[0] if test_detail.expected_priorities else 'low',
+                                    'actual_crisis_level': getattr(test_detail, 'actual_priority', 'unknown'),
+                                    'confidence_score': getattr(test_detail, 'confidence_score', 0.0),
+                                    'processing_time_ms': getattr(test_detail, 'processing_time_ms', 0),
+                                    'severity_score': getattr(test_detail, 'severity_score', 0),
+                                    'error_message': getattr(test_detail, 'error_message', '')
+                                }
+                                failed_tests.append(failed_test)
+                                
+                                # Log first few failed tests for debugging
+                                if len(failed_tests) <= 3:
+                                    logger.debug(f"  Failed test {len(failed_tests)}: {failed_test['expected_crisis_level']} → {failed_test['actual_crisis_level']}")
+                        
+                        logger.debug(f"Processed test details: {passed_count} passed, {failed_count} failed")
+                        
+                        if failed_tests:
+                            category_data['failed_tests_details'] = failed_tests
+                            logger.debug(f"Added {len(failed_tests)} failed test details to category data")
+                        else:
+                            logger.warning(f"No failed tests found despite failed_tests count = {category_data['summary']['failed_tests']}")
+                else:
+                    logger.warning(f"No test details found for category {category_name}")
+                
+                test_results['category_results'][category_name] = category_data
+        else:
+            logger.warning("No category results found in suite result")
+        
+        logger.debug("=" * 50)
+        logger.debug("🔍 FINAL CONVERTED DICTIONARY STRUCTURE")
+        logger.debug("=" * 50)
+        logger.debug(f"Categories in result: {list(test_results['category_results'].keys())}")
+        
+        for cat_name, cat_data in test_results['category_results'].items():
+            logger.debug(f"Category {cat_name}:")
+            logger.debug(f"  Failed tests: {cat_data['summary']['failed_tests']}")
+            logger.debug(f"  Has failed_tests_details: {'failed_tests_details' in cat_data}")
+            if 'failed_tests_details' in cat_data:
+                logger.debug(f"  Failed test details count: {len(cat_data['failed_tests_details'])}")
+        
+        return test_results
+        
+    except Exception as e:
+        logger.error(f"Error converting suite result to dictionary: {e}")
+        logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        
+        # Return minimal structure as fallback
+        return {
+            'metadata': {'error': str(e)},
+            'summary': {'overall_pass_rate': 0.0},
+            'category_results': {}
+        }
+
+def show_usage():
+    """Show usage information with Phase 3a enhancements"""
+    logger = logging.getLogger(__name__)
+    
+    logger.info("Ash-Thrash Crisis Detection Testing Suite v3.1")
+    logger.info("Phase 3a: Advanced Tuning Intelligence Enabled")
+    logger.info("")
     logger.info("Usage:")
     logger.info("  python main.py                    # Run comprehensive test suite")
     logger.info("  python main.py [category]         # Run specific category test")
@@ -280,14 +557,23 @@ def show_usage():
     logger.info("  maybe_medium_low    # Medium/low boundary tests")
     logger.info("  maybe_low_none      # Low/none boundary tests")
     logger.info("")
-    logger.info("Reports generated:")
-    logger.info("  reports/latest_run_summary.md      # Latest test results")
-    logger.info("  reports/threshold_recommendations.md # NLP tuning suggestions")
-    logger.info("  reports/historical_performance.md   # Performance trends")
+    logger.info("Generated reports and analysis:")
+    logger.info("  📄 reports/latest_run_summary.md           # Latest test results")
+    logger.info("  🔧 reports/threshold_recommendations.md    # NLP tuning suggestions")
+    logger.info("  📈 reports/historical_performance.md       # Performance trends")
+    logger.info("  🧠 results/tuning_analysis/*.json          # Advanced tuning intelligence")
+    logger.info("  ⚙️  reports/recommended_thresholds_*.env   # Recommended threshold settings")
+    logger.info("")
+    logger.info("Phase 3a Features:")
+    logger.info("  🎯 Intelligent threshold mapping by ensemble mode")
+    logger.info("  🔍 Confidence-based recommendations with risk assessment") 
+    logger.info("  📊 Boundary testing suggestions for optimal values")
+    logger.info("  🚨 Safety-first analysis for LGBTQIA+ community protection")
+    logger.info("  📁 Automated .env file generation with recommended settings")
     logger.info("")
 
 # ============================================================================
-# MAIN APPLICATION ENTRY POINT
+# MAIN APPLICATION ENTRY POINT - PHASE 3A ENHANCED
 # ============================================================================
 
 if __name__ == "__main__":
@@ -300,17 +586,18 @@ if __name__ == "__main__":
         setup_unified_logging(unified_config)
         
         logger = logging.getLogger(__name__)
-        logger.info("Starting Ash-Thrash Crisis Detection Testing Suite")
+        logger.info("Starting Ash-Thrash Crisis Detection Testing Suite v3.1")
+        logger.info("Phase 3a: Advanced Tuning Intelligence")
         logger.info("Serving The Alphabet Cartel LGBTQIA+ Community")
         logger.info("Repository: https://github.com/the-alphabet-cartel/ash-thrash")
         logger.info("Discord: https://discord.gg/alphabetcartel")
         logger.info("Website: https://alphabetcartel.org")
         logger.info("")
         logger.info("=" * 70)
-        logger.info("          ASH-THRASH STARTUP")
+        logger.info("          ASH-THRASH STARTUP - PHASE 3A")
         logger.info("=" * 70)
         
-        # Initialize all managers
+        # Initialize all managers (including Phase 3a tuning manager)
         managers = initialize_managers()
         
         # Parse command line arguments
@@ -332,11 +619,11 @@ if __name__ == "__main__":
             sys.exit(1)
         elif result.early_termination:
             logger.warning("Tests terminated early due to poor performance")
-            logger.info("Check generated reports for detailed analysis and recommendations")
+            logger.info("💡 Check generated tuning analysis files for intelligent threshold recommendations")
             sys.exit(2)
         else:
             logger.info("Test execution completed successfully")
-            logger.info("Markdown reports available in ./reports/ directory")
+            logger.info("📁 Analysis files and recommendations available in ./reports/ and ./results/ directories")
             sys.exit(0)
         
     except KeyboardInterrupt:

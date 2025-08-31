@@ -1,0 +1,303 @@
+{
+  "_metadata": {
+    "file_version": "v3.1-3a-1",
+    "last_modified": "2025-08-31",
+    "phase": "3a Step 1 - Advanced Tuning Intelligence",
+    "clean_architecture": "v3.1",
+    "description": "NLP threshold variable mappings for all ensemble modes"
+  },
+
+  "threshold_mappings": {
+    "consensus": {
+      "individual_thresholds": {
+        "NLP_THRESHOLD_CONSENSUS_CRISIS_TO_HIGH": {
+          "affects": ["high", "medium"],
+          "description": "Crisis to high threshold (consensus mode)",
+          "default": 0.50,
+          "range_min": 0.30,
+          "range_max": 0.80,
+          "risk_level": "moderate"
+        },
+        "NLP_THRESHOLD_CONSENSUS_CRISIS_TO_MEDIUM": {
+          "affects": ["medium", "low"],
+          "description": "Crisis to medium threshold (consensus mode)",
+          "default": 0.30,
+          "range_min": 0.15,
+          "range_max": 0.60,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_CONSENSUS_MILD_CRISIS_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Mild crisis to low threshold (consensus mode)",
+          "default": 0.40,
+          "range_min": 0.20,
+          "range_max": 0.70,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_CONSENSUS_NEGATIVE_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Negative to low threshold (consensus mode)",
+          "default": 0.70,
+          "range_min": 0.50,
+          "range_max": 0.90,
+          "risk_level": "minimal"
+        },
+        "NLP_THRESHOLD_CONSENSUS_UNKNOWN_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Unknown to low threshold (consensus mode)",
+          "default": 0.50,
+          "range_min": 0.30,
+          "range_max": 0.80,
+          "risk_level": "minimal"
+        }
+      },
+      "ensemble_thresholds": {
+        "NLP_THRESHOLD_CONSENSUS_ENSEMBLE_CRITICAL": {
+          "affects": ["high"],
+          "description": "Critical crisis ensemble threshold (consensus)",
+          "default": 0.70,
+          "range_min": 0.50,
+          "range_max": 0.90,
+          "risk_level": "critical"
+        },
+        "NLP_THRESHOLD_CONSENSUS_ENSEMBLE_HIGH": {
+          "affects": ["high", "medium"],
+          "description": "High crisis ensemble threshold (consensus)",
+          "default": 0.45,
+          "range_min": 0.30,
+          "range_max": 0.70,
+          "risk_level": "moderate"
+        },
+        "NLP_THRESHOLD_CONSENSUS_ENSEMBLE_MEDIUM": {
+          "affects": ["medium", "low"],
+          "description": "Medium crisis ensemble threshold (consensus)",
+          "default": 0.25,
+          "range_min": 0.15,
+          "range_max": 0.50,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_CONSENSUS_ENSEMBLE_LOW": {
+          "affects": ["low", "none"],
+          "description": "Low crisis ensemble threshold (consensus)",
+          "default": 0.12,
+          "range_min": 0.05,
+          "range_max": 0.30,
+          "risk_level": "minimal"
+        }
+      }
+    },
+    "majority": {
+      "individual_thresholds": {
+        "NLP_THRESHOLD_MAJORITY_CRISIS_TO_HIGH": {
+          "affects": ["high", "medium"],
+          "description": "Crisis to high threshold (majority mode)",
+          "default": 0.45,
+          "range_min": 0.25,
+          "range_max": 0.75,
+          "risk_level": "moderate"
+        },
+        "NLP_THRESHOLD_MAJORITY_CRISIS_TO_MEDIUM": {
+          "affects": ["medium", "low"],
+          "description": "Crisis to medium threshold (majority mode)",
+          "default": 0.28,
+          "range_min": 0.15,
+          "range_max": 0.55,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_MAJORITY_MILD_CRISIS_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Mild crisis to low threshold (majority mode)",
+          "default": 0.35,
+          "range_min": 0.20,
+          "range_max": 0.65,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_MAJORITY_NEGATIVE_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Negative to low threshold (majority mode)",
+          "default": 0.65,
+          "range_min": 0.45,
+          "range_max": 0.85,
+          "risk_level": "minimal"
+        },
+        "NLP_THRESHOLD_MAJORITY_UNKNOWN_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Unknown to low threshold (majority mode)",
+          "default": 0.45,
+          "range_min": 0.25,
+          "range_max": 0.75,
+          "risk_level": "minimal"
+        }
+      },
+      "ensemble_thresholds": {
+        "NLP_THRESHOLD_MAJORITY_ENSEMBLE_CRITICAL": {
+          "affects": ["high"],
+          "description": "Critical crisis ensemble threshold (majority)",
+          "default": 0.65,
+          "range_min": 0.45,
+          "range_max": 0.85,
+          "risk_level": "critical"
+        },
+        "NLP_THRESHOLD_MAJORITY_ENSEMBLE_HIGH": {
+          "affects": ["high", "medium"],
+          "description": "High crisis ensemble threshold (majority)",
+          "default": 0.42,
+          "range_min": 0.25,
+          "range_max": 0.65,
+          "risk_level": "moderate"
+        },
+        "NLP_THRESHOLD_MAJORITY_ENSEMBLE_MEDIUM": {
+          "affects": ["medium", "low"],
+          "description": "Medium crisis ensemble threshold (majority)",
+          "default": 0.23,
+          "range_min": 0.10,
+          "range_max": 0.45,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_MAJORITY_ENSEMBLE_LOW": {
+          "affects": ["low", "none"],
+          "description": "Low crisis ensemble threshold (majority)",
+          "default": 0.11,
+          "range_min": 0.05,
+          "range_max": 0.25,
+          "risk_level": "minimal"
+        }
+      }
+    },
+    "weighted": {
+      "individual_thresholds": {
+        "NLP_THRESHOLD_WEIGHTED_CRISIS_TO_HIGH": {
+          "affects": ["high", "medium"],
+          "description": "Crisis to high threshold (weighted mode)",
+          "default": 0.55,
+          "range_min": 0.35,
+          "range_max": 0.80,
+          "risk_level": "moderate"
+        },
+        "NLP_THRESHOLD_WEIGHTED_CRISIS_TO_MEDIUM": {
+          "affects": ["medium", "low"],
+          "description": "Crisis to medium threshold (weighted mode)",
+          "default": 0.32,
+          "range_min": 0.18,
+          "range_max": 0.60,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_WEIGHTED_MILD_CRISIS_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Mild crisis to low threshold (weighted mode)",
+          "default": 0.42,
+          "range_min": 0.25,
+          "range_max": 0.70,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_WEIGHTED_NEGATIVE_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Negative to low threshold (weighted mode)",
+          "default": 0.72,
+          "range_min": 0.55,
+          "range_max": 0.90,
+          "risk_level": "minimal"
+        },
+        "NLP_THRESHOLD_WEIGHTED_UNKNOWN_TO_LOW": {
+          "affects": ["low", "none"],
+          "description": "Unknown to low threshold (weighted mode)",
+          "default": 0.52,
+          "range_min": 0.35,
+          "range_max": 0.80,
+          "risk_level": "minimal"
+        }
+      },
+      "ensemble_thresholds": {
+        "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_CRITICAL": {
+          "affects": ["high"],
+          "description": "Critical crisis ensemble threshold (weighted)",
+          "default": 0.70,
+          "range_min": 0.50,
+          "range_max": 0.90,
+          "risk_level": "critical"
+        },
+        "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_HIGH": {
+          "affects": ["high", "medium"],
+          "description": "High crisis ensemble threshold (weighted)",
+          "default": 0.48,
+          "range_min": 0.30,
+          "range_max": 0.70,
+          "risk_level": "moderate"
+        },
+        "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_MEDIUM": {
+          "affects": ["medium", "low"],
+          "description": "Medium crisis ensemble threshold (weighted)",
+          "default": 0.27,
+          "range_min": 0.15,
+          "range_max": 0.50,
+          "risk_level": "low"
+        },
+        "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_LOW": {
+          "affects": ["low", "none"],
+          "description": "Low crisis ensemble threshold (weighted)",
+          "default": 0.13,
+          "range_min": 0.05,
+          "range_max": 0.30,
+          "risk_level": "minimal"
+        }
+      }
+    }
+  },
+
+  "confidence_parameters": {
+    "description": "Confidence level thresholds for tuning recommendations",
+    "high_confidence_min": "${THRASH_CONFIDENCE_HIGH_MIN}",
+    "medium_confidence_min": "${THRASH_CONFIDENCE_MEDIUM_MIN}",
+    "low_confidence_min": "${THRASH_CONFIDENCE_LOW_MIN}",
+    "defaults": {
+      "high_confidence_min": 0.80,
+      "medium_confidence_min": 0.60,
+      "low_confidence_min": 0.40
+    },
+    "validation": {
+      "high_confidence_min": {
+        "type": "float",
+        "range": [0.01, 1.00]
+      },
+      "medium_confidence_min": {
+        "type": "float",
+        "range": [0.01, 1.00]
+      },
+      "low_confidence_min": {
+        "type": "float",
+        "range": [0.01, 1.00]
+      }
+    }
+  },
+
+  "safety_parameters": {
+    "description": "Safety-first parameters for LGBTQIA+ community crisis detection",
+    "false_negative_weight": "${THRASH_FALSE_NEGATIVE_WEIGHT}",
+    "critical_category_weight": "${THRASH_CRITICAL_CATEGORY_WEIGHT}",
+    "minimum_improvement_threshold": "${THRASH_MIN_IMPROVEMENT_THRESHOLD}",
+    "maximum_risk_tolerance": "${THRASH_MAX_RISK_TOLERANCE}",
+    "defaults": {
+      "false_negative_weight": 3.0,
+      "critical_category_weight": 2.0,
+      "minimum_improvement_threshold": 0.05,
+      "maximum_risk_tolerance": "moderate"
+    },
+    "validation": {
+      "false_negative_weight": {
+        "type": "float",
+        "range": [0.1, 10.0]
+      },
+      "critical_category_weight": {
+        "type": "float",
+        "range": [0.1, 10.0]
+      },
+      "minimum_improvement_threshold": {
+        "type": "float",
+        "range": [0.01, 1.00]
+      },
+      "maximum_risk_tolerance": {
+        "type": "string"
+      }
+    }
+  }
+}
