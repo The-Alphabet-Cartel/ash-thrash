@@ -228,7 +228,7 @@ class ResultsManager:
                 overall_pass_rate=suite_result.overall_pass_rate,
                 weighted_safety_score=suite_result.weighted_safety_score,
                 execution_time_ms=suite_result.total_execution_time_ms,
-                categories_tested=list(suite_result.categories_tested),
+                categories_tested=[cat.category_name for cat in suite_result.category_results] if suite_result.category_results else [],
                 early_termination=suite_result.early_termination,
                 termination_reason=suite_result.termination_reason,
                 server_version=suite_result.server_info.get('health_status', {}).get('version') if suite_result.server_info else None
@@ -240,7 +240,7 @@ class ResultsManager:
                 category_summary = CategorySummary(
                     category_name=category_result.category_name,
                     pass_rate=category_result.pass_rate,
-                    target_pass_rate=category_result.target_pass_rate,
+                    target_pass_rate=int(category_result.target_pass_rate),
                     total_tests=category_result.total_tests,
                     passed_tests=category_result.passed_tests,
                     failed_tests=category_result.failed_tests,
@@ -249,7 +249,7 @@ class ResultsManager:
                     false_positives=category_result.false_positives,
                     weighted_score=category_result.weighted_score,
                     is_critical=category_result.is_critical,
-                    met_target=category_result.pass_rate >= category_result.target_pass_rate
+                    met_target=category_result.pass_rate >= float(category_result.target_pass_rate)
                 )
                 category_summaries.append(category_summary)
             
