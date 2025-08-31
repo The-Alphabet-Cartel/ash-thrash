@@ -297,7 +297,7 @@
           "type": "boolean"
         }
       }
-    },
+    }
   },
 
   "failure_weighting": {
