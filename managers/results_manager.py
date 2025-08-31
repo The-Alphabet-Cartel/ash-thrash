@@ -293,7 +293,7 @@ class ResultsManager:
                         'category': category_name,
                         'pass_rate': pass_rate,
                         'target': target,
-                        'gap': target - pass_rate,
+                        'gap': float(target) - pass_rate,
                         'false_negatives': category_result.false_negatives
                     })
                 
