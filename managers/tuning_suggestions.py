@@ -107,10 +107,11 @@ class TuningSuggestionsManager:
         self.results_manager = results_manager
         self.analyze_manager = analyze_results_manager
         
-        # Get base configuration paths
-        self.config_dir = Path(self.config_manager.get_string('APP_DATA_DIR', '/app/ash-thrash')) / 'config'
-        self.results_dir = Path(self.config_manager.get_string('APP_DATA_DIR', '/app/ash-thrash')) / 'results' 
-        self.reports_dir = Path(self.config_manager.get_string('APP_DATA_DIR', '/app/ash-thrash')) / 'reports'
+        # Get base configuration paths using correct UnifiedConfigManager method
+        app_data_dir = os.environ.get('APP_DATA_DIR', '/app')
+        self.config_dir = Path(app_data_dir) / 'config'
+        self.results_dir = Path(app_data_dir) / 'results' 
+        self.reports_dir = Path(app_data_dir) / 'reports'
         
         # Threshold mapping configuration
         self.threshold_mappings = self._initialize_threshold_mappings()
@@ -134,51 +135,62 @@ class TuningSuggestionsManager:
         logger.info("TuningSuggestionsManager v3.1-3a-1 initialized successfully")
     
     def _load_config_parameters(self) -> Dict[str, Any]:
-        """Load configuration parameters from JSON with environment variable resolution"""
+        """Load configuration parameters using UnifiedConfigManager with placeholder resolution"""
         try:
-            mappings_file = self.config_dir / 'threshold_mappings.json'
-            
-            if not mappings_file.exists():
-                logger.warning(f"Configuration file not found: {mappings_file}")
-                return {}
-            
-            with open(mappings_file, 'r') as f:
-                config_data = json.load(f)
-            
-            # Use UnifiedConfigManager to resolve environment variables in the config
+            # Use UnifiedConfigManager to load configuration sections with automatic placeholder replacement
             resolved_config = {}
             
-            # Process confidence parameters
-            if 'confidence_parameters' in config_data:
-                confidence_config = config_data['confidence_parameters']
+            # Process confidence parameters - UnifiedConfigManager handles ${ENV_VAR} replacement automatically
+            try:
                 resolved_config['confidence_parameters'] = {
-                    'high_confidence_min': self.config_manager.get_float('THRASH_CONFIDENCE_HIGH_MIN', 
-                                                                        confidence_config['defaults']['high_confidence_min']),
-                    'medium_confidence_min': self.config_manager.get_float('THRASH_CONFIDENCE_MEDIUM_MIN', 
-                                                                          confidence_config['defaults']['medium_confidence_min']),
-                    'low_confidence_min': self.config_manager.get_float('THRASH_CONFIDENCE_LOW_MIN', 
-                                                                       confidence_config['defaults']['low_confidence_min'])
+                    'high_confidence_min': self.config_manager.get_config_section('threshold_mappings', 'confidence_parameters.high_confidence_min', 0.80),
+                    'medium_confidence_min': self.config_manager.get_config_section('threshold_mappings', 'confidence_parameters.medium_confidence_min', 0.60),
+                    'low_confidence_min': self.config_manager.get_config_section('threshold_mappings', 'confidence_parameters.low_confidence_min', 0.40)
+                }
+            except Exception as e:
+                logger.warning(f"Could not load confidence parameters: {e}, using defaults")
+                resolved_config['confidence_parameters'] = {
+                    'high_confidence_min': 0.80,
+                    'medium_confidence_min': 0.60,
+                    'low_confidence_min': 0.40
                 }
             
-            # Process safety parameters  
-            if 'safety_parameters' in config_data:
-                safety_config = config_data['safety_parameters']
+            # Process safety parameters - UnifiedConfigManager handles ${ENV_VAR} replacement automatically  
+            try:
                 resolved_config['safety_parameters'] = {
-                    'false_negative_weight': self.config_manager.get_float('THRASH_FALSE_NEGATIVE_WEIGHT', 
-                                                                          safety_config['defaults']['false_negative_weight']),
-                    'critical_category_weight': self.config_manager.get_float('THRASH_CRITICAL_CATEGORY_WEIGHT', 
-                                                                             safety_config['defaults']['critical_category_weight']),
-                    'minimum_improvement_threshold': self.config_manager.get_float('THRASH_MIN_IMPROVEMENT_THRESHOLD', 
-                                                                                  safety_config['defaults']['minimum_improvement_threshold']),
-                    'maximum_risk_tolerance': self.config_manager.get_string('THRASH_MAX_RISK_TOLERANCE', 
-                                                                            safety_config['defaults']['maximum_risk_tolerance'])
+                    'false_negative_weight': self.config_manager.get_config_section('threshold_mappings', 'safety_parameters.false_negative_weight', 3.0),
+                    'critical_category_weight': self.config_manager.get_config_section('threshold_mappings', 'safety_parameters.critical_category_weight', 2.0),
+                    'minimum_improvement_threshold': self.config_manager.get_config_section('threshold_mappings', 'safety_parameters.minimum_improvement_threshold', 0.05),
+                    'maximum_risk_tolerance': self.config_manager.get_config_section('threshold_mappings', 'safety_parameters.maximum_risk_tolerance', 'moderate')
+                }
+            except Exception as e:
+                logger.warning(f"Could not load safety parameters: {e}, using defaults")
+                resolved_config['safety_parameters'] = {
+                    'false_negative_weight': 3.0,
+                    'critical_category_weight': 2.0,
+                    'minimum_improvement_threshold': 0.05,
+                    'maximum_risk_tolerance': 'moderate'
                 }
             
+            logger.debug("Configuration parameters loaded successfully with environment variable resolution")
             return resolved_config
             
         except Exception as e:
             logger.error(f"Error loading configuration parameters: {e}")
-            return {}
+            # Return safe defaults
+            return {
+                'confidence_parameters': {
+                    'high_confidence_min': 0.80,
+                    'medium_confidence_min': 0.60,
+                    'low_confidence_min': 0.40
+                },
+                'safety_parameters': {
+                    'false_negative_weight': 3.0,
+                    'critical_category_weight': 2.0,
+                    'minimum_improvement_threshold': 0.05,
+                    'maximum_risk_tolerance': 'moderate'
+                }
+            }
     
     def _initialize_threshold_mappings(self) -> Dict[str, Dict[str, Any]]:
         """Initialize threshold variable mappings from JSON configuration"""
@@ -243,13 +255,14 @@ class TuningSuggestionsManager:
     
     def get_current_ensemble_mode(self) -> EnsembleMode:
         """
-        Determine current NLP ensemble mode from environment variables
+        Determine current NLP ensemble mode using UnifiedConfigManager
         
         Returns:
             Current ensemble mode with graceful fallback
         """
         try:
-            mode_str = self.config_manager.get_string('NLP_ENSEMBLE_MODE', 'consensus').lower()
+            # Use UnifiedConfigManager to get ensemble mode (no specific JSON file needed for this env var)
+            mode_str = os.environ.get('NLP_ENSEMBLE_MODE', 'consensus').lower()
             
             # Map string to enum with validation
             mode_mapping = {
@@ -724,9 +737,9 @@ class TuningSuggestionsManager:
             if not candidates:
                 return None
                 
-            # Get current value from environment or use default
+            # Get current value using environment variable (NLP threshold variables are not in our JSON config)
             threshold_info = candidates[0]['threshold_info']
-            current_value = self.config_manager.get_float(var_name, threshold_info['default'])
+            current_value = float(os.environ.get(var_name, threshold_info['default']))
             
             # Calculate weighted average of suggested adjustments
             total_weight = 0
