@@ -37,7 +37,7 @@
       },
       "allow_de-escalation": {
         "type": "boolean"
-      },
+      }
     }
   },
   
