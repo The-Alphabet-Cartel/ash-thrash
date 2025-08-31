@@ -4,8 +4,8 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Ash-Thrash Main Application Entry Point for Ash Thrash Service
 ---
-FILE VERSION: v3.1-1a-1
-LAST MODIFIED: 2025-08-30
+FILE VERSION: v3.1-2a-1
+LAST MODIFIED: 2025-08-31
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -16,13 +16,14 @@ import sys
 import colorlog
 
 # ============================================================================
-# MANAGER IMPORTS - ALL USING FACTORY FUNCTIONS
+# MANAGER IMPORTS - ALL USING FACTORY FUNCTIONS (Clean Architecture)
 # ============================================================================
 from managers.unified_config import create_unified_config_manager
 from managers.logging_config import create_logging_config_manager
 from managers.nlp_client import create_nlp_client_manager
 from managers.test_engine import create_test_engine_manager
 from managers.results_manager import create_results_manager
+from managers.analyze_results import create_analyze_results_manager
 
 # ============================================================================
 # UNIFIED CONFIGURATION LOGGING SETUP
@@ -101,7 +102,7 @@ def setup_unified_logging(unified_config_manager):
 
 def initialize_managers():
     """
-    Initialize all managers using factory functions
+    Initialize all managers using factory functions (Clean Architecture v3.1)
     """
     logger = logging.getLogger(__name__)
     logger.info("=" * 70)
@@ -117,15 +118,17 @@ def initialize_managers():
         nlp_client = create_nlp_client_manager(unified_config)
         test_engine = create_test_engine_manager(unified_config, nlp_client)
         
-        # FIXED: Add results manager initialization
+        # Results and analysis managers
         results_manager = create_results_manager(unified_config)
+        analyze_manager = create_analyze_results_manager(unified_config, results_manager, logging_config)
 
         managers = {
             'unified_config': unified_config,
             'logging_config': logging_config,
             'nlp_client': nlp_client,
             'test_engine': test_engine,
-            'results_manager': results_manager,  # FIXED: Add to managers dict
+            'results_manager': results_manager,
+            'analyze_manager': analyze_manager,
         }
         
         logger.info(f"All managers initialized successfully: {len(managers)} total")
@@ -136,14 +139,15 @@ def initialize_managers():
         raise
 
 # ============================================================================
-# TEST EXECUTION FUNCTIONS
+# ENHANCED TEST EXECUTION FUNCTIONS WITH INTEGRATED REPORTING
 # ============================================================================
 
 def run_comprehensive_test(managers):
-    """Run comprehensive test suite across all categories"""
+    """Run comprehensive test suite across all categories with integrated reporting"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
-    results_manager = managers['results_manager']  # FIXED: Get results manager
+    results_manager = managers['results_manager']
+    analyze_manager = managers['analyze_manager']
     
     logger.info("Starting comprehensive test suite...")
     
@@ -151,14 +155,28 @@ def run_comprehensive_test(managers):
         # Run all category tests
         suite_result = test_engine.run_test_suite()
         
-        # FIXED: Store test results to disk
+        # Store test results to disk
         try:
             result_path = results_manager.store_test_results(suite_result)
             logger.info(f"Test results saved to: {result_path}")
         except Exception as e:
             logger.error(f"Failed to save test results: {e}")
         
-        # Log summary
+        # PHASE 2A ENHANCEMENT: Generate markdown reports automatically
+        try:
+            logger.info("Generating comprehensive markdown reports...")
+            report_success = analyze_manager.generate_all_reports()
+            if report_success:
+                logger.info("✅ All markdown reports generated successfully:")
+                logger.info("   📄 reports/latest_run_summary.md")
+                logger.info("   🔧 reports/threshold_recommendations.md") 
+                logger.info("   📈 reports/historical_performance.md")
+            else:
+                logger.warning("⚠️  Some markdown reports failed to generate")
+        except Exception as e:
+            logger.error(f"Failed to generate markdown reports: {e}")
+        
+        # Log test execution summary
         logger.info("=" * 50)
         logger.info("COMPREHENSIVE TEST COMPLETE")
         logger.info("=" * 50)
@@ -172,6 +190,15 @@ def run_comprehensive_test(managers):
         if suite_result.early_termination:
             logger.warning(f"Early termination: {suite_result.termination_reason}")
         
+        # PHASE 2A ENHANCEMENT: Display quick analysis summary using the manager
+        try:
+            logger.info("=" * 50)
+            logger.info("ANALYSIS SUMMARY")
+            logger.info("=" * 50)
+            analyze_manager.display_latest_results()
+        except Exception as e:
+            logger.error(f"Failed to display analysis summary: {e}")
+        
         return suite_result
         
     except Exception as e:
@@ -179,23 +206,36 @@ def run_comprehensive_test(managers):
         return None
 
 def run_category_test(managers, category_name: str):
-    """Run test for specific category"""
+    """Run test for specific category with integrated reporting"""
     logger = logging.getLogger(__name__)
     test_engine = managers['test_engine']
-    results_manager = managers['results_manager']  # FIXED: Get results manager
+    results_manager = managers['results_manager']
+    analyze_manager = managers['analyze_manager']
     
     logger.info(f"Starting test for category: {category_name}")
     
     try:
         suite_result = test_engine.run_test_suite([category_name])
         
-        # FIXED: Store test results to disk
+        # Store test results to disk
         try:
             result_path = results_manager.store_test_results(suite_result)
             logger.info(f"Test results saved to: {result_path}")
         except Exception as e:
             logger.error(f"Failed to save test results: {e}")
         
+        # PHASE 2A ENHANCEMENT: Generate reports for single category tests too
+        try:
+            logger.info("Generating markdown reports for category test...")
+            report_success = analyze_manager.generate_all_reports()
+            if report_success:
+                logger.info("✅ Markdown reports updated with category test results")
+            else:
+                logger.warning("⚠️  Some markdown reports failed to generate")
+        except Exception as e:
+            logger.error(f"Failed to generate markdown reports: {e}")
+        
+        # Log category results
         if suite_result.category_results:
             category_result = suite_result.category_results[0]
             logger.info("=" * 50)
@@ -206,6 +246,15 @@ def run_category_test(managers, category_name: str):
             logger.info(f"Phrases: {category_result.passed_tests}/{category_result.total_tests}")
             logger.info(f"False negatives: {category_result.false_negatives}")
             logger.info(f"False positives: {category_result.false_positives}")
+            
+            # Status assessment
+            if category_result.pass_rate >= float(category_result.target_pass_rate):
+                logger.info("✅ Category meeting target performance")
+            else:
+                if category_result.is_critical:
+                    logger.error(f"🚨 CRITICAL: Category {category_result.pass_rate:.1f}% below {category_result.target_pass_rate}% target")
+                else:
+                    logger.warning(f"⚠️  Category {category_result.pass_rate:.1f}% below {category_result.target_pass_rate}% target")
         
         return suite_result
         
@@ -215,19 +264,27 @@ def run_category_test(managers, category_name: str):
 
 def show_usage():
     """Show usage information"""
-    print("\nAsh-Thrash Crisis Detection Testing Suite")
-    print("Usage:")
-    print("  python main.py                    # Run comprehensive test suite")
-    print("  python main.py [category]         # Run specific category test")
-    print("\nAvailable categories:")
-    print("  definite_high       # High priority crisis phrases")
-    print("  definite_medium     # Medium priority crisis phrases") 
-    print("  definite_low        # Low priority crisis phrases")
-    print("  definite_none       # No priority crisis phrases")
-    print("  maybe_high_medium   # High/medium boundary tests")
-    print("  maybe_medium_low    # Medium/low boundary tests")
-    print("  maybe_low_none      # Low/none boundary tests")
-    print()
+    logger = logging.getLogger(__name__)
+    
+    logger.info("Ash-Thrash Crisis Detection Testing Suite")
+    logger.info("Usage:")
+    logger.info("  python main.py                    # Run comprehensive test suite")
+    logger.info("  python main.py [category]         # Run specific category test")
+    logger.info("")
+    logger.info("Available categories:")
+    logger.info("  definite_high       # High priority crisis phrases")
+    logger.info("  definite_medium     # Medium priority crisis phrases") 
+    logger.info("  definite_low        # Low priority crisis phrases")
+    logger.info("  definite_none       # No priority crisis phrases")
+    logger.info("  maybe_high_medium   # High/medium boundary tests")
+    logger.info("  maybe_medium_low    # Medium/low boundary tests")
+    logger.info("  maybe_low_none      # Low/none boundary tests")
+    logger.info("")
+    logger.info("Reports generated:")
+    logger.info("  reports/latest_run_summary.md      # Latest test results")
+    logger.info("  reports/threshold_recommendations.md # NLP tuning suggestions")
+    logger.info("  reports/historical_performance.md   # Performance trends")
+    logger.info("")
 
 # ============================================================================
 # MAIN APPLICATION ENTRY POINT
@@ -236,13 +293,6 @@ def show_usage():
 if __name__ == "__main__":
     
     try:
-        print("Starting Ash-Thrash Crisis Detection Testing Suite")
-        print("Serving The Alphabet Cartel LGBTQIA+ Community")
-        print("Repository: https://github.com/the-alphabet-cartel/ash-thrash")
-        print("Discord: https://discord.gg/alphabetcartel")
-        print("Website: https://alphabetcartel.org")
-        print("")
-        
         # Initialize unified configuration manager first
         unified_config = create_unified_config_manager()
         
@@ -250,6 +300,12 @@ if __name__ == "__main__":
         setup_unified_logging(unified_config)
         
         logger = logging.getLogger(__name__)
+        logger.info("Starting Ash-Thrash Crisis Detection Testing Suite")
+        logger.info("Serving The Alphabet Cartel LGBTQIA+ Community")
+        logger.info("Repository: https://github.com/the-alphabet-cartel/ash-thrash")
+        logger.info("Discord: https://discord.gg/alphabetcartel")
+        logger.info("Website: https://alphabetcartel.org")
+        logger.info("")
         logger.info("=" * 70)
         logger.info("          ASH-THRASH STARTUP")
         logger.info("=" * 70)
@@ -270,14 +326,17 @@ if __name__ == "__main__":
             # Run comprehensive test suite
             result = run_comprehensive_test(managers)
         
+        # Exit with appropriate codes
         if result is None:
             logger.error("Test execution failed")
             sys.exit(1)
         elif result.early_termination:
             logger.warning("Tests terminated early due to poor performance")
+            logger.info("Check generated reports for detailed analysis and recommendations")
             sys.exit(2)
         else:
             logger.info("Test execution completed successfully")
+            logger.info("Markdown reports available in ./reports/ directory")
             sys.exit(0)
         
     except KeyboardInterrupt:
