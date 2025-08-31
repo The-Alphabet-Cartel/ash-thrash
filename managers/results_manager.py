@@ -298,7 +298,7 @@ class ResultsManager:
                     })
                 
                 # Performance issues
-                if pass_rate < target - 10:  # More than 10% below target
+                if pass_rate < float(target) - 10:  # More than 10% below target
                     analysis['performance_issues'].append({
                         'category': category_name,
                         'pass_rate': pass_rate,
@@ -313,7 +313,7 @@ class ResultsManager:
                     })
                 
                 # Strengths
-                if pass_rate >= target + 5:  # 5% above target
+                if pass_rate >= float(target) + 5:  # 5% above target
                     analysis['strengths'].append({
                         'category': category_name,
                         'pass_rate': pass_rate,
@@ -338,7 +338,7 @@ class ResultsManager:
                 target = category_result.target_pass_rate
                 
                 # High priority recommendations for critical categories
-                if category_result.is_critical and pass_rate < target:
+                if category_result.is_critical and pass_rate < float(target):
                     recommendations.append({
                         'priority': 'HIGH',
                         'category': category_name,
@@ -417,7 +417,7 @@ class ResultsManager:
                     'target_pass_rate': category_result.target_pass_rate,
                     'false_negatives': category_result.false_negatives,
                     'false_positives': category_result.false_positives,
-                    'met_target': category_result.pass_rate >= category_result.target_pass_rate
+                    'met_target': category_result.pass_rate >= float(category_result.target_pass_rate)
                 }
             
             # Add to historical data (keep last 100 runs)
