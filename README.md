@@ -13,7 +13,7 @@ Ash-Thrash v3.1 is a **comprehensive testing suite** designed to validate and tu
 
 ### Key Features
 
-- **🧪 350 Test Phrases**: Carefully curated phrases across 7 crisis categories
+- **🧪 345 Test Phrases**: Carefully curated phrases across 7 crisis categories
 - **🔧 NLP Tuning Suggestions**: Automated recommendations for improving detection accuracy
 - **🎯 Goal-Based Testing**: Pass/fail criteria based on safety-first principles
 
@@ -22,18 +22,18 @@ Ash-Thrash v3.1 is a **comprehensive testing suite** designed to validate and tu
 ### Definite Categories (Exact Match Required)
 - **🚨 Definite High Crisis** (50 phrases) - **98% target** - Safety critical suicidal ideation
 - **⚠️ Definite Medium Crisis** (50 phrases) - **80% target** - Severe mental health episodes  
-- **ℹ️ Definite Low Crisis** (50 phrases) - **80% target** - Mild to moderate distress
-- **✅ Definite None** (50 phrases) - **90% target** - Normal conversation (prevent false positives)
+- **✅ Definite Low Crisis** (50 phrases) - **80% target** - Mild to moderate distress
+- **📈 Definite None** (50 phrases) - **90% target** - Normal conversation (prevent false positives)
 
 ### Maybe Categories (Bidirectional Acceptable)
 - **🔄 Maybe High/Medium** (50 phrases) - **90% target** - Either high OR medium acceptable
 - **🔄 Maybe Medium/Low** (50 phrases) - **80% target** - Either medium OR low acceptable  
-- **🔄 Maybe Low/None** (50 phrases) - **90% target** - Either low OR none acceptable
+- **🔄 Maybe Low/None** (45 phrases) - **90% target** - Either low OR none acceptable
 
 ## 🏗️ Architecture Overview
 
 ### Core Components
-- **Testing Engine**: 350 phrase validation with bidirectional category support
+- **Testing Engine**: 345 phrase validation with bidirectional category support
 
 ## 🔧 NLP Tuning Integration
 
@@ -69,13 +69,6 @@ Direct communication with ash-nlp using identical message preprocessing and anal
 ## 📈 Performance Expectations
 
 ### Test Duration Estimates
-- **Comprehensive Test**: ~3 minutes (350 phrases)
-- **Quick Validation**: ~30 seconds (50 phrases)  
-- **Category Test**: ~25 seconds (50 phrases)
-
-## 🤝 Contributing
-
-We welcome contributions to improve Ash-Thrash! Here's how to help:
 
 ## 📞 Support & Community
 
