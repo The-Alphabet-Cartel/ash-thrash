@@ -40,7 +40,7 @@ class WeightDataLoader:
 #    - maybe_low_none.json (45 phrases)
     """
     
-    def __init__(self, test_data_dir: str = "./optimization/phrases"):
+    def __init__(self, unified_config, test_data_dir: str = "./optimization/phrases"):
         """
         Initialize test data loader
         
@@ -302,7 +302,7 @@ class WeightDataLoader:
         
         return sample_dataset
 
-def create_weight_data_loader(test_data_dir: str = "./optimization/phrases") -> WeightDataLoader:
+def create_weight_data_loader(unified_config, test_data_dir: str = "./optimization/phrases") -> WeightDataLoader:
     """
     Factory function to create WeightDataLoader instance
     
@@ -312,7 +312,7 @@ def create_weight_data_loader(test_data_dir: str = "./optimization/phrases") -> 
     Returns:
         WeightDataLoader instance
     """
-    return WeightDataLoader(test_data_dir)
+    return WeightDataLoader(unified_config, test_data_dir)
 
 __all__ = [
     'WeightDataLoader',
