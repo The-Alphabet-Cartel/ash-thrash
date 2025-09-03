@@ -636,6 +636,7 @@ def show_usage():
     logger.info("Usage:")
     logger.info("  docker compose exec ash-thrash python main.py                  # Run comprehensive test suite")
     logger.info("  docker compose exec ash-thrash python main.py [category]       # Run specific category test")
+    logger.info("  docker compose exec ash-thrash python analyze.py               # Analyze results")
     logger.info("  docker compose exec ash-thrash python main.py optimize         # Run Model Weight Optimization (Full)")
     logger.info("  docker compose exec ash-thrash python main.py optimize-sample  # Run Model Weight Optimization (Sample)")
     logger.info("")
