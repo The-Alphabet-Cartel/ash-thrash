@@ -544,7 +544,7 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
 
         generations = 50
         population_size = 20
-        api_endpoint = 'http://localhost:8881/analyze'
+        api_endpoint = 'http://172.20.0.11:8881/analyze'
         results_dir = './results'
         
         try:
