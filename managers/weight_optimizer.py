@@ -85,7 +85,7 @@ class WeightOptimizer:
     - Extensive logging for monitoring and debugging
     """
     
-    def __init__(self, unified_config, config: OptimizationConfiguration, test_dataset: Dict[str, List[Dict]]):
+    def __init__(self, unified_config, test_dataset: Dict[str, List[Dict]], config: OptimizationConfiguration):
         """
         Initialize Weight Optimizer
         
@@ -709,9 +709,7 @@ class WeightOptimizer:
         logger.info(f"💾 Optimization results saved to: {results_file}")
         return results_file
 
-def create_weight_optimizer(unified_config,
-                            config: Optional[OptimizationConfiguration] = None,
-                            test_dataset: Dict[str, List[Dict]]) -> WeightOptimizer:
+def create_weight_optimizer(unified_config, test_dataset: Dict[str, List[Dict]], config: Optional[OptimizationConfiguration] = None) -> WeightOptimizer:
     """
     Factory function to create WeightOptimizer instance
     
@@ -725,7 +723,7 @@ def create_weight_optimizer(unified_config,
     if config is None:
         config = OptimizationConfiguration()
     
-    return WeightOptimizer(unified_config, config, test_dataset)
+    return WeightOptimizer(unified_config, test_dataset, config)
 
 __all__ = [
     'WeightOptimizer',
