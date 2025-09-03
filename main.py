@@ -25,11 +25,11 @@ from managers.test_engine import create_test_engine_manager
 from managers.results_manager import create_results_manager
 from managers.analyze_results import create_analyze_results_manager
 from managers.tuning_suggestions import create_tuning_suggestions_manager
-
-# ============================================================================
-# UNIFIED CONFIGURATION LOGGING SETUP
 # ============================================================================
 
+# ============================================================================
+# UNIFIED LOGGING SETUP
+# ============================================================================
 def setup_unified_logging(unified_config_manager):
     """
     Setup colorlog logging with unified configuration management
@@ -96,11 +96,11 @@ def setup_unified_logging(unified_config_manager):
         logging.basicConfig(level=logging.INFO)
         logging.error(f"Failed to setup unified logging: {e}")
         logging.info("Using fallback basic logging configuration")
-
-# ============================================================================
-# UNIFIED MANAGER INITIALIZATION - PHASE 3A ENHANCED
 # ============================================================================
 
+# ============================================================================
+# UNIFIED MANAGER INITIALIZATION
+# ============================================================================
 def initialize_managers():
     """
     Initialize all managers using factory functions (Clean Architecture v3.1) - Phase 3a Enhanced
@@ -143,11 +143,11 @@ def initialize_managers():
     except Exception as e:
         logger.error(f"Manager initialization failed: {e}")
         raise
-
-# ============================================================================
-# ENHANCED TEST EXECUTION FUNCTIONS WITH PHASE 3A TUNING INTELLIGENCE
 # ============================================================================
 
+# ============================================================================
+# ENHANCED TEST EXECUTION FUNCTIONS
+# ============================================================================
 def run_comprehensive_test(managers):
     """Run comprehensive test suite across all categories with integrated reporting and Phase 3a tuning intelligence"""
     logger = logging.getLogger(__name__)
@@ -536,9 +536,21 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
             'summary': {'overall_pass_rate': 0.0},
             'category_results': {}
         }
+# ============================================================================
 
+# ============================================================================
+# WEIGHT OPTIMIZER
+# ============================================================================
 def weight_optimizer(sample_run=None):
-    """Optimize model weights (Full)"""
+    """
+    Run model ensemble and weights optimization using evolutionary algorithm
+    
+    Args:
+        sample_run: If True, use reduced parameters for quick testing
+        
+    Returns:
+        Dictionary with optimal label set configuration
+    """
     from managers.weight_optimizer import OptimizationConfiguration, create_weight_optimizer
     from managers.weight_data_loader import create_weight_data_loader
 
@@ -546,7 +558,7 @@ def weight_optimizer(sample_run=None):
     population_size = 20
     api_endpoint = 'http://172.20.0.11:8881/analyze'
     phrases_dir = './config/phrases'
-    results_dir = './results/optimizer'
+    results_dir = './results/weights-optimizer'
     
     try:
         logger.info("🚀 Starting Ash-NLP Weight Optimization")
@@ -616,7 +628,11 @@ def weight_optimizer(sample_run=None):
         logger.info(f"\n💡 Recommendation: {optimization_results['recommendation']}")
         logger.info(f"📁 Results saved to: {results_file}")
         
-        return best_config
+        return {
+            "best_label_set": best_config,
+            "summary": summary,
+            "results_file": results_file
+        }
 
     except KeyboardInterrupt:
         logger.info("⏹️  Optimization interrupted by user")
@@ -625,20 +641,160 @@ def weight_optimizer(sample_run=None):
         logger.error(f"❌ Optimization failed: {e}")
         logger.exception("Full error details:")
         return 1
+# ============================================================================
 
+# ============================================================================
+# ZERO-SHOT LABEL OPTIMIZER
+# ============================================================================
+def label_optimizer(sample_run=None):
+    """
+    Run label set optimization using evolutionary algorithm
+    
+    Args:
+        sample_run: If True, use reduced parameters for quick testing
+        
+    Returns:
+        Dictionary with optimal label set configuration
+    """
+    import sys
+    from pathlib import Path
+    
+    # Import optimization components
+    from managers.label_data_loader import create_label_data_loader
+    from managers.label_optimizer import create_label_set_optimizer, LabelOptimizationConfiguration
+    
+    api_endpoint = "http://172.20.0.11:8881/analyze"
+    admin_endpoint = "http://172.20.0.11:8881/admin"
+    phrases_dir = './config/phrases'
+    results_dir = './results/labels-optimizer'
+    
+    try:
+        # Setup logging
+        logger.info("🏷️ STARTING LABEL SET OPTIMIZATION")
+        logger.info("="*80)
+        
+        # Load test data
+        logger.info("📚 Loading test phrase data...")
+        data_loader = create_label_data_loader(unified_config, phrases_dir)
+        test_dataset = data_loader.load_all_test_data()
+        
+        # Validate test data
+        validation_result = data_loader.validate_test_data(test_dataset)
+        if not validation_result['valid']:
+            logger.error("❌ Test data validation failed:")
+            for error in validation_result['errors']:
+                logger.error(f"   {error}")
+            return 1
+        
+        # Display test data statistics
+        stats = data_loader.get_category_statistics(test_dataset)
+        logger.info(f"📊 Loaded {stats['total_phrases']} test phrases across {stats['total_categories']} categories")
+        for category, info in stats['category_breakdown'].items():
+            logger.info(f"   {category}: {info['count']} phrases, {info['subcategories']} subcategories")
+        
+        # Create balanced subset for optimization if requested
+        if sample_run:
+            logger.info("🧪 Creating balanced subset for sample run...")
+            test_dataset = data_loader.create_balanced_subset(test_dataset, max_phrases_per_category=10)
+        
+        # Configure optimization
+        config = LabelOptimizationConfiguration(
+            api_endpoint=api_endpoint,
+            admin_endpoint=admin_endpoint
+        )
+        
+        if sample_run:
+            # Reduce parameters for sample run
+            config.generations = 10
+            config.population_size = 5
+            logger.info("🧪 Sample run configuration applied")
+        
+        # Create optimizer
+        optimizer = create_label_set_optimizer(unified_config, test_dataset, config)
+        
+        # Establish baseline
+        logger.info("📏 Establishing baseline performance...")
+        baseline_performance = optimizer.establish_baseline_performance()
+        
+        # Check if we have multiple label sets to optimize
+        if len(optimizer.available_label_sets) < 2:
+            logger.warning("⚠️ Only one label set available - no optimization possible")
+            logger.info(f"Current label set '{optimizer.original_label_set}' performance:")
+            logger.info(f"   F1-Score: {baseline_performance['f1_score']:.4f}")
+            logger.info(f"   Precision: {baseline_performance['precision']:.4f}")
+            logger.info(f"   Recall: {baseline_performance['recall']:.4f}")
+            return {"current_label_set": optimizer.original_label_set, "status": "no_optimization_needed"}
+        
+        # Run optimization
+        logger.info("🎯 Starting label set optimization process...")
+        best_individual, optimization_results = optimizer.optimize_label_sets()
+        
+        # Save results
+        logger.info("💾 Saving optimization results...")
+        results_file = optimizer.save_results(optimization_results, results_dir)
+        
+        # Print summary
+        logger.info("\n" + "="*80)
+        logger.info("🎉 LABEL SET OPTIMIZATION COMPLETE")
+        logger.info("="*80)
+        
+        summary = optimization_results['optimization_summary']
+        logger.info(f"📊 Improvement: {summary['improvement_percentage']:.2f}%")
+        logger.info(f"🎯 Target Met: {'YES' if summary['target_met'] else 'NO'}")
+        logger.info(f"⏱️  Total Time: {summary['total_time_minutes']:.1f} minutes")
+        logger.info(f"🔧 API Calls: {summary['total_api_calls']:,}")
+        
+        best_config = optimization_results['best_label_set']
+        logger.info(f"\n🏆 OPTIMAL LABEL SET:")
+        logger.info(f"   Label Set: {best_config}")
+        logger.info(f"   F1-Score: {optimization_results['best_performance']['f1_score']:.4f}")
+        logger.info(f"   Precision: {optimization_results['best_performance']['precision']:.4f}")
+        logger.info(f"   Recall: {optimization_results['best_performance']['recall']:.4f}")
+        logger.info(f"   Avg Response Time: {optimization_results['best_performance']['avg_response_time_ms']:.1f}ms")
+        
+        # Show all label set results
+        logger.info(f"\n📋 ALL LABEL SET RESULTS (ranked by F1-Score):")
+        for i, result in enumerate(summary['all_results'][:5], 1):  # Top 5 results
+            logger.info(f"   {i}. {result['label_set']}: F1={result['f1_score']:.4f}, "
+                       f"P={result['precision']:.4f}, R={result['recall']:.4f}")
+        
+        logger.info(f"\n💡 Recommendation: {optimization_results['recommendation']}")
+        logger.info(f"📁 Results saved to: {results_file}")
+        
+        return {
+            "best_label_set": best_config,
+            "improvement": summary['improvement_percentage'],
+            "results_file": results_file,
+            "all_results": summary['all_results']
+        }
+
+    except KeyboardInterrupt:
+        logger.info("⏹️  Label optimization interrupted by user")
+        return 130
+    except Exception as e:
+        logger.error(f"❌ Label optimization failed: {e}")
+        logger.exception("Full error details:")
+        return 1
+# ============================================================================
+
+# ============================================================================
+# SHOW USAGE HELP
+# ============================================================================
 def show_usage():
-    """Show usage information with Phase 3a enhancements"""
+    """Show usage information"""
     logger = logging.getLogger(__name__)
     
     logger.info("Ash-Thrash Crisis Detection Testing Suite v3.1")
     logger.info("Phase 3a: Advanced Tuning Intelligence Enabled")
     logger.info("")
     logger.info("Usage:")
-    logger.info("  docker compose exec ash-thrash python main.py                  # Run comprehensive test suite")
-    logger.info("  docker compose exec ash-thrash python main.py [category]       # Run specific category test")
-    logger.info("  docker compose exec ash-thrash python analyze.py               # Analyze results")
-    logger.info("  docker compose exec ash-thrash python main.py optimize         # Run Model Weight Optimization (Full)")
-    logger.info("  docker compose exec ash-thrash python main.py optimize-sample  # Run Model Weight Optimization (Sample)")
+    logger.info("  docker compose exec ash-thrash python main.py                         # Run comprehensive test suite")
+    logger.info("  docker compose exec ash-thrash python main.py [category]              # Run specific category test")
+    logger.info("  docker compose exec ash-thrash python analyze.py                      # Analyze results")
+    logger.info("  docker compose exec ash-thrash python main.py weight-optimize         # Run Model Weight Optimization (Full)")
+    logger.info("  docker compose exec ash-thrash python main.py weight-optimize-sample  # Run Model Weight Optimization (Sample)")
+    logger.info("  docker compose exec ash-thrash python main.py label-optimize          # Run Model Weight Optimization (Full)")
+    logger.info("  docker compose exec ash-thrash python main.py label-optimize-sample   # Run Model Weight Optimization (Sample)")
     logger.info("")
     logger.info("Available categories:")
     logger.info("  definite_high       # High priority crisis phrases")
@@ -663,11 +819,11 @@ def show_usage():
     logger.info("  🚨 Safety-first analysis for LGBTQIA+ community protection")
     logger.info("  📁 Automated .env file generation with recommended settings")
     logger.info("")
-
-# ============================================================================
-# MAIN APPLICATION ENTRY POINT - PHASE 3A ENHANCED
 # ============================================================================
 
+# ============================================================================
+# MAIN APPLICATION ENTRY POINT
+# ============================================================================
 if __name__ == "__main__":
     
     try:
@@ -697,11 +853,16 @@ if __name__ == "__main__":
             if sys.argv[1] in ['--help', '-h', 'help']:
                 show_usage()
                 sys.exit(0)
-            elif sys.argv[1] in ['optimize']:
+            elif sys.argv[1] in ['weight-optimize']:
                 result = weight_optimizer()
-            elif sys.argv[1] in ['optimize-sample']:
+            elif sys.argv[1] in ['weight-optimize-sample']:
                 sample_run = True
                 result = weight_optimizer(sample_run)
+            elif sys.argv[1] in ['label-optimize']:
+                result = label_optimizer()
+            elif sys.argv[1] in ['label-optimize-sample']:
+                sample_run = True
+                result = label_optimizer(sample_run)
             else:
                 # Run specific category test
                 category_name = sys.argv[1]
@@ -729,3 +890,4 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Application failed: {e}")
         sys.exit(1)
+# ============================================================================
