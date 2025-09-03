@@ -124,7 +124,7 @@ class LabelSetOptimizer:
 
             if current_response.status_code == 200:
                 current_data = current_response.json()
-                self.original_label_set = current_data.get('current_set', 'enhanced_crisis')
+                self.original_label_set = current_data.get('current_set', '')
                 logger.info(f"Current label set: {self.original_label_set}")
             
             list_url = f"{self.config.admin_endpoint}/labels/list"
