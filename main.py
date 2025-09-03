@@ -553,7 +553,7 @@ def weight_optimizer(sample_run=None):
         logger.info(f"Configuration: {generations} generations, {population_size} population")
         logger.info("📊 Loading test dataset...")
 
-        weight_data_loader = create_weight_data_loader(phrases_dir)
+        weight_data_loader = create_weight_data_loader(unified_config, phrases_dir)
 
         if sample_run:
             logger.info("🧪 Running in sample mode with reduced dataset")
@@ -581,7 +581,7 @@ def weight_optimizer(sample_run=None):
             logger.info("🧪 Sample run configuration applied")
         
         # Create optimizer
-        optimizer = create_weight_optimizer(test_dataset, config)
+        optimizer = create_weight_optimizer(unified_config, config, test_dataset)
         
         # Establish baseline
         logger.info("📏 Establishing baseline performance...")
