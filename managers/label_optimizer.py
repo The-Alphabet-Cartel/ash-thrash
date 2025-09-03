@@ -154,7 +154,7 @@ class LabelSetOptimizer:
     def switch_label_set(self, label_set_name: str) -> bool:
         """Switch to specific label set"""
         try:
-            switch_url = f"{self.config.admin_endpoint}/labels/simple-switch"
+            switch_url = f"{self.config.admin_endpoint}/labels/switch"
             response = requests.post(
                 switch_url, 
                 json={"label_set": label_set_name},
