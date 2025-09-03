@@ -11,8 +11,8 @@ Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
 """
 
-import logging
 import sys
+import logging
 import colorlog
 
 # ============================================================================
@@ -123,7 +123,7 @@ def initialize_managers():
         results_manager = create_results_manager(unified_config)
         analyze_manager = create_analyze_results_manager(unified_config, results_manager, logging_config)
         
-        # PHASE 3A: Advanced tuning intelligence manager
+        # Advanced tuning intelligence manager
         tuning_manager = create_tuning_suggestions_manager(unified_config, results_manager, analyze_manager)
 
         managers = {
@@ -133,7 +133,7 @@ def initialize_managers():
             'test_engine': test_engine,
             'results_manager': results_manager,
             'analyze_manager': analyze_manager,
-            'tuning_manager': tuning_manager,  # Phase 3a addition
+            'tuning_manager': tuning_manager,
         }
         
         logger.info(f"All managers initialized successfully: {len(managers)} total")
@@ -169,7 +169,7 @@ def run_comprehensive_test(managers):
         except Exception as e:
             logger.error(f"Failed to save test results: {e}")
         
-        # PHASE 2A: Generate markdown reports automatically
+        # Generate markdown reports automatically
         try:
             logger.info("Generating comprehensive markdown reports...")
             report_success = analyze_manager.generate_all_reports()
@@ -183,7 +183,7 @@ def run_comprehensive_test(managers):
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
         
-        # PHASE 3A: Generate advanced tuning intelligence and recommendations
+        # Generate advanced tuning intelligence and recommendations
         try:
             logger.info("=" * 50)
             logger.info("🧠 PHASE 3A: GENERATING ADVANCED TUNING INTELLIGENCE")
@@ -294,7 +294,7 @@ def run_category_test(managers, category_name: str):
         except Exception as e:
             logger.error(f"Failed to save test results: {e}")
         
-        # PHASE 2A: Generate reports for single category tests too
+        # Generate reports for single category tests too
         try:
             logger.info("Generating markdown reports for category test...")
             report_success = analyze_manager.generate_all_reports()
@@ -305,7 +305,7 @@ def run_category_test(managers, category_name: str):
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
         
-        # PHASE 3A: Generate targeted tuning intelligence for single category
+        # Generate targeted tuning intelligence for single category
         try:
             logger.info("=" * 50)
             logger.info("🧠 GENERATING CATEGORY-SPECIFIC TUNING ANALYSIS")
@@ -537,6 +537,94 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
             'category_results': {}
         }
 
+    def weight_optimizer(sample_run=None):
+        """Optimize model weights (Full)"""
+        from managers.weight_optimizer import OptimizationConfiguration, create_weight_optimizer
+        from managers.weight_data_loader import create_weight_data_loader
+
+        generations = 50
+        population_size = 20
+        api_endpoint = 'http://localhost:8881/analyze'
+        results_dir = './results'
+        
+        try:
+            logger.info("🚀 Starting Ash-NLP Weight Optimization")
+            logger.info(f"Configuration: {generations} generations, {population_size} population")
+            logger.info("📊 Loading test dataset...")
+
+            weight_data_loader = create_weight_data_loader(results_dir)
+
+            if sample_run:
+                logger.info("🧪 Running in sample mode with reduced dataset")
+                test_dataset = weight_data_loader.create_sample_dataset(sample_size=10)
+            else:
+                test_dataset = weight_data_loader.load_all_test_data()
+            
+            validation_report = weight_data_loader.validate_dataset(test_dataset)
+            if not validation_report['valid']:
+                logger.error(f"Dataset validation failed: {validation_report['issues']}")
+                return 1
+            
+            logger.info(f"✅ Dataset loaded: {validation_report['total_phrases']} total phrases")
+
+            config = OptimizationConfiguration(
+                population_size=population_size,
+                generations=generations,
+                api_endpoint=api_endpoint
+            )
+            
+            if sample_run:
+                # Reduce parameters for sample run
+                generations = 10
+                population_size = 8
+                logger.info("🧪 Sample run configuration applied")
+            
+            # Create optimizer
+            optimizer = create_weight_optimizer(test_dataset, config)
+            
+            # Establish baseline
+            logger.info("📏 Establishing baseline performance...")
+            baseline_performance = optimizer.establish_baseline_performance()
+            
+            # Run optimization
+            logger.info("🎯 Starting optimization process...")
+            best_individual, optimization_results = optimizer.optimize_weights()
+            
+            # Save results
+            logger.info("💾 Saving optimization results...")
+            results_file = optimizer.save_results(optimization_results, results_dir)
+            
+            # Print summary
+            print("\n" + "="*80)
+            print("🎉 OPTIMIZATION COMPLETE")
+            print("="*80)
+            
+            summary = optimization_results['optimization_summary']
+            print(f"📊 Improvement: {summary['improvement_percentage']:.2f}%")
+            print(f"🎯 Target Met: {'YES' if summary['target_met'] else 'NO'}")
+            print(f"⏱️  Total Time: {summary['total_time_minutes']:.1f} minutes")
+            print(f"🔧 API Calls: {summary['total_api_calls']:,}")
+            
+            best_config = optimization_results['best_configuration']
+            print(f"\n🏆 OPTIMAL CONFIGURATION:")
+            print(f"   Ensemble Mode: {best_config['ensemble_mode']}")
+            print(f"   Depression Weight: {best_config['weights']['depression']:.3f}")
+            print(f"   Sentiment Weight: {best_config['weights']['sentiment']:.3f}")
+            print(f"   Distress Weight: {best_config['weights']['emotional_distress']:.3f}")
+            
+            print(f"\n💡 Recommendation: {optimization_results['recommendation']}")
+            print(f"📁 Results saved to: {results_file}")
+            
+            return 0 if summary['target_met'] else 2
+
+        except KeyboardInterrupt:
+            logger.info("⏹️  Optimization interrupted by user")
+            return 130
+        except Exception as e:
+            logger.error(f"❌ Optimization failed: {e}")
+            logger.exception("Full error details:")
+            return 1
+
 def show_usage():
     """Show usage information with Phase 3a enhancements"""
     logger = logging.getLogger(__name__)
@@ -605,6 +693,11 @@ if __name__ == "__main__":
             if sys.argv[1] in ['--help', '-h', 'help']:
                 show_usage()
                 sys.exit(0)
+            elif sys.argv[1] in ['optimize']:
+                result = weight_optimizer()
+            elif sys.argv[1] in ['optimize-sample']:
+                sample_run = True
+                result = weight_optimizer(sample_run)
             else:
                 # Run specific category test
                 category_name = sys.argv[1]
