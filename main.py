@@ -545,6 +545,7 @@ def weight_optimizer(sample_run=None):
     generations = 50
     population_size = 20
     api_endpoint = 'http://172.20.0.11:8881/analyze'
+    phrases_dir = './config/phrases'
     results_dir = './results'
     
     try:
@@ -552,7 +553,7 @@ def weight_optimizer(sample_run=None):
         logger.info(f"Configuration: {generations} generations, {population_size} population")
         logger.info("📊 Loading test dataset...")
 
-        weight_data_loader = create_weight_data_loader(results_dir)
+        weight_data_loader = create_weight_data_loader(phrases_dir)
 
         if sample_run:
             logger.info("🧪 Running in sample mode with reduced dataset")
