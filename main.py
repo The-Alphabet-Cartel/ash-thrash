@@ -616,7 +616,7 @@ def weight_optimizer(sample_run=None):
         print(f"\n💡 Recommendation: {optimization_results['recommendation']}")
         print(f"📁 Results saved to: {results_file}")
         
-        return 0 if summary['target_met'] else 2
+        return summary if summary['target_met'] else 2
 
     except KeyboardInterrupt:
         logger.info("⏹️  Optimization interrupted by user")
