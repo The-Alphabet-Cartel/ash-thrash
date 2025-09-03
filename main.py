@@ -581,7 +581,7 @@ def weight_optimizer(sample_run=None):
             logger.info("🧪 Sample run configuration applied")
         
         # Create optimizer
-        optimizer = create_weight_optimizer(unified_config, config, test_dataset)
+        optimizer = create_weight_optimizer(unified_config, test_dataset, config)
         
         # Establish baseline
         logger.info("📏 Establishing baseline performance...")
