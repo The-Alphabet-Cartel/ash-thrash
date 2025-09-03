@@ -546,7 +546,7 @@ def weight_optimizer(sample_run=None):
     population_size = 20
     api_endpoint = 'http://172.20.0.11:8881/analyze'
     phrases_dir = './config/phrases'
-    results_dir = './results'
+    results_dir = './results/optimizer'
     
     try:
         logger.info("🚀 Starting Ash-NLP Weight Optimization")
