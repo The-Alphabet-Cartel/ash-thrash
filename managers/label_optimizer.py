@@ -126,14 +126,14 @@ class LabelSetOptimizer:
                 current_data = current_response.json()
                 self.original_label_set = current_data.get('current_set', '')
                 logger.info(f"Current label set: {self.original_label_set}")
-            
+
             list_url = f"{self.config.admin_endpoint}/labels/list"
             response = requests.get(list_url, timeout=10)
-            
+
             if response.status_code == 200:
                 data = response.json()
                 label_sets = []
-                
+
                 # Extract label set names from response
                 if 'sets' in data:
                     label_sets = [s['name'] for s in data['sets']]
@@ -142,21 +142,21 @@ class LabelSetOptimizer:
                 else:
                     logger.warning(f"Unexpected response format: {data}")
                     return []
-                
+
                 self.available_label_sets = label_sets
-                
+
                 logger.info(f"Discovered {len(label_sets)} available label sets: {label_sets}")
-                
+
                 return label_sets
-            
+
             else:
                 logger.error(f"Failed to get label sets: {response.status_code}")
                 return []
-                
+
         except Exception as e:
             logger.error(f"Error discovering label sets: {e}")
             return []
-    
+
     def switch_label_set(self, label_set_name: str) -> bool:
         """Switch to specific label set"""
         try:
@@ -166,7 +166,7 @@ class LabelSetOptimizer:
                 json={"label_set": label_set_name},
                 timeout=15
             )
-            
+
             if response.status_code == 200:
                 result = response.json()
                 success = result.get('success', False)
@@ -178,11 +178,11 @@ class LabelSetOptimizer:
             else:
                 logger.error(f"Label set switch failed: {response.status_code}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error switching label set: {e}")
             return False
-    
+
     def test_message(self, message: str, user_id: str, channel_id: str) -> Optional[Dict[str, Any]]:
         """Test a single message against current label set"""
         try:
@@ -524,7 +524,6 @@ class LabelSetOptimizer:
         logger.info(f"💾 Optimization results saved to: {filepath}")
         return str(filepath)
 
-
 def create_label_set_optimizer(unified_config, test_dataset: Dict[str, List[Dict]], 
                               config: LabelOptimizationConfiguration) -> LabelSetOptimizer:
     """Factory function to create LabelSetOptimizer following Clean Architecture patterns"""
@@ -538,7 +537,6 @@ def create_label_set_optimizer(unified_config, test_dataset: Dict[str, List[Dict
     except Exception as e:
         logger.error(f"❌ Failed to create LabelSetOptimizer: {e}")
         raise
-
 
 # Export key classes and functions
 __all__ = [
