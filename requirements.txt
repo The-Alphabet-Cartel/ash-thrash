@@ -19,3 +19,7 @@ python-json-logger>=2.0.0
 
 # Colorize logs
 colorlog>=6.8.0
+
+# Machine Learning
+numpy>=1.21.0
+scikit-learn>=1.0.0
