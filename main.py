@@ -635,6 +635,8 @@ def show_usage():
     logger.info("Usage:")
     logger.info("  python main.py                    # Run comprehensive test suite")
     logger.info("  python main.py [category]         # Run specific category test")
+    logger.info("  python main.py optimize           # Run Model Weight Optimization (Full)")
+    logger.info("  python main.py optimize-sample    # Run Model Weight Optimization (Sample)")
     logger.info("")
     logger.info("Available categories:")
     logger.info("  definite_high       # High priority crisis phrases")
