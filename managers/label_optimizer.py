@@ -119,6 +119,14 @@ class LabelSetOptimizer:
     def discover_available_label_sets(self) -> List[str]:
         """Discover available label sets from NLP server"""
         try:
+            current_url = f"{self.config.admin_endpoint}/labels/current"
+            current_response = requests.get(current_url, timeout=10)
+
+            if current_response.status_code == 200:
+                current_data = current_response.json()
+                self.original_label_set = current_data.get('current_set', 'enhanced_crisis')
+                logger.info(f"Current label set: {self.original_label_set}")
+            
             list_url = f"{self.config.admin_endpoint}/labels/list"
             response = requests.get(list_url, timeout=10)
             
@@ -136,10 +144,8 @@ class LabelSetOptimizer:
                     return []
                 
                 self.available_label_sets = label_sets
-                self.original_label_set = data.get('current_set', label_sets[0] if label_sets else '')
                 
                 logger.info(f"Discovered {len(label_sets)} available label sets: {label_sets}")
-                logger.info(f"Current label set: {self.original_label_set}")
                 
                 return label_sets
             
