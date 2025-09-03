@@ -596,27 +596,27 @@ def weight_optimizer(sample_run=None):
         results_file = optimizer.save_results(optimization_results, results_dir)
         
         # Print summary
-        print("\n" + "="*80)
-        print("🎉 OPTIMIZATION COMPLETE")
-        print("="*80)
+        logger.info("\n" + "="*80)
+        logger.info("🎉 OPTIMIZATION COMPLETE")
+        logger.info("="*80)
         
         summary = optimization_results['optimization_summary']
-        print(f"📊 Improvement: {summary['improvement_percentage']:.2f}%")
-        print(f"🎯 Target Met: {'YES' if summary['target_met'] else 'NO'}")
-        print(f"⏱️  Total Time: {summary['total_time_minutes']:.1f} minutes")
-        print(f"🔧 API Calls: {summary['total_api_calls']:,}")
+        logger.info(f"📊 Improvement: {summary['improvement_percentage']:.2f}%")
+        logger.info(f"🎯 Target Met: {'YES' if summary['target_met'] else 'NO'}")
+        logger.info(f"⏱️  Total Time: {summary['total_time_minutes']:.1f} minutes")
+        logger.info(f"🔧 API Calls: {summary['total_api_calls']:,}")
         
         best_config = optimization_results['best_configuration']
-        print(f"\n🏆 OPTIMAL CONFIGURATION:")
-        print(f"   Ensemble Mode: {best_config['ensemble_mode']}")
-        print(f"   Depression Weight: {best_config['weights']['depression']:.3f}")
-        print(f"   Sentiment Weight: {best_config['weights']['sentiment']:.3f}")
-        print(f"   Distress Weight: {best_config['weights']['emotional_distress']:.3f}")
+        logger.info(f"\n🏆 OPTIMAL CONFIGURATION:")
+        logger.info(f"   Ensemble Mode: {best_config['ensemble_mode']}")
+        logger.info(f"   Depression Weight: {best_config['weights']['depression']:.3f}")
+        logger.info(f"   Sentiment Weight: {best_config['weights']['sentiment']:.3f}")
+        logger.info(f"   Distress Weight: {best_config['weights']['emotional_distress']:.3f}")
         
-        print(f"\n💡 Recommendation: {optimization_results['recommendation']}")
-        print(f"📁 Results saved to: {results_file}")
+        logger.info(f"\n💡 Recommendation: {optimization_results['recommendation']}")
+        logger.info(f"📁 Results saved to: {results_file}")
         
-        return best_config if summary['target_met'] else 2
+        return best_config
 
     except KeyboardInterrupt:
         logger.info("⏹️  Optimization interrupted by user")
