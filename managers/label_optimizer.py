@@ -212,6 +212,7 @@ class LabelSetOptimizer:
         logger.debug(f"Evaluating label set: {label_set_name}")
         
         # Switch to target label set
+        logger.debug(f"Switching to label set: {label_set_name}")
         if not self.switch_label_set(label_set_name):
             logger.error(f"Failed to switch to label set: {label_set_name}")
             return {"f1_score": 0.0, "precision": 0.0, "recall": 0.0, "avg_response_time_ms": 999.0}
@@ -236,6 +237,11 @@ class LabelSetOptimizer:
             
             response_time = (time.time() - start_time) * 1000
             response_times.append(response_time)
+            
+            if (i + 1) % 10 == 0:
+                progress_pct = ((i + 1) / len(self.all_test_data)) * 100
+                logger.info(f"Progress: {i+1}/{len(self.all_test_data)} phrases ({progress_pct:.1f}%) - "
+                          f"Avg response: {statistics.mean(response_times):.1f}ms")
             
             if result:
                 predicted_priority = result.get('crisis_level', 'none').lower()
@@ -451,7 +457,7 @@ class LabelSetOptimizer:
             logger.debug(f"Evaluating individual {i+1}/{len(population)}: {individual.label_set_name}")
             
             performance = self.evaluate_label_set(individual.label_set_name)
-            
+
             # Update individual with performance metrics
             individual.f1_score = performance['f1_score']
             individual.precision = performance['precision']
@@ -460,8 +466,8 @@ class LabelSetOptimizer:
             individual.category_performance = performance.get('category_performance', {})
             
             # Calculate composite fitness (weighted F1 score with response time penalty)
-            time_penalty = max(0, (performance['avg_response_time_ms'] - self.config.performance_target_ms) / 1000)
-            individual.fitness = performance['f1_score'] - (time_penalty * 0.1)  # 10% penalty per second over target
+            time_penalty = max(0, (individual.performance_ms - self.config.performance_target_ms) / 1000)
+            individual.fitness = individual.f1_score - (time_penalty * 0.05)  # 5% penalty per second over target
             
             logger.debug(f"   F1: {individual.f1_score:.3f}, Fitness: {individual.fitness:.3f}")
     
