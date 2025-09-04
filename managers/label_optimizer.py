@@ -226,9 +226,8 @@ class LabelSetOptimizer:
         response_times = []
         category_correct = {}
         category_total = {}
-        i = 0
 
-        for test_item in self.all_test_data:
+        for i, test_item in self.all_test_data:
             start_time = time.time()
             result = self.test_message(
                 test_item['message'],
