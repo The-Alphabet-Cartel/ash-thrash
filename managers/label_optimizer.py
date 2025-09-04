@@ -294,7 +294,7 @@ class LabelSetOptimizer:
             "successful_tests": len([p for p in predictions if p == 1])
         }
         
-        logger.info(f"Label set {label_set_name} performance: F1={f1:.3f}, Precision={precision:.3f}, Recall={recall:.3f}")
+        logger.info(f'Label set "{label_set_name}" performance: F1={f1:.3f}, Precision={precision:.3f}, Recall={recall:.3f}')
         
         return performance
     
