@@ -42,7 +42,7 @@ class OptimizationConfiguration:
     mutation_rate: float = 0.1
     crossover_rate: float = 0.8
     weight_precision: float = 0.05
-    performance_target_ms: float = 200.0
+    performance_target_ms: float = 500.0
     improvement_threshold: float = 0.02  # 2% improvement required
     k_fold_validation: int = 5
     holdout_percentage: float = 0.2
