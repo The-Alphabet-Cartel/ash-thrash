@@ -35,9 +35,9 @@ class WeightDataLoader:
     - medium_priority.json (50 phrases) 
     - low_priority.json (50 phrases)
     - none_priority.json (50 phrases)
-#    - maybe_high_medium.json (50 phrases)
-#    - maybe_medium_low.json (50 phrases)
-#    - maybe_low_none.json (45 phrases)
+    - maybe_high_medium.json (50 phrases)
+    - maybe_medium_low.json (50 phrases)
+    - maybe_low_none.json (45 phrases)
     """
     
     def __init__(self, unified_config, test_data_dir: str = "./optimization/phrases"):
@@ -53,9 +53,9 @@ class WeightDataLoader:
             'medium_priority': 'medium_priority.json', 
             'low_priority': 'low_priority.json',
             'none_priority': 'none_priority.json'
-#            'maybe_high_medium': 'maybe_high_medium.json',
-#            'maybe_medium_low': 'maybe_medium_low.json',
-#            'maybe_low_none': 'maybe_low_none.json'
+            'maybe_high_medium': 'maybe_high_medium.json',
+            'maybe_medium_low': 'maybe_medium_low.json',
+            'maybe_low_none': 'maybe_low_none.json'
         }
         
         logger.info(f"WeightDataLoader initialized for directory: {self.test_data_dir}")
@@ -195,27 +195,27 @@ class WeightDataLoader:
                 'phrase_count': 50,
                 'critical_for_safety': True  # Critical for preventing false alarms
             }#,
-#            'maybe_high_medium': {
-#                'description': 'Borderline High/Medium - should detect as medium or high',
-#                'expected_levels': ['medium', 'high'],
-#                'target_accuracy': 0.90,
-#                'phrase_count': 50,
-#                'critical_for_safety': False
-#            },
-#            'maybe_medium_low': {
-#                'description': 'Borderline Medium/Low - should detect as low or medium',
-#                'expected_levels': ['low', 'medium'],
-#                'target_accuracy': 0.85,
-#                'phrase_count': 50,
-#                'critical_for_safety': False
-#            },
-#            'maybe_low_none': {
-#                'description': 'Borderline Low/None - should detect as none or low',
-#                'expected_levels': ['none', 'low'],
-#                'target_accuracy': 0.90,
-#                'phrase_count': 50,
-#                'critical_for_safety': False
-#            }
+            'maybe_high_medium': {
+                'description': 'Borderline High/Medium - should detect as medium or high',
+                'expected_levels': ['medium', 'high'],
+                'target_accuracy': 0.90,
+                'phrase_count': 50,
+                'critical_for_safety': False
+            },
+            'maybe_medium_low': {
+                'description': 'Borderline Medium/Low - should detect as low or medium',
+                'expected_levels': ['low', 'medium'],
+                'target_accuracy': 0.85,
+                'phrase_count': 50,
+                'critical_for_safety': False
+            },
+            'maybe_low_none': {
+                'description': 'Borderline Low/None - should detect as none or low',
+                'expected_levels': ['none', 'low'],
+                'target_accuracy': 0.90,
+                'phrase_count': 50,
+                'critical_for_safety': False
+            }
         }
     
     def validate_dataset(self, dataset: Dict[str, List[Dict]]) -> Dict[str, Any]:
