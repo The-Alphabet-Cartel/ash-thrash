@@ -496,7 +496,7 @@ class LabelSetOptimizer:
         
         return next_generation
     
-    def save_results(self, optimization_results: Dict[str, Any], results_dir: str = "./results") -> str:
+    def save_results(self, optimization_results: Dict[str, Any], results_dir: str = "./results/optimizer-labels") -> str:
         """Save optimization results to file"""
         results_path = Path(results_dir)
         results_path.mkdir(exist_ok=True)
