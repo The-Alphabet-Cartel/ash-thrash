@@ -121,10 +121,10 @@ class WeightOptimizer:
             'high_priority': ['high', 'critical'],
             'medium_priority': ['medium'],
             'low_priority': ['low'],
-            'none_priority': ['none']#,
-#            'maybe_high_medium': ['medium', 'high'],
-#            'maybe_medium_low': ['low', 'medium'],
-#            'maybe_low_none': ['none', 'low']
+            'none_priority': ['none'],
+            'maybe_high_medium': ['medium', 'high'],
+            'maybe_medium_low': ['low', 'medium'],
+            'maybe_low_none': ['none', 'low']
         }
         
         for category, phrases in self.test_dataset.items():
