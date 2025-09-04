@@ -209,7 +209,7 @@ class LabelSetOptimizer:
     
     def evaluate_label_set(self, label_set_name: str) -> Dict[str, float]:
         """Evaluate performance of a specific label set"""
-        logger.debug(f"Evaluating label set: {label_set_name}")
+        logger.info(f"Evaluating label set: {label_set_name}")
         
         # Switch to target label set
         logger.debug(f"Switching to label set: {label_set_name}")
@@ -294,7 +294,7 @@ class LabelSetOptimizer:
             "successful_tests": len([p for p in predictions if p == 1])
         }
         
-        logger.debug(f"Label set {label_set_name} performance: F1={f1:.3f}, Precision={precision:.3f}, Recall={recall:.3f}")
+        logger.info(f"Label set {label_set_name} performance: F1={f1:.3f}, Precision={precision:.3f}, Recall={recall:.3f}")
         
         return performance
     
