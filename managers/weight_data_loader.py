@@ -213,7 +213,7 @@ class WeightDataLoader:
                 'description': 'Borderline Low/None - should detect as none or low',
                 'expected_levels': ['none', 'low'],
                 'target_accuracy': 0.90,
-                'phrase_count': 50,
+                'phrase_count': 45,
                 'critical_for_safety': False
             }
         }
