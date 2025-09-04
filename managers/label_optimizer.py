@@ -227,7 +227,7 @@ class LabelSetOptimizer:
         category_correct = {}
         category_total = {}
 
-        for i, test_item in self.all_test_data:
+        for i, test_item in enumerate(self.all_test_data):
             start_time = time.time()
             result = self.test_message(
                 test_item['message'],
