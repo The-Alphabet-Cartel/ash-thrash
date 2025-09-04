@@ -558,7 +558,7 @@ def weight_optimizer(sample_run=None):
     population_size = 20
     api_endpoint = 'http://172.20.0.11:8881/analyze'
     phrases_dir = './config/phrases'
-    results_dir = './results/weights-optimizer'
+    results_dir = './results/optimizer-weights'
     
     try:
         logger.info("🚀 Starting Ash-NLP Weight Optimization")
@@ -666,7 +666,7 @@ def label_optimizer(sample_run=None):
     api_endpoint = "http://172.20.0.11:8881/analyze"
     admin_endpoint = "http://172.20.0.11:8881/admin"
     phrases_dir = './config/phrases'
-    results_dir = './results/labels-optimizer'
+    results_dir = './results/optimizer-labels'
     
     try:
         # Setup logging
