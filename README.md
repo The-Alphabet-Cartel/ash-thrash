@@ -215,8 +215,9 @@ THRASH_ENABLE_EARLY_TERMINATION=true
 
 ## 📄 License
 
-This project is part of The Alphabet Cartel's open-source Ash Bot ecosystem.
-Licensed under GNU GENERAL PUBLIC LICENSE version 3.
+This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
+
+**Open source for community mental health support.**
 
 ## 🙏 Acknowledgments
 
