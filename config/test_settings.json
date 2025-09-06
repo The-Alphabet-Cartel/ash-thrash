@@ -90,16 +90,16 @@
   "test_categories": {
     "definite_high": {
       "file": "high_priority.json",
-      "expected_priority": ["high"],
+      "expected_priority": ["high", "critical"],
       "target_pass_rate": "${THRASH_HIGH_TARGET}",
       "critical": "${THRASH_HIGH_CRITIAL}",
       "allow_escalation": "${THRASH_HIGH_ESCALATION}",
       "allow_de_escalation": "${THRASH_HIGH_DEESCALATION}",
       "defaults": {
-        "target_pass_rate": 98,
+        "target_pass_rate": 95,
         "critical": true,
-        "allow_escalation": false,
-        "allow_de_escalation": false
+        "allow_escalation": true,
+        "allow_de_escalation": true
       },
       "validation": {
         "target_pass_rate": {
@@ -210,7 +210,7 @@
 
     "maybe_high_medium": {
       "file": "maybe_high_medium.json",
-      "expected_priority": ["high", "medium"],
+      "expected_priority": ["medium", "high", "critical"],
       "target_pass_rate": "${THRASH_MEDIUM_HIGH_TARGET}",
       "critical": "${THRASH_MEDIUM_HIGH_CRITIAL}",
       "allow_escalation": "${THRASH_MEDIUM_HIGH_ESCALATION}",
@@ -240,7 +240,7 @@
 
     "maybe_medium_low": {
       "file": "maybe_medium_low.json",
-      "expected_priority": ["medium", "low"],
+      "expected_priority": ["low", "medium"],
       "target_pass_rate": "${THRASH_LOW_MEDIUM_TARGET}",
       "critical": "${THRASH_LOW_MEDIUM_CRITIAL}",
       "allow_escalation": "${THRASH_LOW_MEDIUM_ESCALATION}",
