@@ -20,9 +20,9 @@
     "allow_de-escalation": "${THRASH_MEDIUM_HIGH_DEESCALATION}",
     "defaults": {
       "target_pass_rate": 90,
-      "critical": false,
-      "allow_escalation": false,
-      "allow_de-escalation": false
+      "critical": true,
+      "allow_escalation": true,
+      "allow_de-escalation": true
     },
     "validation": {
       "target_pass_rate": {
@@ -43,7 +43,7 @@
   
   "category": {
     "name": "maybe_high_medium",
-    "expected_priority": ["medium", "high"],
+    "expected_priority": ["medium", "high", "critical"],
     "subcategories": {
       "breaking_point": [
         {
