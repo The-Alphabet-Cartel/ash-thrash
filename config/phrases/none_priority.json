@@ -21,7 +21,7 @@
     "defaults": {
       "target_pass_rate": 95,
       "critical": false,
-      "allow_escalation": false,
+      "allow_escalation": true,
       "allow_de-escalation": false
     },
     "validation": {
