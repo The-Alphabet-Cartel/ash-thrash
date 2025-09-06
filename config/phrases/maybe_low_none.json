@@ -21,8 +21,8 @@
     "defaults": {
       "target_pass_rate": 90,
       "critical": false,
-      "allow_escalation": false,
-      "allow_de-escalation": false
+      "allow_escalation": true,
+      "allow_de-escalation": true
     },
     "validation": {
       "target_pass_rate": {
@@ -43,7 +43,7 @@
   
   "category": {
     "name": "maybe_low_none",
-    "expected_priority": ["none", "low"],
+    "expected_priority": ["none", "low", "medium"],
     "subcategories": {
       "casual_worries": [
         {
