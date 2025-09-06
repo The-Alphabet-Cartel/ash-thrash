@@ -171,7 +171,7 @@
           "description": "Crisis to high threshold (weighted mode)",
           "default": 0.55,
           "range_min": 0.35,
-          "range_max": 0.80,
+          "range_max": 0.90,
           "risk_level": "moderate"
         },
         "NLP_THRESHOLD_WEIGHTED_CRISIS_TO_MEDIUM": {
@@ -179,7 +179,7 @@
           "description": "Crisis to medium threshold (weighted mode)",
           "default": 0.32,
           "range_min": 0.18,
-          "range_max": 0.60,
+          "range_max": 0.70,
           "risk_level": "low"
         },
         "NLP_THRESHOLD_WEIGHTED_MILD_CRISIS_TO_LOW": {
@@ -187,7 +187,7 @@
           "description": "Mild crisis to low threshold (weighted mode)",
           "default": 0.42,
           "range_min": 0.25,
-          "range_max": 0.70,
+          "range_max": 0.80,
           "risk_level": "low"
         },
         "NLP_THRESHOLD_WEIGHTED_NEGATIVE_TO_LOW": {
@@ -195,7 +195,7 @@
           "description": "Negative to low threshold (weighted mode)",
           "default": 0.72,
           "range_min": 0.55,
-          "range_max": 0.90,
+          "range_max": 1.00,
           "risk_level": "minimal"
         },
         "NLP_THRESHOLD_WEIGHTED_UNKNOWN_TO_LOW": {
@@ -203,7 +203,7 @@
           "description": "Unknown to low threshold (weighted mode)",
           "default": 0.52,
           "range_min": 0.35,
-          "range_max": 0.80,
+          "range_max": 0.90,
           "risk_level": "minimal"
         }
       },
@@ -213,7 +213,7 @@
           "description": "Critical crisis ensemble threshold (weighted)",
           "default": 0.70,
           "range_min": 0.50,
-          "range_max": 0.90,
+          "range_max": 1.00,
           "risk_level": "critical"
         },
         "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_HIGH": {
@@ -221,7 +221,7 @@
           "description": "High crisis ensemble threshold (weighted)",
           "default": 0.48,
           "range_min": 0.30,
-          "range_max": 0.70,
+          "range_max": 0.80,
           "risk_level": "moderate"
         },
         "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_MEDIUM": {
@@ -229,7 +229,7 @@
           "description": "Medium crisis ensemble threshold (weighted)",
           "default": 0.27,
           "range_min": 0.15,
-          "range_max": 0.50,
+          "range_max": 0.60,
           "risk_level": "low"
         },
         "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_LOW": {
@@ -237,7 +237,7 @@
           "description": "Low crisis ensemble threshold (weighted)",
           "default": 0.13,
           "range_min": 0.05,
-          "range_max": 0.30,
+          "range_max": 0.40,
           "risk_level": "minimal"
         }
       }
