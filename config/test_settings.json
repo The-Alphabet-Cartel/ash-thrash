@@ -99,7 +99,7 @@
         "target_pass_rate": 95,
         "critical": true,
         "allow_escalation": true,
-        "allow_de_escalation": true
+        "allow_de_escalation": false
       },
       "validation": {
         "target_pass_rate": {
