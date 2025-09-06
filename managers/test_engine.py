@@ -457,6 +457,7 @@ class TestEngineManager:
         # Run tests for each category
         for category_name in test_categories:
             try:
+                logger.info("=" * 50)
                 logger.info(f"Testing category: {category_name}")
                 
                 category_result = self.run_category_test(category_name)
@@ -476,6 +477,8 @@ class TestEngineManager:
                     suite_result.termination_reason = halt_reason
                     break
                 
+                logger.info("=" * 50)
+
             except Exception as e:
                 logger.error(f"Failed to test category {category_name}: {e}")
                 # Continue with other categories rather than failing entire suite
