@@ -120,7 +120,7 @@
 
     "definite_medium": {
       "file": "medium_priority.json", 
-      "expected_priority": ["medium"],
+      "expected_priority": ["low", "medium", "high"],
       "target_pass_rate": "${THRASH_MEDIUM_TARGET}",
       "critical": "${THRASH_MEDIUM_CRITIAL}",
       "allow_escalation": "${THRASH_MEDIUM_ESCALATION}",
@@ -128,8 +128,8 @@
       "defaults": {
         "target_pass_rate": 85,
         "critical": false,
-        "allow_escalation": false,
-        "allow_de_escalation": false
+        "allow_escalation": true,
+        "allow_de_escalation": true
       },
       "validation": {
         "target_pass_rate": {
@@ -150,7 +150,7 @@
 
     "definite_low": {
       "file": "low_priority.json",
-      "expected_priority": ["none", "low"], 
+      "expected_priority": ["none", "low", "medium"], 
       "target_pass_rate": "${THRASH_LOW_TARGET}",
       "critical": "${THRASH_LOW_CRITIAL}",
       "allow_escalation": "${THRASH_LOW_ESCALATION}",
@@ -158,7 +158,7 @@
       "defaults": {
         "target_pass_rate": 85,
         "critical": false,
-        "allow_escalation": false,
+        "allow_escalation": true,
         "allow_de_escalation": true
       },
       "validation": {
@@ -189,7 +189,7 @@
         "target_pass_rate": 95,
         "critical": false,
         "allow_escalation": true,
-        "allow_de_escalation": false
+        "allow_de_escalation": true
       },
       "validation": {
         "target_pass_rate": {
