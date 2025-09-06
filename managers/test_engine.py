@@ -459,6 +459,7 @@ class TestEngineManager:
             try:
                 logger.info("=" * 50)
                 logger.info(f"Testing category: {category_name}")
+                logger.info("=" * 50)
                 
                 category_result = self.run_category_test(category_name)
                 suite_result.category_results.append(category_result)
