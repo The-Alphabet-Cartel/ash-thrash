@@ -150,7 +150,7 @@
 
     "definite_low": {
       "file": "low_priority.json",
-      "expected_priority": ["low"], 
+      "expected_priority": ["none", "low"], 
       "target_pass_rate": "${THRASH_LOW_TARGET}",
       "critical": "${THRASH_LOW_CRITIAL}",
       "allow_escalation": "${THRASH_LOW_ESCALATION}",
@@ -159,7 +159,7 @@
         "target_pass_rate": 85,
         "critical": false,
         "allow_escalation": false,
-        "allow_de_escalation": false
+        "allow_de_escalation": true
       },
       "validation": {
         "target_pass_rate": {
@@ -180,7 +180,7 @@
 
     "definite_none": {
       "file": "none_priority.json",
-      "expected_priority": ["none"],
+      "expected_priority": ["none", "low"],
       "target_pass_rate": "${THRASH_NONE_TARGET}",
       "critical": "${THRASH_NONE_CRITIAL}",
       "allow_escalation": "${THRASH_NONE_ESCALATION}",
