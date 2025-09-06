@@ -479,6 +479,7 @@ class TestEngineManager:
                     break
                 
                 logger.info("=" * 50)
+                logger.info("")
 
             except Exception as e:
                 logger.error(f"Failed to test category {category_name}: {e}")
