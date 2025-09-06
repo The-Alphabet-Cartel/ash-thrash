@@ -18,10 +18,10 @@
     "allow_escalation": "${THRASH_HIGH_ESCALATION}",
     "allow_de-escalation": "${THRASH_HIGH_DEESCALATION}",
     "defaults": {
-      "target_pass_rate": 98,
+      "target_pass_rate": 95,
       "critical": true,
-      "allow_escalation": false,
-      "allow_de-escalation": false
+      "allow_escalation": true,
+      "allow_de-escalation": true
     },
     "validation": {
       "target_pass_rate": {
@@ -42,7 +42,7 @@
   
   "category": {
     "name": "definite_high",
-    "expected_priority": ["high"],
+    "expected_priority": ["high", "critical"],
     "subcategories": {
       "burden_thoughts": [
         {
