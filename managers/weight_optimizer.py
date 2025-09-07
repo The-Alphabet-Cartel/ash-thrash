@@ -566,7 +566,7 @@ class WeightOptimizer:
         }
     
     def _set_temporary_weights(self, individual: Individual):
-        """Set weights via API call"""
+        """Set weights via API call with force reload"""
         try:
             set_weights_endpoint = self.config.api_endpoint.replace('/analyze', '/ensemble/set-weights')
             
@@ -580,7 +580,20 @@ class WeightOptimizer:
             if response.status_code == 200:
                 result = response.json()
                 logger.info(f"Weights set successfully: {result['weights']}")
-                return True
+                
+                # CRITICAL: Force reload the weights after setting them
+                refresh_endpoint = self.config.api_endpoint.replace('/analyze', '/ensemble/refresh-weights')
+                refresh_response = requests.post(refresh_endpoint, params={
+                    'force_reload': True
+                }, timeout=10)
+                
+                if refresh_response.status_code == 200:
+                    logger.debug("Weights force-reloaded successfully")
+                    return True
+                else:
+                    logger.error(f"Failed to force-reload weights: {refresh_response.status_code}")
+                    return False
+                    
             else:
                 logger.error(f"Failed to set weights: {response.status_code}")
                 return False
@@ -590,14 +603,17 @@ class WeightOptimizer:
             return False
     
     def _restore_environment_variables(self, backup: Dict[str, str]):
-        """Restore environment variables from backup and refresh cache"""
+        """Restore environment variables from backup and refresh cache with force reload"""
         for key, value in backup.items():
             os.environ[key] = value
         
-        # CRITICAL: Refresh cache after restoring original weights
+        # CRITICAL: Refresh cache after restoring original weights with force reload
         try:
             refresh_endpoint = self.config.api_endpoint.replace('/analyze', '/ensemble/refresh-weights')
-            response = requests.post(refresh_endpoint, timeout=10)
+            response = requests.post(refresh_endpoint, params={
+                'force_reload': True
+            }, timeout=10)
+            
             if response.status_code == 200:
                 logger.debug("Cache refreshed after restoring original weights")
             else:
