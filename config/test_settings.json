@@ -270,7 +270,7 @@
 
     "maybe_low_none": {
       "file": "maybe_low_none.json",
-      "expected_priority": ["low", "none"],
+      "expected_priority": ["none", "low"],
       "target_pass_rate": "${THRASH_LOW_NONE_TARGET}",
       "critical": "${THRASH_LOW_NONE_CRITIAL}",
       "allow_escalation": "${THRASH_LOW_NONE_ESCALATION}",
