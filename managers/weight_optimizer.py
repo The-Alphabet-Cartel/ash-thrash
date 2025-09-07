@@ -11,9 +11,9 @@ Ash-NLP is a CRISIS DETECTION BACKEND that:
 ********************************************************************************
 Ensemble Weight Optimization Framework for Ash-NLP Service
 ---
-FILE VERSION: v3.1-wo-1-1
-LAST MODIFIED: 2025-09-01
-PHASE: Weight Optimization Implementation
+FILE VERSION: v3.1-wo-1-2
+LAST MODIFIED: 2025-09-07
+PHASE: Weight Optimization Implementation - Enhanced Response Processing
 CLEAN ARCHITECTURE: v3.1 Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-nlp
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -42,7 +42,7 @@ class OptimizationConfiguration:
     mutation_rate: float = 0.1
     crossover_rate: float = 0.8
     weight_precision: float = 0.05
-    performance_target_ms: float = 500.0
+    performance_target_ms: float = 300.0
     improvement_threshold: float = 0.02  # 2% improvement required
     k_fold_validation: int = 5
     holdout_percentage: float = 0.2
@@ -165,9 +165,9 @@ class WeightOptimizer:
         # Current configuration (40/30/30 with consensus mode)
         baseline_individual = Individual(
             ensemble_mode='consensus',
-            depression_weight=0.4,
-            sentiment_weight=0.3,
-            distress_weight=0.3
+            depression_weight=0.400,
+            sentiment_weight=0.300,
+            distress_weight=0.300
         )
         
         # Evaluate baseline performance
@@ -333,6 +333,8 @@ class WeightOptimizer:
         ground_truths = []
         response_times = []
         category_results = {}
+        api_errors = 0
+        parsing_errors = 0
         
         # Temporarily set weights for evaluation
         original_env = self._backup_environment_variables()
@@ -359,41 +361,98 @@ class WeightOptimizer:
                     response_time = (time.time() - start_time) * 1000
                     
                     if response.status_code == 200:
-                        result = response.json()
-                        predicted_level = result.get('crisis_level', 'none')
+                        try:
+                            result = response.json()
+                            
+                            # ENHANCED: Better crisis level extraction with fallbacks
+                            predicted_level = result.get('crisis_level', 'none')
+                            
+                            # DEBUGGING: Log response structure on first few calls or if level is unexpected
+                            if i < 3 or predicted_level not in ['none', 'low', 'medium', 'high', 'critical']:
+                                logger.info(f"Sample response {i+1}: crisis_level='{predicted_level}', "
+                                          f"confidence={result.get('confidence_score', 'N/A')}, "
+                                          f"needs_response={result.get('needs_response', 'N/A')}")
+                                
+                                # Log full response structure for debugging if crisis_level is unexpected
+                                if predicted_level not in ['none', 'low', 'medium', 'high', 'critical']:
+                                    logger.warning(f"Unexpected crisis_level '{predicted_level}' in response. "
+                                                 f"Full response keys: {list(result.keys())}")
+                                    if 'analysis' in result:
+                                        logger.info(f"Analysis section keys: {list(result['analysis'].keys())}")
+                            
+                            # ENHANCED: Validate and normalize crisis level
+                            if predicted_level not in ['none', 'low', 'medium', 'high', 'critical']:
+                                logger.warning(f"Invalid crisis level '{predicted_level}' for phrase {i+1}, "
+                                             f"defaulting to 'none'. Message: '{test_item['message'][:50]}...'")
+                                predicted_level = 'none'
+                                parsing_errors += 1
+                            
+                            predictions.append(predicted_level)
+                            ground_truths.append(test_item['ground_truth'])
+                            response_times.append(response_time)
+                            
+                            # Track category-specific results
+                            category = test_item['category']
+                            if category not in category_results:
+                                category_results[category] = {'correct': 0, 'total': 0}
+                            
+                            # Check if prediction is acceptable
+                            is_correct = predicted_level in test_item['acceptable_levels']
+                            category_results[category]['correct'] += int(is_correct)
+                            category_results[category]['total'] += 1
+                            
+                            self.total_api_calls += 1
+                            
+                            # ENHANCED: More detailed progress logging
+                            if (i + 1) % 10 == 0:
+                                progress_pct = ((i + 1) / len(self.all_test_data)) * 100
+                                recent_predictions = predictions[-10:] if len(predictions) >= 10 else predictions
+                                recent_ground_truth = ground_truths[-10:] if len(ground_truths) >= 10 else ground_truths
+                                recent_matches = sum(1 for p, g in zip(recent_predictions, recent_ground_truth) if p == g)
+                                
+                                logger.info(f"Progress: {i+1}/{len(self.all_test_data)} phrases ({progress_pct:.1f}%) - "
+                                          f"Avg response: {statistics.mean(response_times[-25:]):.1f}ms, "
+                                          f"Recent accuracy: {recent_matches}/{len(recent_predictions)} "
+                                          f"({recent_matches/len(recent_predictions)*100:.1f}%)")
                         
-                        predictions.append(predicted_level)
-                        ground_truths.append(test_item['ground_truth'])
-                        response_times.append(response_time)
-                        
-                        # Track category-specific results
-                        category = test_item['category']
-                        if category not in category_results:
-                            category_results[category] = {'correct': 0, 'total': 0}
-                        
-                        # Check if prediction is acceptable
-                        is_correct = predicted_level in test_item['acceptable_levels']
-                        category_results[category]['correct'] += int(is_correct)
-                        category_results[category]['total'] += 1
-                        
-                        self.total_api_calls += 1
-                        
-                        if (i + 1) % 10 == 0:
-                            progress_pct = ((i + 1) / len(self.all_test_data)) * 100
-                            logger.info(f"Progress: {i+1}/{len(self.all_test_data)} phrases ({progress_pct:.1f}%) - "
-                                      f"Avg response: {statistics.mean(response_times[-25:]):.1f}ms")
+                        except json.JSONDecodeError as e:
+                            logger.error(f"JSON decode error for phrase {i+1}: {e}")
+                            logger.error(f"Response content: {response.text[:200]}...")
+                            predictions.append('none')
+                            ground_truths.append(test_item['ground_truth'])
+                            response_times.append(999.0)
+                            parsing_errors += 1
                     
                     else:
-                        logger.warning(f"API call failed with status {response.status_code}")
+                        logger.warning(f"API call failed with status {response.status_code} for phrase {i+1}")
+                        logger.warning(f"Response: {response.text[:200]}...")
                         predictions.append('none')  # Conservative fallback
                         ground_truths.append(test_item['ground_truth'])
                         response_times.append(999.0)  # Penalty for failure
+                        api_errors += 1
                 
                 except Exception as e:
                     logger.warning(f"Error evaluating phrase {i+1}: {e}")
+                    logger.warning(f"Message: '{test_item['message'][:50]}...'")
                     predictions.append('none')  # Conservative fallback
                     ground_truths.append(test_item['ground_truth'])
                     response_times.append(999.0)  # Penalty for failure
+                    api_errors += 1
+            
+            # ENHANCED: Detailed evaluation summary
+            logger.info(f"Evaluation complete: {len(predictions)} predictions, "
+                       f"{api_errors} API errors, {parsing_errors} parsing errors")
+            
+            # Log prediction distribution for debugging
+            prediction_counts = {}
+            ground_truth_counts = {}
+            for pred in predictions:
+                prediction_counts[pred] = prediction_counts.get(pred, 0) + 1
+            for gt in ground_truths:
+                ground_truth_counts[gt] = ground_truth_counts.get(gt, 0) + 1
+                
+            logger.info(f"Prediction distribution: {prediction_counts}")
+            logger.info(f"Ground truth distribution: {ground_truth_counts}")
             
             # Calculate metrics
             # Convert crisis levels to numerical for sklearn
@@ -401,10 +460,36 @@ class WeightOptimizer:
             y_true = [level_to_num.get(gt, 0) for gt in ground_truths]
             y_pred = [level_to_num.get(pred, 0) for pred in predictions]
             
+            # ENHANCED: Validate that we have predictions to work with
+            if not predictions or not ground_truths:
+                logger.error("No predictions or ground truths available for metric calculation!")
+                return {
+                    'f1_score': 0.0,
+                    'raw_f1_score': 0.0,
+                    'precision': 0.0,
+                    'recall': 0.0,
+                    'avg_response_time_ms': 999.0,
+                    'performance_penalty': 999.0,
+                    'category_accuracy': {},
+                    'total_evaluations': 0,
+                    'api_errors': api_errors,
+                    'parsing_errors': parsing_errors
+                }
+            
             # Calculate primary metrics
             f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
             precision = precision_score(y_true, y_pred, average='weighted', zero_division=0)
             recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
+            
+            # ENHANCED: Log detailed metric calculation
+            logger.info(f"Raw metrics: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}")
+            
+            # Log some sample comparisons for debugging
+            sample_size = min(5, len(predictions))
+            for idx in range(sample_size):
+                logger.debug(f"Sample {idx+1}: predicted='{predictions[idx]}', "
+                            f"ground_truth='{ground_truths[idx]}', "
+                            f"acceptable={self.all_test_data[idx]['acceptable_levels']}")
             
             # Calculate category accuracy
             category_accuracy = {}
@@ -412,6 +497,8 @@ class WeightOptimizer:
                 if results['total'] > 0:
                     accuracy = results['correct'] / results['total']
                     category_accuracy[category] = accuracy
+                    logger.debug(f"Category {category}: {results['correct']}/{results['total']} "
+                               f"({accuracy:.3f} accuracy)")
             
             # Calculate performance metrics
             avg_response_time = statistics.mean(response_times) if response_times else 999.0
@@ -428,8 +515,13 @@ class WeightOptimizer:
                 'avg_response_time_ms': avg_response_time,
                 'performance_penalty': performance_penalty,
                 'category_accuracy': category_accuracy,
-                'total_evaluations': len(predictions)
+                'total_evaluations': len(predictions),
+                'api_errors': api_errors,
+                'parsing_errors': parsing_errors
             }
+            
+            logger.info(f"Final metrics: Adjusted F1={adjusted_f1:.4f} "
+                       f"(Raw F1={f1:.4f} - Penalty={performance_penalty:.4f})")
             
             return performance_metrics
             
@@ -732,4 +824,4 @@ __all__ = [
     'create_weight_optimizer'
 ]
 
-logger.info("✅ Weight Optimization Framework v3.1-wo-1 loaded")
+logger.info("✅ Weight Optimization Framework v3.1-wo-1-2 loaded")
