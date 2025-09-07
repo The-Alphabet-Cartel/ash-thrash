@@ -581,18 +581,18 @@ class WeightOptimizer:
                 result = response.json()
                 logger.info(f"Weights set successfully: {result['weights']}")
                 
-                # CRITICAL: Force reload the weights after setting them
-                refresh_endpoint = self.config.api_endpoint.replace('/analyze', '/ensemble/refresh-weights')
-                refresh_response = requests.post(refresh_endpoint, params={
-                    'force_reload': True
-                }, timeout=10)
-                
-                if refresh_response.status_code == 200:
-                    logger.debug("Weights force-reloaded successfully")
-                    return True
-                else:
-                    logger.error(f"Failed to force-reload weights: {refresh_response.status_code}")
-                    return False
+#                # CRITICAL: Force reload the weights after setting them
+#                refresh_endpoint = self.config.api_endpoint.replace('/analyze', '/ensemble/refresh-weights')
+#                refresh_response = requests.post(refresh_endpoint, params={
+#                    'force_reload': True
+#                }, timeout=10)
+#                
+#                if refresh_response.status_code == 200:
+#                    logger.debug("Weights force-reloaded successfully")
+#                    return True
+#                else:
+#                    logger.error(f"Failed to force-reload weights: {refresh_response.status_code}")
+#                    return False
                     
             else:
                 logger.error(f"Failed to set weights: {response.status_code}")
@@ -610,9 +610,9 @@ class WeightOptimizer:
         # CRITICAL: Refresh cache after restoring original weights with force reload
         try:
             refresh_endpoint = self.config.api_endpoint.replace('/analyze', '/ensemble/refresh-weights')
-            response = requests.post(refresh_endpoint, params={
-                'force_reload': True
-            }, timeout=10)
+#            response = requests.post(refresh_endpoint, params={
+#                'force_reload': True
+#            }, timeout=10)
             
             if response.status_code == 200:
                 logger.debug("Cache refreshed after restoring original weights")
