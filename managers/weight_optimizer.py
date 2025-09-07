@@ -119,9 +119,9 @@ class WeightOptimizer:
         # Priority mappings for ground truth
         priority_mappings = {
             'high_priority': ['high', 'critical'],
-            'medium_priority': ['low', 'medium', 'high'],
-            'low_priority': ['none', 'low', 'medium'],
-            'none_priority': ['none', 'low'],
+            'medium_priority': ['medium'],
+            'low_priority': ['low'],
+            'none_priority': ['none'],
             'maybe_high_medium': ['medium', 'high', 'critical'],
             'maybe_medium_low': ['low', 'medium'],
             'maybe_low_none': ['none', 'low']
