@@ -251,7 +251,7 @@ class WeightOptimizer:
     def _initialize_population(self) -> List[Individual]:
         """Initialize population with depression model always having highest weight"""
         population = []
-        ensemble_modes = ['consensus', 'majority', 'weighted']
+        ensemble_modes = ['weighted']
         
         for _ in range(self.config.population_size):
             mode = np.random.choice(ensemble_modes)
@@ -367,20 +367,7 @@ class WeightOptimizer:
                             
                             # ENHANCED: Better crisis level extraction with fallbacks
                             predicted_level = result.get('crisis_level', 'none')
-                            
-                            # DEBUGGING: Log response structure on first few calls or if level is unexpected
-                            if i < 3 or predicted_level not in ['none', 'low', 'medium', 'high', 'critical']:
-                                logger.info(f"Sample response {i+1}: crisis_level='{predicted_level}', "
-                                          f"confidence={result.get('confidence_score', 'N/A')}, "
-                                          f"needs_response={result.get('needs_response', 'N/A')}")
-                                
-                                # Log full response structure for debugging if crisis_level is unexpected
-                                if predicted_level not in ['none', 'low', 'medium', 'high', 'critical']:
-                                    logger.warning(f"Unexpected crisis_level '{predicted_level}' in response. "
-                                                 f"Full response keys: {list(result.keys())}")
-                                    if 'analysis' in result:
-                                        logger.info(f"Analysis section keys: {list(result['analysis'].keys())}")
-                            
+
                             # ENHANCED: Validate and normalize crisis level
                             if predicted_level not in ['none', 'low', 'medium', 'high', 'critical']:
                                 logger.warning(f"Invalid crisis level '{predicted_level}' for phrase {i+1}, "
@@ -599,7 +586,7 @@ class WeightOptimizer:
             refresh_endpoint = self.config.api_endpoint.replace('/analyze', '/ensemble/refresh-weights')
             response = requests.post(refresh_endpoint, timeout=10)
             if response.status_code == 200:
-                logger.debug("Cache refreshed after restoring original weights")
+                logger.info("Cache refreshed after restoring original weights")
             else:
                 logger.warning(f"Failed to refresh cache after restore: {response.status_code}")
         except Exception as e:
