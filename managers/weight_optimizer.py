@@ -162,9 +162,9 @@ class WeightOptimizer:
         """
         logger.info("🎯 Establishing baseline performance with default weights...")
         
-        # Current configuration (40/30/30 with consensus mode)
+        # Current configuration (40/30/30 with weighted mode)
         baseline_individual = Individual(
-            ensemble_mode='consensus',
+            ensemble_mode='weighted',
             depression_weight=0.400,
             sentiment_weight=0.300,
             distress_weight=0.300
@@ -562,7 +562,7 @@ class WeightOptimizer:
             'NLP_MODEL_DEPRESSION_WEIGHT': os.getenv('NLP_MODEL_DEPRESSION_WEIGHT', '0.4'),
             'NLP_MODEL_SENTIMENT_WEIGHT': os.getenv('NLP_MODEL_SENTIMENT_WEIGHT', '0.3'),
             'NLP_MODEL_DISTRESS_WEIGHT': os.getenv('NLP_MODEL_DISTRESS_WEIGHT', '0.3'),
-            'NLP_ENSEMBLE_MODE': os.getenv('NLP_ENSEMBLE_MODE', 'consensus')
+            'NLP_ENSEMBLE_MODE': os.getenv('NLP_ENSEMBLE_MODE', 'weighted')
         }
     
     def _set_temporary_weights(self, individual: Individual):
