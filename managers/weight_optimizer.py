@@ -410,8 +410,8 @@ class WeightOptimizer:
                                 recent_accuracy = recent_correct_count / min(10, len(recent_predictions)) * 100
                                 
                                 logger.info(f"Progress: {i+1}/{len(self.all_test_data)} phrases ({progress_pct:.1f}%) - "
-                                          f"Avg response: {statistics.mean(response_times[-25:]):.1f}ms, "
-                                          f"Recent accuracy: {recent_correct_count}/10 "
+                                          f"Avg Response: {statistics.mean(response_times[-25:]):.1f}ms, "
+                                          f"Accuracy: {recent_correct_count}/10 "
                                           f"({recent_accuracy:.1f}%)")
                         
                         except json.JSONDecodeError as e:
