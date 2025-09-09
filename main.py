@@ -569,6 +569,8 @@ def weight_optimizer(sample_run=None):
 
         if sample_run:
             logger.info("🧪 Running in sample mode with reduced dataset")
+            generations = 25
+            population_size = 10
             test_dataset = weight_data_loader.create_sample_dataset(sample_size=10)
         else:
             test_dataset = weight_data_loader.load_all_test_data()
@@ -585,12 +587,6 @@ def weight_optimizer(sample_run=None):
             generations=generations,
             api_endpoint=api_endpoint
         )
-        
-        if sample_run:
-            # Reduce parameters for sample run
-            generations = 10
-            population_size = 8
-            logger.info("🧪 Sample run configuration applied")
         
         # Create optimizer
         optimizer = create_weight_optimizer(unified_config, test_dataset, config)
