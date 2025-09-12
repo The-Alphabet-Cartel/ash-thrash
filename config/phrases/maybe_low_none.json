@@ -13,7 +13,7 @@
   "category_info": {
     "name": "maybe_low_none",
     "description": "Maybe Low/None",
-    "total_phrases": 50,
+    "total_phrases": 45,
     "target_pass_rate": "${THRASH_LOW_NONE_TARGET}",
     "critical": "${THRASH_LOW_NONE_CRITIAL}",
     "allow_escalation": "${THRASH_LOW_NONE_ESCALATION}",
