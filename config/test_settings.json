@@ -96,6 +96,7 @@
       "allow_escalation": "${THRASH_HIGH_ESCALATION}",
       "allow_de_escalation": "${THRASH_HIGH_DEESCALATION}",
       "defaults": {
+        "expected_priority": ["high", "critical"],
         "target_pass_rate": 95,
         "critical": true,
         "allow_escalation": true,
@@ -129,6 +130,7 @@
       "allow_escalation": "${THRASH_MEDIUM_ESCALATION}",
       "allow_de_escalation": "${THRASH_MEDIUM_DEESCALATION}",
       "defaults": {
+        "expected_priority": ["medium"],
         "target_pass_rate": 85,
         "critical": false,
         "allow_escalation": true,
@@ -162,6 +164,7 @@
       "allow_escalation": "${THRASH_LOW_ESCALATION}",
       "allow_de_escalation": "${THRASH_LOW_DEESCALATION}",
       "defaults": {
+        "expected_priority": ["low"],
         "target_pass_rate": 85,
         "critical": false,
         "allow_escalation": false,
@@ -195,6 +198,7 @@
       "allow_escalation": "${THRASH_NONE_ESCALATION}",
       "allow_de_escalation": "${THRASH_NONE_DEESCALATION}",
       "defaults": {
+        "expected_priority": ["none"],
         "target_pass_rate": 95,
         "critical": false,
         "allow_escalation": true,
@@ -228,6 +232,7 @@
       "allow_escalation": "${THRASH_MEDIUM_HIGH_ESCALATION}",
       "allow_de_escalation": "${THRASH_MEDIUM_HIGH_DEESCALATION}",
       "defaults": {
+        "expected_priority": ["medium", "high", "critical"],
         "target_pass_rate": 90,
         "critical": true,
         "allow_escalation": true,
@@ -261,6 +266,7 @@
       "allow_escalation": "${THRASH_LOW_MEDIUM_ESCALATION}",
       "allow_de_escalation": "${THRASH_LOW_MEDIUM_DEESCALATION}",
       "defaults": {
+        "expected_priority": ["low", "medium"],
         "target_pass_rate": 85,
         "critical": false,
         "allow_escalation": true,
@@ -294,6 +300,7 @@
       "allow_escalation": "${THRASH_LOW_NONE_ESCALATION}",
       "allow_de_escalation": "${THRASH_LOW_NONE_DEESCALATION}",
       "defaults": {
+        "expected_priority": ["none", "low"],
         "target_pass_rate": 90,
         "critical": false,
         "allow_escalation": true,
