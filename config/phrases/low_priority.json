@@ -43,7 +43,15 @@
   
   "category": {
     "name": "definite_low",
-    "expected_priority": ["low"],
+    "expected_priority": "${THRASH_LOW_PRIORITY}",
+    "defaults": {
+      "expected_priority": ["none", "low"]
+    },
+    "validation": {
+      "expected_priority": {
+        "type": "list"
+      }
+    },
     "subcategories": {
       "achievement_concerns": [
         {
