@@ -43,7 +43,15 @@
   
   "category": {
     "name": "definite_none",
-    "expected_priority": ["none"],
+    "expected_priority": "${THRASH_NONE_PRIORITY}",
+    "defaults": {
+      "expected_priority": ["none", "low"]
+    },
+    "validation": {
+      "expected_priority": {
+        "type": "list"
+      }
+    },
     "subcategories": {
       "achievement_happiness": [
         {
