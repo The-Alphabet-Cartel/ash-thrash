@@ -43,7 +43,15 @@
   
   "category": {
     "name": "definite_medium",
-    "expected_priority": ["medium"],
+    "expected_priority": "${THRASH_MEDIUM_PRIORITY}",
+    "defaults": {
+      "expected_priority": ["medium"]
+    },
+    "validation": {
+      "expected_priority": {
+        "type": "list"
+      }
+    },
     "subcategories": {
       "anxiety_attacks": [
         {
