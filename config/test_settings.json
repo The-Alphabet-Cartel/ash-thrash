@@ -150,7 +150,7 @@
 
     "definite_low": {
       "file": "low_priority.json",
-      "expected_priority": ["none", "low", "medium"], 
+      "expected_priority": ["none", "low"], 
       "target_pass_rate": "${THRASH_LOW_TARGET}",
       "critical": "${THRASH_LOW_CRITIAL}",
       "allow_escalation": "${THRASH_LOW_ESCALATION}",
@@ -158,7 +158,7 @@
       "defaults": {
         "target_pass_rate": 85,
         "critical": false,
-        "allow_escalation": true,
+        "allow_escalation": false,
         "allow_de_escalation": true
       },
       "validation": {
