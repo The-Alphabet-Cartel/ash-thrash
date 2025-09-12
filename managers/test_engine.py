@@ -21,6 +21,9 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+# ========================================================================
+# CLASS SETUP
+# ========================================================================
 class TestResult(Enum):
     """Test result enumeration"""
     PASS = "pass"
@@ -81,6 +84,11 @@ class TestSuiteResult:
     category_results: List[CategoryTestResult] = field(default_factory=list)
     server_info: Optional[Dict[str, Any]] = None
 
+# ========================================================================
+
+# ========================================================================
+# TestEngineMananger
+# ========================================================================
 class TestEngineManager:
     """
     Core test execution engine for Ash-Thrash testing suite
@@ -89,6 +97,9 @@ class TestEngineManager:
     and safety-first failure analysis with early termination.
     """
     
+    # ========================================================================
+    # INITIALIZE
+    # ========================================================================
     def __init__(self, unified_config_manager, nlp_client_manager):
         """
         Initialize Test Engine Manager
@@ -191,7 +202,11 @@ class TestEngineManager:
         except Exception as e:
             logger.error(f"Error loading phrase category {category_name}: {e}")
             raise
+    # ========================================================================
     
+    # ========================================================================
+    # CALCULATIONS
+    # ========================================================================
     def calculate_failure_severity(self, expected_priorities: List[str], actual_priority: str) -> Tuple[int, bool, bool]:
         """
         Calculate failure severity and classify false negative/positive
@@ -275,7 +290,11 @@ class TestEngineManager:
             return True, f"Excessive false negatives in '{category_result.category_name}': {category_result.false_negatives}/{category_result.total_tests}"
         
         return False, ""
+    # ========================================================================
     
+    # ========================================================================
+    # RUN TESTS
+    # ========================================================================
     def run_category_test(self, category_name: str) -> CategoryTestResult:
         """
         Run tests for a specific category
@@ -511,6 +530,11 @@ class TestEngineManager:
         
         return suite_result
 
+    # ========================================================================
+
+# ========================================================================
+# FACTORY FUNCTION
+# ========================================================================
 def create_test_engine_manager(unified_config_manager, nlp_client_manager) -> TestEngineManager:
     """
     Factory function for TestEngineManager (Clean v3.1 Pattern)
@@ -534,11 +558,19 @@ def create_test_engine_manager(unified_config_manager, nlp_client_manager) -> Te
         raise ValueError("NLPClientManager is required for TestEngineManager factory")
     
     return TestEngineManager(unified_config_manager, nlp_client_manager)
+# ========================================================================
 
-# Export public interface
+# ========================================================================
+# Public interface
+# ========================================================================
 __all__ = [
-    'TestEngineManager', 'TestSuiteResult', 'CategoryTestResult', 'PhraseTestResult', 
-    'TestResult', 'create_test_engine_manager'
+    'TestEngineManager',
+    'TestSuiteResult',
+    'CategoryTestResult',
+    'PhraseTestResult', 
+    'TestResult',
+    'create_test_engine_manager'
 ]
 
 logger.info("TestEngineManager v3.1-1a-1 loaded")
+# ========================================================================
