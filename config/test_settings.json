@@ -325,13 +325,18 @@
     "false_negative_multiplier": "${THRASH_FALSE_NEGATIVE_MULTIPLIER}",
     "critical_category_multiplier": "${THRASH_CRITICAL_CATEGORY_MULTIPLIER}",
     "severity_weights": {
-      "1_level_miss": 1.0,
-      "2_level_miss": 2.0, 
-      "3_level_miss": 3.0
+      "1_level_miss": "${THRASH_1_LEVEL_MISS}",
+      "2_level_miss": "${THRASH_2_LEVEL_MISS}",
+      "3_level_miss": "${THRASH_3_LEVEL_MISS}"
     },
     "defaults": {
       "false_negative_multiplier": 3.0,
-      "critical_category_multiplier": 1.5
+      "critical_category_multiplier": 1.5,
+      "severity_weights": {
+        "1_level_miss": 1.0,
+        "2_level_miss": 2.0,
+        "3_level_miss": 3.0
+      }
     },
     "validation": {
       "false_negative_multiplier": {
@@ -343,6 +348,17 @@
         "type": "float",
         "range": [1.0, 10.0],
         "description": "Multiplier for critical category failure scoring"
+      },
+      "severity_weights": {
+        "1_level_miss": {
+          "type": "integer"
+        },
+        "2_level_miss": {
+          "type": "integer"
+        },
+        "3_level_miss": {
+          "type": "integer"
+        }
       }
     }
   },
