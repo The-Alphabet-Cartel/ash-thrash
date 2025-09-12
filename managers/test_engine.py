@@ -143,7 +143,8 @@ class TestEngineManager:
                 'none': 0,
                 'low': 1, 
                 'medium': 2,
-                'high': 3
+                'high': 3,
+                'critical': 4
             }
             
             logger.info(f"TestEngineManager initialized: {len(self.category_config)} categories, "
@@ -311,7 +312,8 @@ class TestEngineManager:
             # Load category phrases and configuration
             phrases, category_info = self.load_phrase_category(category_name)
             
-            expected_priorities = category_info.get('expected_priority', [])
+            expected_priorities = self.unified_config.get_config_section('test_settings', f'test_categories.{category_name}.expected_priority', [])
+            logger.info(f'Found expected priorities: {expected_priorities}')
             target_pass_rate = category_info.get('target_pass_rate', 85)
             is_critical = category_info.get('critical', False)
             
