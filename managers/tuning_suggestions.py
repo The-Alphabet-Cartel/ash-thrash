@@ -426,15 +426,23 @@ class TuningSuggestionsManager:
             mode_mappings = self.threshold_mappings.get(mode.value, {})
             logger.debug(f"Available threshold mappings: {list(mode_mappings.keys())}")
             
+            definite_high = self.config_manager.get_config_section('test_settings', 'test_categories.definite_high.expected_priority', ['high'])
+            definite_medium = self.config_manager.get_config_section('test_settings', 'test_categories.definite_medium.expected_priority', ['medium'])
+            definite_low = self.config_manager.get_config_section('test_settings', 'test_categories.definite_low.expected_priority', ['low'])
+            definite_none = self.config_manager.get_config_section('test_settings', 'test_categories.definite_none.expected_priority', ['none'])
+            maybe_high_medium = self.config_manager.get_config_section('test_settings', 'test_categories.maybe_high_medium.expected_priority', ['medium', 'high'])
+            maybe_medium_low = self.config_manager.get_config_section('test_settings', 'test_categories.maybe_medium_low.expected_priority', ['low', 'medium'])
+            maybe_low_none = self.config_manager.get_config_section('test_settings', 'test_categories.maybe_low_none.expected_priority', ['none', 'low'])
+
             # Map category to expected crisis levels
             category_mapping = {
-                'definite_high': ['high'],
-                'definite_medium': ['medium'], 
-                'definite_low': ['low'],
-                'definite_none': ['none'],
-                'maybe_high_medium': ['high', 'medium'],
-                'maybe_medium_low': ['medium', 'low'],
-                'maybe_low_none': ['low', 'none']
+                'definite_high': definite_high,
+                'definite_medium': definite_medium, 
+                'definite_low': definite_low,
+                'definite_none': definite_none,
+                'maybe_high_medium': maybe_high_medium,
+                'maybe_medium_low': maybe_medium_low,
+                'maybe_low_none': maybe_low_none
             }
             
             expected_levels = category_mapping.get(category, [])
