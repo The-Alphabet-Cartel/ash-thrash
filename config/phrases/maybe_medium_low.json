@@ -43,7 +43,15 @@
   
   "category": {
     "name": "maybe_medium_low",
-    "expected_priority": ["low", "medium", "high"],
+    "expected_priority": "${THRASH_LOW_MEDIUM_PRIORITY}",
+    "defaults": {
+      "expected_priority": ["low", "medium"]
+    },
+    "validation": {
+      "expected_priority": {
+        "type": "list"
+      }
+    },
     "subcategories": {
       "burden_sensation": [
         {
