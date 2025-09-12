@@ -314,6 +314,7 @@ class TestEngineManager:
             
             expected_priorities = self.unified_config.get_config_section('test_settings', f'test_categories.{category_name}.expected_priority', [])
             logger.info(f'Found expected priorities: {expected_priorities}')
+
             target_pass_rate = category_info.get('target_pass_rate', 85)
             is_critical = category_info.get('critical', False)
             
