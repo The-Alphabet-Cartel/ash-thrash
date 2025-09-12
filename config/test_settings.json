@@ -92,7 +92,7 @@
       "file": "high_priority.json",
       "expected_priority": "${THRASH_HIGH_PRIORITY}",
       "target_pass_rate": "${THRASH_HIGH_TARGET}",
-      "critical": "${THRASH_HIGH_CRITIAL}",
+      "critical": "${THRASH_HIGH_CRITICAL}",
       "allow_escalation": "${THRASH_HIGH_ESCALATION}",
       "allow_de_escalation": "${THRASH_HIGH_DEESCALATION}",
       "defaults": {
@@ -125,7 +125,7 @@
       "file": "medium_priority.json", 
       "expected_priority": "${THRASH_MEDIUM_PRIORITY}",
       "target_pass_rate": "${THRASH_MEDIUM_TARGET}",
-      "critical": "${THRASH_MEDIUM_CRITIAL}",
+      "critical": "${THRASH_MEDIUM_CRITICAL}",
       "allow_escalation": "${THRASH_MEDIUM_ESCALATION}",
       "allow_de_escalation": "${THRASH_MEDIUM_DEESCALATION}",
       "defaults": {
@@ -158,7 +158,7 @@
       "file": "low_priority.json",
       "expected_priority": "${THRASH_LOW_PRIORITY}",
       "target_pass_rate": "${THRASH_LOW_TARGET}",
-      "critical": "${THRASH_LOW_CRITIAL}",
+      "critical": "${THRASH_LOW_CRITICAL}",
       "allow_escalation": "${THRASH_LOW_ESCALATION}",
       "allow_de_escalation": "${THRASH_LOW_DEESCALATION}",
       "defaults": {
@@ -191,7 +191,7 @@
       "file": "none_priority.json",
       "expected_priority": "${THRASH_NONE_PRIORITY}",
       "target_pass_rate": "${THRASH_NONE_TARGET}",
-      "critical": "${THRASH_NONE_CRITIAL}",
+      "critical": "${THRASH_NONE_CRITICAL}",
       "allow_escalation": "${THRASH_NONE_ESCALATION}",
       "allow_de_escalation": "${THRASH_NONE_DEESCALATION}",
       "defaults": {
@@ -224,7 +224,7 @@
       "file": "maybe_high_medium.json",
       "expected_priority": "${THRASH_MEDIUM_HIGH_PRIORITY}",
       "target_pass_rate": "${THRASH_MEDIUM_HIGH_TARGET}",
-      "critical": "${THRASH_MEDIUM_HIGH_CRITIAL}",
+      "critical": "${THRASH_MEDIUM_HIGH_CRITICAL}",
       "allow_escalation": "${THRASH_MEDIUM_HIGH_ESCALATION}",
       "allow_de_escalation": "${THRASH_MEDIUM_HIGH_DEESCALATION}",
       "defaults": {
@@ -257,7 +257,7 @@
       "file": "maybe_medium_low.json",
       "expected_priority": "${THRASH_LOW_MEDIUM_PRIORITY}",
       "target_pass_rate": "${THRASH_LOW_MEDIUM_TARGET}",
-      "critical": "${THRASH_LOW_MEDIUM_CRITIAL}",
+      "critical": "${THRASH_LOW_MEDIUM_CRITICAL}",
       "allow_escalation": "${THRASH_LOW_MEDIUM_ESCALATION}",
       "allow_de_escalation": "${THRASH_LOW_MEDIUM_DEESCALATION}",
       "defaults": {
@@ -290,7 +290,7 @@
       "file": "maybe_low_none.json",
       "expected_priority": "${THRASH_LOW_NONE_PRIORITY}",
       "target_pass_rate": "${THRASH_LOW_NONE_TARGET}",
-      "critical": "${THRASH_LOW_NONE_CRITIAL}",
+      "critical": "${THRASH_LOW_NONE_CRITICAL}",
       "allow_escalation": "${THRASH_LOW_NONE_ESCALATION}",
       "allow_de_escalation": "${THRASH_LOW_NONE_DEESCALATION}",
       "defaults": {
