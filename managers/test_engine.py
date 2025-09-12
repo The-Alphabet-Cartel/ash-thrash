@@ -83,7 +83,6 @@ class TestSuiteResult:
     termination_reason: Optional[str]
     category_results: List[CategoryTestResult] = field(default_factory=list)
     server_info: Optional[Dict[str, Any]] = None
-
 # ========================================================================
 
 # ========================================================================
@@ -529,7 +528,6 @@ class TestEngineManager:
         logger.info("=" * 70)
         
         return suite_result
-
     # ========================================================================
 
 # ========================================================================
