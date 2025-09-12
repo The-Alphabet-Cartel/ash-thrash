@@ -502,7 +502,7 @@ def _convert_suite_result_to_dict(suite_result) -> dict:
                             category_data['failed_tests_details'] = failed_tests
                             logger.debug(f"Added {len(failed_tests)} failed test details to category data")
                         else:
-                            logger.warning(f"No failed tests found despite failed_tests count = {category_data['summary']['failed_tests']}")
+                            logger.debug(f"No failed tests found - failed_tests count = {category_data['summary']['failed_tests']}")
                 else:
                     logger.warning(f"No test details found for category {category_name}")
                 
