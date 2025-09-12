@@ -120,7 +120,7 @@
 
     "definite_medium": {
       "file": "medium_priority.json", 
-      "expected_priority": ["low", "medium", "high"],
+      "expected_priority": ["medium"],
       "target_pass_rate": "${THRASH_MEDIUM_TARGET}",
       "critical": "${THRASH_MEDIUM_CRITIAL}",
       "allow_escalation": "${THRASH_MEDIUM_ESCALATION}",
@@ -150,7 +150,7 @@
 
     "definite_low": {
       "file": "low_priority.json",
-      "expected_priority": ["none", "low"], 
+      "expected_priority": ["low"], 
       "target_pass_rate": "${THRASH_LOW_TARGET}",
       "critical": "${THRASH_LOW_CRITIAL}",
       "allow_escalation": "${THRASH_LOW_ESCALATION}",
@@ -180,7 +180,7 @@
 
     "definite_none": {
       "file": "none_priority.json",
-      "expected_priority": ["none", "low"],
+      "expected_priority": ["none"],
       "target_pass_rate": "${THRASH_NONE_TARGET}",
       "critical": "${THRASH_NONE_CRITIAL}",
       "allow_escalation": "${THRASH_NONE_ESCALATION}",
