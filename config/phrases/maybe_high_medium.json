@@ -43,7 +43,15 @@
   
   "category": {
     "name": "maybe_high_medium",
-    "expected_priority": ["medium", "high", "critical"],
+    "expected_priority": "${THRASH_MEDIUM_HIGH_PRIORITY}",
+    "defaults": {
+      "expected_priority": ["medium", "high", "critical"]
+    },
+    "validation": {
+      "expected_priority": {
+        "type": "list"
+      }
+    },
     "subcategories": {
       "breaking_point": [
         {
