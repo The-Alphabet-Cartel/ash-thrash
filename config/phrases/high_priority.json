@@ -42,7 +42,15 @@
   
   "category": {
     "name": "definite_high",
-    "expected_priority": ["high", "critical"],
+    "expected_priority": "${THRASH_HIGH_PRIORITY}",
+    "defaults": {
+      "expected_priority": ["high", "critical"]
+    },
+    "validation": {
+      "expected_priority": {
+        "type": "list"
+      }
+    },
     "subcategories": {
       "burden_thoughts": [
         {
