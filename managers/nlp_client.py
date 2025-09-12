@@ -4,8 +4,8 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 NLP API Communication Manager for Ash-Thrash Service
 ---
-FILE VERSION: v3.1-1a-1
-LAST MODIFIED: 2025-08-30
+FILE VERSION: v3.1-1a-2
+LAST MODIFIED: 2025-09-12
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -31,6 +31,7 @@ class AnalysisResult:
     """Analysis result from NLP server"""
     crisis_level: str
     confidence_score: float
+    crisis_score: float  # NEW: Final calculated crisis score after all processing
     needs_response: bool
     processing_time_ms: float
     method: str
@@ -55,6 +56,8 @@ class NLPClientManager:
     
     Handles communication with Ash-NLP server including health checks,
     analysis requests, retry logic, and error handling.
+    
+    Enhanced in v3.1-1a-2 to capture crisis_score for threshold optimization.
     """
     
     def __init__(self, unified_config_manager):
@@ -81,7 +84,7 @@ class NLPClientManager:
             self.health_url = f"{self.base_url}{self.health_endpoint}"
             self.analyze_url = f"{self.base_url}{self.analyze_endpoint}"
             
-            logger.info(f"NLPClientManager initialized for server: {self.base_url}")
+            logger.info(f"NLPClientManager v3.1-1a-2 initialized for server: {self.base_url}")
             logger.debug(f"Health URL: {self.health_url}")
             logger.debug(f"Analyze URL: {self.analyze_url}")
             
@@ -164,6 +167,8 @@ class NLPClientManager:
         """
         Analyze message using NLP server with retry logic
         
+        Enhanced in v3.1-1a-2 to capture crisis_score for threshold optimization.
+        
         Args:
             message: Message text to analyze
             user_id: Discord user ID for the request
@@ -197,9 +202,22 @@ class NLPClientManager:
                 if response.status_code == 200:
                     analysis_data = response.json()
                     
+                    # Extract crisis_score with fallback to confidence_score for backward compatibility
+                    crisis_score = analysis_data.get('crisis_score')
+                    confidence_score = analysis_data.get('confidence_score', 0.0)
+                    
+                    # If crisis_score is not available, use confidence_score as fallback
+                    # This ensures backward compatibility while we transition
+                    if crisis_score is None:
+                        crisis_score = confidence_score
+                        logger.debug(f"crisis_score not found, using confidence_score as fallback: {crisis_score:.3f}")
+                    else:
+                        logger.debug(f"Extracted crisis_score: {crisis_score:.3f}, confidence_score: {confidence_score:.3f}")
+                    
                     result = AnalysisResult(
                         crisis_level=analysis_data.get('crisis_level', 'unknown'),
-                        confidence_score=analysis_data.get('confidence_score', 0.0),
+                        confidence_score=confidence_score,
+                        crisis_score=crisis_score,  # NEW: Crisis score for threshold optimization
                         needs_response=analysis_data.get('needs_response', False),
                         processing_time_ms=analysis_data.get('processing_time_ms', processing_time),
                         method=analysis_data.get('method', 'unknown'),
@@ -209,7 +227,8 @@ class NLPClientManager:
                     )
                     
                     logger.debug(f"Analysis successful: {result.crisis_level} "
-                               f"(confidence: {result.confidence_score:.3f}, "
+                               f"(crisis_score: {result.crisis_score:.3f}, "
+                               f"confidence: {result.confidence_score:.3f}, "
                                f"time: {result.processing_time_ms:.1f}ms)")
                     return result
                 else:
@@ -294,7 +313,7 @@ def create_nlp_client_manager(unified_config_manager) -> NLPClientManager:
     Raises:
         ValueError: If unified_config_manager is None or invalid
     """
-    logger.debug("Creating NLPClientManager with Clean v3.1 architecture")
+    logger.debug("Creating NLPClientManager v3.1-1a-2 with Clean v3.1 architecture")
     
     if not unified_config_manager:
         raise ValueError("UnifiedConfigManager is required for NLPClientManager factory")
@@ -304,4 +323,4 @@ def create_nlp_client_manager(unified_config_manager) -> NLPClientManager:
 # Export public interface
 __all__ = ['NLPClientManager', 'AnalysisResult', 'HealthCheckResult', 'HealthStatus', 'create_nlp_client_manager']
 
-logger.info("NLPClientManager v3.1-1a-1 loaded")
+logger.info("NLPClientManager v3.1-1a-2 loaded with crisis_score support")
