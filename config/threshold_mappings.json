@@ -13,41 +13,41 @@
         "NLP_THRESHOLD_CONSENSUS_CRISIS_TO_HIGH": {
           "affects": ["high", "medium"],
           "description": "Crisis to high threshold (consensus mode)",
-          "default": 0.50,
-          "range_min": 0.30,
-          "range_max": 0.80,
+          "default": 0.500,
+          "range_min": 0.300,
+          "range_max": 0.800,
           "risk_level": "moderate"
         },
         "NLP_THRESHOLD_CONSENSUS_CRISIS_TO_MEDIUM": {
           "affects": ["medium", "low"],
           "description": "Crisis to medium threshold (consensus mode)",
-          "default": 0.30,
-          "range_min": 0.15,
-          "range_max": 0.60,
+          "default": 0.300,
+          "range_min": 0.150,
+          "range_max": 0.600,
           "risk_level": "low"
         },
         "NLP_THRESHOLD_CONSENSUS_MILD_CRISIS_TO_LOW": {
           "affects": ["low", "none"],
           "description": "Mild crisis to low threshold (consensus mode)",
-          "default": 0.40,
-          "range_min": 0.20,
-          "range_max": 0.70,
+          "default": 0.400,
+          "range_min": 0.200,
+          "range_max": 0.700,
           "risk_level": "low"
         },
         "NLP_THRESHOLD_CONSENSUS_NEGATIVE_TO_LOW": {
           "affects": ["low", "none"],
           "description": "Negative to low threshold (consensus mode)",
-          "default": 0.70,
-          "range_min": 0.50,
-          "range_max": 0.90,
+          "default": 0.700,
+          "range_min": 0.500,
+          "range_max": 0.900,
           "risk_level": "minimal"
         },
         "NLP_THRESHOLD_CONSENSUS_UNKNOWN_TO_LOW": {
           "affects": ["low", "none"],
           "description": "Unknown to low threshold (consensus mode)",
-          "default": 0.50,
-          "range_min": 0.30,
-          "range_max": 0.80,
+          "default": 0.500,
+          "range_min": 0.300,
+          "range_max": 0.800,
           "risk_level": "minimal"
         }
       },
