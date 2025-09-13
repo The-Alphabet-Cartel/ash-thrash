@@ -162,54 +162,48 @@
     "standard": {
       "description": "Standard thresholds balanced for general use",
       "crisis_thresholds": {
-        "high_crisis": "${THRASH_THRESHOLD_STANDARD_HIGH}",
-        "medium_crisis": "${THRASH_THRESHOLD_STANDARD_MEDIUM}",
-        "low_crisis": "${THRASH_THRESHOLD_STANDARD_LOW}",
-        "no_crisis": "${THRASH_THRESHOLD_STANDARD_NONE}",
+        "critical_min": "${THRASH_THRESHOLD_STANDARD_CRITICAL}",
+        "high_min": "${THRASH_THRESHOLD_STANDARD_HIGH}",
+        "medium_min": "${THRASH_THRESHOLD_STANDARD_MEDIUM}",
+        "low_min": "${THRASH_THRESHOLD_STANDARD_LOW}",
         "defaults": {
-          "high_crisis": 0.75,
-          "medium_crisis": 0.50,
-          "low_crisis": 0.25,
-          "no_crisis": 0.10
+          "critical_min": 0.800
+          "high_min": 0.600,
+          "medium_min": 0.400,
+          "low_min": 0.200
         },
         "validation": {
-          "high_crisis": {
+          "critical_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "medium_crisis": {
+          "high_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "low_crisis": {
+          "medium_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "no_crisis": {
+          "low_min": {
             "type": "float",
             "range": [0.001, 1.000]
           }
         }
       },
-      "confidence_thresholds": {
-        "high_confidence": "${THRASH_CONFIDENCE_STANDARD_HIGH}",
-        "medium_confidence": "${THRASH_CONFIDENCE_STANDARD_MEDIUM}",
-        "low_confidence": "${THRASH_CONFIDENCE_STANDARD_LOW}",
+      "confidence": {
+        "weight": "${THRASH_CONFIDENCE_STANDARD_WEIGHT}",
+        "variance_penalty": "${THRASH_CONFIDENCE_STANDARD_VARIANCE_PENALTY}",
         "defaults": {
-          "high_confidence": 0.80,
-          "medium_confidence": 0.60,
-          "low_confidence": 0.40
+          "weight": 0.100,
+          "variance_penalty": 0.100
         },
         "validation": {
-          "high_confidence": {
+          "weight": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "medium_confidence": {
-            "type": "float",
-            "range": [0.001, 1.000]
-          },
-          "low_confidence": {
+          "variance_penalty": {
             "type": "float",
             "range": [0.001, 1.000]
           }
@@ -219,54 +213,48 @@
     "conservative": {
       "description": "Conservative thresholds with lower crisis detection barriers",
       "crisis_thresholds": {
-        "high_crisis": "${THRASH_THRESHOLD_CONSERVATIVE_HIGH}",
-        "medium_crisis": "${THRASH_THRESHOLD_CONSERVATIVE_MEDIUM}",
-        "low_crisis": "${THRASH_THRESHOLD_CONSERVATIVE_LOW}",
-        "no_crisis": "${THRASH_THRESHOLD_CONSERVATIVE_NONE}",
+        "critical_min": "${THRASH_THRESHOLD_CONSERVATIVE_CRITICAL}",
+        "high_min": "${THRASH_THRESHOLD_CONSERVATIVE_HIGH}",
+        "medium_min": "${THRASH_THRESHOLD_CONSERVATIVE_MEDIUM}",
+        "low_min": "${THRASH_THRESHOLD_CONSERVATIVE_LOW}",
         "defaults": {
-          "high_crisis": 0.75,
-          "medium_crisis": 0.50,
-          "low_crisis": 0.25,
-          "no_crisis": 0.10
+          "critical_min": 0.700,
+          "high_min": 0.500,
+          "medium_min": 0.300,
+          "low_min": 0.150
         },
         "validation": {
-          "high_crisis": {
+          "critical_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "medium_crisis": {
+          "high_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "low_crisis": {
+          "medium_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "no_crisis": {
+          "low_min": {
             "type": "float",
             "range": [0.001, 1.000]
           }
         }
       },
-      "confidence_thresholds": {
-        "high_confidence": "${THRASH_CONFIDENCE_CONSERVATIVE_HIGH}",
-        "medium_confidence": "${THRASH_CONFIDENCE_CONSERVATIVE_MEDIUM}",
-        "low_confidence": "${THRASH_CONFIDENCE_CONSERVATIVE_LOW}",
+      "confidence": {
+        "confidence_weight": "${THRASH_CONFIDENCE_CONSERVATIVE_WEIGHT}",
+        "variance_penalty": "${THRASH_CONFIDENCE_CONSERVATIVE_VARIANCE_PENALTY}",
         "defaults": {
-          "high_confidence": 0.80,
-          "medium_confidence": 0.60,
-          "low_confidence": 0.40
+          "confidence_weight": 0.150,
+          "variance_penalty": 0.050
         },
         "validation": {
-          "high_confidence": {
+          "confidence_weight": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "medium_confidence": {
-            "type": "float",
-            "range": [0.001, 1.000]
-          },
-          "low_confidence": {
+          "variance_penalty": {
             "type": "float",
             "range": [0.001, 1.000]
           }
@@ -276,54 +264,48 @@
     "aggressive": {
       "description": "Aggressive thresholds with higher crisis detection sensitivity",
       "crisis_thresholds": {
-        "high_crisis": "${THRASH_THRESHOLD_AGGRESSIVE_HIGH}",
-        "medium_crisis": "${THRASH_THRESHOLD_AGGRESSIVE_MEDIUM}",
-        "low_crisis": "${THRASH_THRESHOLD_AGGRESSIVE_LOW}",
-        "no_crisis": "${THRASH_THRESHOLD_AGGRESSIVE_NONE}",
+        "critical_min": "${THRASH_THRESHOLD_AGGRESSIVE_CRITICAL}",
+        "high_min": "${THRASH_THRESHOLD_AGGRESSIVE_HIGH}",
+        "medium_min": "${THRASH_THRESHOLD_AGGRESSIVE_MEDIUM}",
+        "low_min": "${THRASH_THRESHOLD_AGGRESSIVE_LOW}",
         "defaults": {
-          "high_crisis": 0.75,
-          "medium_crisis": 0.50,
-          "low_crisis": 0.25,
-          "no_crisis": 0.10
+          "critical_min": 0.900,
+          "high_min": 0.700,
+          "medium_min": 0.500,
+          "low_min": 0.250
         },
         "validation": {
-          "high_crisis": {
+          "critical_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "medium_crisis": {
+          "high_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "low_crisis": {
+          "medium_min": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "no_crisis": {
+          "low_min": {
             "type": "float",
             "range": [0.001, 1.000]
           }
         }
       },
-      "confidence_thresholds": {
-        "high_confidence": "${THRASH_CONFIDENCE_AGGRESSIVE_HIGH}",
-        "medium_confidence": "${THRASH_CONFIDENCE_AGGRESSIVE_MEDIUM}",
-        "low_confidence": "${THRASH_CONFIDENCE_AGGRESSIVE_LOW}",
+      "confidence": {
+        "confidence_weight": "${THRASH_CONFIDENCE_AGGRESSIVE_WEIGHT}",
+        "variance_penalty": "${THRASH_CONFIDENCE_AGGRESSIVE_VARIANCE_PENALTY}",
         "defaults": {
-          "high_confidence": 0.80,
-          "medium_confidence": 0.60,
-          "low_confidence": 0.40
+          "confidence_weight": 0.050,
+          "variance_penalty": 0.150
         },
         "validation": {
-          "high_confidence": {
+          "confidence_weight": {
             "type": "float",
             "range": [0.001, 1.000]
           },
-          "medium_confidence": {
-            "type": "float",
-            "range": [0.001, 1.000]
-          },
-          "low_confidence": {
+          "variance_penalty": {
             "type": "float",
             "range": [0.001, 1.000]
           }
