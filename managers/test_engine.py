@@ -866,5 +866,5 @@ __all__ = [
     'create_test_engine_manager'
 ]
 
-logger.info("TestEngineManager v3.1-4a-2 loaded with dual classification support")
+logger.info("TestEngineManager v3.1-4a-3 loaded with dual classification support")
 # ========================================================================
