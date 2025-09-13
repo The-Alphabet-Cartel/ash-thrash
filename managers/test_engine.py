@@ -4,9 +4,9 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Core Test Execution Engine for Ash-Thrash Service
 ---
-FILE VERSION: v3.1-4a-2
+FILE VERSION: v3.1-4a-3
 LAST MODIFIED: 2025-09-12
-PHASE: 4a Step 2 - Client Classification Integration
+PHASE: 4a Step 3 - Client Classification Integration Fixed
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -148,10 +148,10 @@ class TestEngineManager:
             self.failure_config = self.unified_config.get_config_section('test_settings', 'failure_weighting', {})
             self.storage_config = self.unified_config.get_config_section('test_settings', 'storage', {})
             
-            # Client classification configuration (NEW)
-            self.client_classification_enabled = self.unified_config.get_env_var('THRASH_ENABLE_CLIENT_CLASSIFICATION', 'true').lower() == 'true'
-            self.client_strategy = self.unified_config.get_env_var('THRASH_CLIENT_CLASSIFICATION_STRATEGY', 'conservative')
-            self.default_threshold_config = self.unified_config.get_env_var('THRASH_DEFAULT_THRESHOLD_CONFIG', 'standard')
+            # Client classification configuration (NEW) - Using correct get_config_section
+            self.client_classification_enabled = self.unified_config.get_config_section('client_classification', 'client_classification.enable_client_classification', True)
+            self.client_strategy = self.unified_config.get_config_section('client_classification', 'client_classification.default_strategy', 'conservative')  
+            self.default_threshold_config = self.unified_config.get_config_section('client_classification', 'client_classification.default_threshold_config', 'standard')
             
             # Extract configuration values
             self.max_concurrent = self.test_config.get('max_concurrent_tests', 3)
@@ -308,8 +308,8 @@ class TestEngineManager:
         """Get classification strategy for specific category"""
         try:
             if self.client_classifier:
-                category_config = self.client_classifier.config.get('category_specific_overrides', {})
-                category_settings = category_config.get(category_name, {})
+                category_overrides = self.unified_config.get_config_section('client_classification', 'category_specific_overrides', {})
+                category_settings = category_overrides.get(category_name, {})
                 return category_settings.get('preferred_strategy', self.client_strategy)
             return self.client_strategy
         except Exception as e:
@@ -320,8 +320,8 @@ class TestEngineManager:
         """Get threshold configuration for specific category"""
         try:
             if self.client_classifier:
-                category_config = self.client_classifier.config.get('category_specific_overrides', {})
-                category_settings = category_config.get(category_name, {})
+                category_overrides = self.unified_config.get_config_section('client_classification', 'category_specific_overrides', {})
+                category_settings = category_overrides.get(category_name, {})
                 return category_settings.get('threshold_config', self.default_threshold_config)
             return self.default_threshold_config
         except Exception as e:
@@ -837,7 +837,7 @@ def create_test_engine_manager(unified_config_manager, nlp_client_manager, clien
     Raises:
         ValueError: If required managers are None or invalid
     """
-    logger.debug("Creating TestEngineManager v3.1-4a-2 with dual classification support")
+    logger.debug("Creating TestEngineManager v3.1-4a-3 with dual classification support")
     
     if not unified_config_manager:
         raise ValueError("UnifiedConfigManager is required for TestEngineManager factory")
