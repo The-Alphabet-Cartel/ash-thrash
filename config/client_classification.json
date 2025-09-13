@@ -135,6 +135,10 @@
       "track_agreement_stats": true,
       "log_disagreements": true
     },
+    "defaults": {
+      "track_agreement_stats": true,
+      "log_disagreements": true
+    },
     "validation": {
       "track_agreement_stats": {
         "type": "boolean",
