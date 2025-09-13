@@ -11,14 +11,14 @@
   "client_classification": {
     "description": "Core client classification settings",
     "enable_client_classification": "${THRASH_ENABLE_CLIENT_CLASSIFICATION}",
-    "default_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
-    "default_threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+    "strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+    "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
     "track_agreement_stats": "${THRASH_TRACK_CLASSIFICATION_STATS}",
     "log_disagreements": "${THRASH_LOG_CLASSIFICATION_DISAGREEMENTS}",
     "defaults": {
       "enable_client_classification": true,
-      "default_strategy": "conservative", 
-      "default_threshold_config": "standard",
+      "strategy": "conservative", 
+      "threshold_config": "standard",
       "track_agreement_stats": true,
       "log_disagreements": true
     },
@@ -27,7 +27,7 @@
         "description": "Enable dual classification mode with client-side crisis classification",
         "type": "boolean"
       },
-      "default_strategy": {
+      "strategy": {
         "description": "Default classification strategy to use",
         "type": "string",
         "allowed_values": [
@@ -37,7 +37,7 @@
           "client_only"
         ]
       },
-      "default_threshold_config": {
+      "threshold_config": {
         "description": "Default threshold configuration set to use",
         "type": "string", 
         "allowed_values": [
