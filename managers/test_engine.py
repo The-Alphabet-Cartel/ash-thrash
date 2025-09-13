@@ -4,9 +4,9 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Core Test Execution Engine for Ash-Thrash Service
 ---
-FILE VERSION: v3.1-4a-4
+FILE VERSION: v3.1-4a-5
 LAST MODIFIED: 2025-09-12
-PHASE: 4a Step 4 - Client Classification Integration Fixed
+PHASE: 4a Step 5 - Client Classification Integration with Backward Compatibility Fixed
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -50,6 +50,10 @@ class PhraseTestResult:
     server_crisis_level: str
     server_confidence_score: float
     
+    # Backward compatibility with existing results manager
+    actual_priority: str = ""  # Maps to final_crisis_level for backward compatibility
+    confidence_score: float = 0.0  # Maps to server_confidence_score for backward compatibility
+    
     # Client classification (new)
     crisis_score: Optional[float] = None
     client_crisis_level: Optional[str] = None
@@ -71,6 +75,13 @@ class PhraseTestResult:
     # Classification agreement tracking (new)
     server_client_agreement: Optional[bool] = None
     agreement_level: Optional[int] = None  # 0=exact, 1=close, 2=distant
+    
+    def __post_init__(self):
+        """Ensure backward compatibility by setting actual_priority and confidence_score"""
+        if not self.actual_priority and self.final_crisis_level:
+            self.actual_priority = self.final_crisis_level
+        if not self.confidence_score and self.server_confidence_score:
+            self.confidence_score = self.server_confidence_score
 
 @dataclass 
 class CategoryTestResult:
@@ -488,6 +499,8 @@ class TestEngineManager:
                             expected_priorities=expected_priorities,
                             server_crisis_level='error',
                             server_confidence_score=0.0,
+                            actual_priority='error',  # Backward compatibility
+                            confidence_score=0.0,  # Backward compatibility
                             final_crisis_level='error',
                             classification_source="server",
                             processing_time_ms=0.0,
@@ -517,6 +530,8 @@ class TestEngineManager:
                             expected_priorities=expected_priorities,
                             server_crisis_level=analysis_result.crisis_level,
                             server_confidence_score=analysis_result.confidence_score,
+                            actual_priority=final_crisis_level,  # Backward compatibility
+                            confidence_score=analysis_result.confidence_score,  # Backward compatibility
                             crisis_score=crisis_score,
                             client_crisis_level=client_crisis_level,
                             client_strategy_used=self._get_category_strategy(category_name),
@@ -570,6 +585,8 @@ class TestEngineManager:
                         expected_priorities=expected_priorities,
                         server_crisis_level='error',
                         server_confidence_score=0.0,
+                        actual_priority='error',  # Backward compatibility
+                        confidence_score=0.0,  # Backward compatibility
                         final_crisis_level='error',
                         classification_source="server",
                         processing_time_ms=0.0,
@@ -804,7 +821,7 @@ def create_test_engine_manager(unified_config_manager, nlp_client_manager, class
     Raises:
         ValueError: If required managers are None or invalid
     """
-    logger.debug("Creating TestEngineManager v3.1-4a-4 with dual classification support")
+    logger.debug("Creating TestEngineManager v3.1-4a-5 with dual classification support")
     
     if not unified_config_manager:
         raise ValueError("UnifiedConfigManager is required for TestEngineManager factory")
@@ -833,5 +850,5 @@ __all__ = [
     'create_test_engine_manager'
 ]
 
-logger.info("TestEngineManager v3.1-4a-4 loaded with dual classification support")
+logger.info("TestEngineManager v3.1-4a-5 loaded with dual classification support")
 # ========================================================================
