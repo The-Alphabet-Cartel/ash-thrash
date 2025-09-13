@@ -169,7 +169,7 @@
     "weighted": {
       "individual_thresholds": {
         "NLP_THRESHOLD_WEIGHTED_CRISIS_TO_HIGH": {
-          "affects": ["medium", "high", "critical"],
+          "affects": ["high", "critical"],
           "description": "Crisis to high threshold (weighted mode)",
           "default": 0.550,
           "range_min": 0.350,
@@ -177,7 +177,7 @@
           "risk_level": "moderate"
         },
         "NLP_THRESHOLD_WEIGHTED_CRISIS_TO_MEDIUM": {
-          "affects": ["low", "medium"],
+          "affects": ["medium"],
           "description": "Crisis to medium threshold (weighted mode)",
           "default": 0.320,
           "range_min": 0.180,
@@ -219,7 +219,7 @@
           "risk_level": "critical"
         },
         "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_HIGH": {
-          "affects": ["medium", "high"],
+          "affects": ["high"],
           "description": "High crisis ensemble threshold (weighted)",
           "default": 0.500,
           "range_min": 0.300,
@@ -227,7 +227,7 @@
           "risk_level": "moderate"
         },
         "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_MEDIUM": {
-          "affects": ["low", "medium"],
+          "affects": ["medium"],
           "description": "Medium crisis ensemble threshold (weighted)",
           "default": 0.300,
           "range_min": 0.100,
