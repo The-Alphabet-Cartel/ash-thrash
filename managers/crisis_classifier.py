@@ -66,7 +66,7 @@ class ThresholdConfig:
 # ============================================================================
 # CLIENT CRISIS CLASSIFIER MANAGER - Clean Architecture v3.1
 # ============================================================================
-class ClientCrisisClassifierManager:
+class CrisisClassifierManager:
     """
     Client-Side Crisis Classification Manager for Ash-Thrash testing suite
     
@@ -82,15 +82,15 @@ class ClientCrisisClassifierManager:
     # ============================================================================
     def __init__(self, unified_config_manager):
         """
-        Initialize ClientCrisisClassifierManager with dependency injection
+        Initialize CrisisClassifierManager with dependency injection
         
         Args:
             unified_config_manager: UnifiedConfigManager for configuration access
         """
-        logger.debug("Initializing ClientCrisisClassifierManager v3.1-4a-1")
+        logger.debug("Initializing CrisisClassifierManager v3.1-4a-1")
         
         if not unified_config_manager:
-            raise ValueError("UnifiedConfigManager is required for ClientCrisisClassifierManager")
+            raise ValueError("UnifiedConfigManager is required for CrisisClassifierManager")
             
         self.config_manager = unified_config_manager
         
@@ -108,7 +108,7 @@ class ClientCrisisClassifierManager:
             'strategy_usage': {strategy.value: 0 for strategy in ClassificationStrategy}
         }
         
-        logger.info("ClientCrisisClassifierManager v3.1-4a-1 initialized successfully")
+        logger.info("CrisisClassifierManager v3.1-4a-1 initialized successfully")
     
     def _load_threshold_configurations(self) -> Dict[str, ThresholdConfig]:
         """Load client-side threshold configurations from JSON config"""
@@ -533,29 +533,29 @@ class ClientCrisisClassifierManager:
 # ============================================================================
 # FACTORY FUNCTION - Clean Architecture v3.1 Compliance
 # ============================================================================
-def create_crisis_classifier_manager(unified_config_manager) -> ClientCrisisClassifierManager:
+def create_crisis_classifier_manager(unified_config_manager) -> CrisisClassifierManager:
     """
-    Factory function for ClientCrisisClassifierManager (Clean v3.1 Pattern)
+    Factory function for CrisisClassifierManager (Clean v3.1 Pattern)
     
     Args:
         unified_config_manager: UnifiedConfigManager instance for dependency injection
         
     Returns:
-        Initialized ClientCrisisClassifierManager instance
+        Initialized CrisisClassifierManager instance
         
     Raises:
         ValueError: If unified_config_manager is None or invalid
     """
-    logger.debug("Creating ClientCrisisClassifierManager v3.1-4a-1 with Clean v3.1 architecture")
+    logger.debug("Creating CrisisClassifierManager v3.1-4a-1 with Clean v3.1 architecture")
     
     if not unified_config_manager:
-        raise ValueError("UnifiedConfigManager is required for ClientCrisisClassifierManager factory")
+        raise ValueError("UnifiedConfigManager is required for CrisisClassifierManager factory")
     
-    return ClientCrisisClassifierManager(unified_config_manager)
+    return CrisisClassifierManager(unified_config_manager)
 
 # Export public interface
 __all__ = [
-    'ClientCrisisClassifierManager',
+    'CrisisClassifierManager',
     'ClassificationStrategy', 
     'ClassificationAgreement',
     'ClassificationResult',
@@ -563,4 +563,4 @@ __all__ = [
     'create_crisis_classifier_manager'
 ]
 
-logger.info("ClientCrisisClassifierManager v3.1-4a-1 loaded with client-side crisis classification capabilities")
+logger.info("CrisisClassifierManager v3.1-4a-1 loaded with client-side crisis classification capabilities")
