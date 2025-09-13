@@ -278,11 +278,11 @@ class TestEngineManager:
             client_result = self.client_classifier.classify_crisis_level(
                 crisis_score=crisis_score,
                 confidence_score=confidence_score,
-                server_suggested_level=analysis_result.crisis_level,  # FIX: Added missing parameter
+                server_suggested_level=analysis_result.crisis_level,
                 threshold_config=threshold_config
             )
             
-            client_crisis_level = client_result.crisis_level
+            client_crisis_level = client_result.client_determined_level
             
             # Apply classification strategy to determine final result
             final_crisis_level, classification_source = self._apply_classification_strategy(
