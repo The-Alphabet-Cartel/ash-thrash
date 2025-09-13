@@ -161,8 +161,8 @@ def initialize_managers():
         
         if client_classifier:
             logger.info("Phase 4a: Client-Side Crisis Classification enabled")
-            strategy = unified_config.get_config_section('client_classification', 'client_classification.default_strategy', 'conservative')
-            threshold_config = unified_config.get_config_section('client_classification', 'client_classification.default_threshold_config', 'standard')
+            strategy = unified_config.get_config_section('client_classification', 'client_classification.strategy', 'conservative')
+            threshold_config = unified_config.get_config_section('client_classification', 'client_classification.threshold_config', 'standard')
             logger.info(f"   Strategy: {strategy}, Threshold Config: {threshold_config}")
         
         return managers
@@ -187,7 +187,7 @@ def run_comprehensive_test(managers):
     # Log classification mode
     if client_classifier:
         logger.info("Starting comprehensive test suite with DUAL CLASSIFICATION...")
-        strategy = managers['unified_config'].get_config_section('client_classification', 'client_classification.default_strategy', 'conservative')
+        strategy = managers['unified_config'].get_config_section('client_classification', 'client_classification.strategy', 'conservative')
         logger.info(f"Using strategy: {strategy}")
     else:
         logger.info("Starting comprehensive test suite with SERVER-ONLY classification...")
@@ -962,8 +962,8 @@ def show_usage():
     logger.info("Client Classification Configuration:")
     logger.info("  Edit config/client_classification.json to adjust:")
     logger.info("    - enable_client_classification: true/false")
-    logger.info("    - default_strategy: conservative/aggressive/consensus/client_only")
-    logger.info("    - default_threshold_config: standard/conservative/aggressive")
+    logger.info("    - strategy: conservative/aggressive/consensus/client_only")
+    logger.info("    - threshold_config: standard/conservative/aggressive")
     logger.info("")
 # ============================================================================
 
