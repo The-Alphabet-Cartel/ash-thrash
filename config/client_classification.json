@@ -1,0 +1,173 @@
+{
+  "_metadata": {
+    "title": "Client Crisis Classification Configuration",
+    "file_version": "v3.1-4a-1",
+    "last_modified": "2025-09-12",
+    "clean_architecture": "v3.1",
+    "description": "Client-side crisis classification thresholds and strategies for dual classification testing",
+    "compliance": "Clean Architecture Standards"
+  },
+
+  "classification_strategies": {
+    "description": "Available client classification strategies for dual classification mode",
+    "conservative": {
+      "description": "Conservative strategy prioritizing safety - when in doubt, classify higher",
+      "threshold_bias": 0.05,
+      "confidence_multiplier": 1.1,
+      "safety_first": true
+    },
+    "aggressive": {
+      "description": "Aggressive strategy for higher sensitivity - lower thresholds for crisis detection",
+      "threshold_bias": -0.1,
+      "confidence_multiplier": 0.9,
+      "safety_first": true
+    },
+    "consensus": {
+      "description": "Consensus strategy combining server and client recommendations",
+      "threshold_bias": 0.0,
+      "confidence_multiplier": 1.0,
+      "safety_first": true
+    },
+    "client_only": {
+      "description": "Client-only strategy ignoring server crisis_level suggestions",
+      "threshold_bias": 0.0,
+      "confidence_multiplier": 1.0,
+      "safety_first": true
+    }
+  },
+
+  "threshold_configurations": {
+    "description": "Predefined threshold sets for client crisis classification",
+    "standard": {
+      "description": "Standard thresholds balanced for general use",
+      "crisis_thresholds": {
+        "high_crisis": 0.75,
+        "medium_crisis": 0.50,
+        "low_crisis": 0.25,
+        "no_crisis": 0.10
+      },
+      "confidence_thresholds": {
+        "high_confidence": 0.80,
+        "medium_confidence": 0.60,
+        "low_confidence": 0.40
+      }
+    },
+    "conservative": {
+      "description": "Conservative thresholds with lower crisis detection barriers",
+      "crisis_thresholds": {
+        "high_crisis": 0.65,
+        "medium_crisis": 0.40,
+        "low_crisis": 0.20,
+        "no_crisis": 0.05
+      },
+      "confidence_thresholds": {
+        "high_confidence": 0.75,
+        "medium_confidence": 0.55,
+        "low_confidence": 0.35
+      }
+    },
+    "aggressive": {
+      "description": "Aggressive thresholds with higher crisis detection sensitivity",
+      "crisis_thresholds": {
+        "high_crisis": 0.85,
+        "medium_crisis": 0.60,
+        "low_crisis": 0.30,
+        "no_crisis": 0.15
+      },
+      "confidence_thresholds": {
+        "high_confidence": 0.85,
+        "medium_confidence": 0.65,
+        "low_confidence": 0.45
+      }
+    }
+  },
+
+  "category_specific_overrides": {
+    "description": "Category-specific threshold and strategy overrides for specialized handling",
+    "definite_high": {
+      "preferred_strategy": "conservative",
+      "threshold_config": "conservative",
+      "description": "High crisis categories use conservative approach for safety"
+    },
+    "definite_medium": {
+      "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+      "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+      "description": "Medium crisis uses configured defaults"
+    },
+    "definite_low": {
+      "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+      "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+      "description": "Low crisis uses configured defaults"
+    },
+    "definite_none": {
+      "preferred_strategy": "aggressive",
+      "threshold_config": "aggressive", 
+      "description": "None crisis categories can use aggressive thresholds"
+    },
+    "maybe_high_medium": {
+      "preferred_strategy": "conservative",
+      "threshold_config": "conservative",
+      "description": "Boundary categories between high/medium use conservative approach"
+    },
+    "maybe_medium_low": {
+      "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+      "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+      "description": "Boundary categories between medium/low use configured defaults"
+    },
+    "maybe_low_none": {
+      "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+      "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+      "description": "Boundary categories between low/none use configured defaults"
+    },
+    "defaults": {
+      "preferred_strategy": "conservative",
+      "threshold_config": "standard"
+    }
+  },
+
+  "performance_tracking": {
+    "description": "Settings for client classification performance monitoring",
+    "track_agreement_stats": "${THRASH_TRACK_CLASSIFICATION_STATS}",
+    "log_disagreements": "${THRASH_LOG_CLASSIFICATION_DISAGREEMENTS}",
+    "min_agreement_threshold": 0.70,
+    "significant_disagreement_threshold": 2,
+    "defaults": {
+      "track_agreement_stats": true,
+      "log_disagreements": true
+    },
+    "validation": {
+      "track_agreement_stats": {
+        "type": "boolean",
+        "description": "Enable statistical tracking of server vs client agreement rates"
+      },
+      "log_disagreements": {
+        "type": "boolean", 
+        "description": "Log cases where server and client classifications disagree"
+      },
+      "min_agreement_threshold": {
+        "type": "float",
+        "range": [0.0, 1.0],
+        "description": "Minimum acceptable agreement rate between server and client"
+      }
+    }
+  },
+
+  "validation": {
+    "crisis_thresholds": {
+      "type": "object",
+      "required_keys": ["high_crisis", "medium_crisis", "low_crisis", "no_crisis"],
+      "value_validation": {
+        "type": "float",
+        "range": [0.0, 1.0]
+      }
+    },
+    "confidence_thresholds": {
+      "type": "object", 
+      "required_keys": ["high_confidence", "medium_confidence", "low_confidence"],
+      "value_validation": {
+        "type": "float",
+        "range": [0.0, 1.0]
+      }
+    }
+  }
+}
