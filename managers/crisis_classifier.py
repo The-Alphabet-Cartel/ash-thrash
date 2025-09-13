@@ -119,7 +119,9 @@ class CrisisClassifierManager:
             # Try to load from JSON configuration
             try:
                 config_data = self.config_manager.get_config_section(
-                    'client_classification', 'threshold_configs', {}
+                    'client_classification',
+                    'threshold_configurations',
+                    {}
                 )
             except Exception as e:
                 logger.warning(f"Could not load client threshold configs: {e}, using defaults")
@@ -158,12 +160,12 @@ class CrisisClassifierManager:
                 config_section = config_data.get(config_name, {})
                 
                 threshold_configs[config_name] = ThresholdConfig(
-                    critical_min=config_section.get('critical_min', default_config.critical_min),
-                    high_min=config_section.get('high_min', default_config.high_min),
-                    medium_min=config_section.get('medium_min', default_config.medium_min),
-                    low_min=config_section.get('low_min', default_config.low_min),
-                    confidence_weight=config_section.get('confidence_weight', default_config.confidence_weight),
-                    variance_penalty=config_section.get('variance_penalty', default_config.variance_penalty)
+                    critical_min=config_section.get('crisis_thresholds.critical_min', default_config.critical_min),
+                    high_min=config_section.get('crisis_thresholds.high_min', default_config.high_min),
+                    medium_min=config_section.get('crisis_thresholds.medium_min', default_config.medium_min),
+                    low_min=config_section.get('crisis_thresholds.low_min', default_config.low_min),
+                    confidence_weight=config_section.get('confidence.confidence_weight', default_config.confidence_weight),
+                    variance_penalty=config_section.get('confidence.variance_penalty', default_config.variance_penalty)
                 )
             
             logger.debug(f"Loaded {len(threshold_configs)} threshold configurations")
@@ -181,10 +183,11 @@ class CrisisClassifierManager:
     def _load_classification_strategy(self) -> ClassificationStrategy:
         """Load default classification strategy from configuration"""
         try:
-            strategy_str = os.environ.get(
-                'ASH_THRASH_CLIENT_CLASSIFICATION_STRATEGY', 
+            strategy_str = self.config_manager.get_config_section(
+                'client_classification',
+                'client_classification.strategy',
                 'conservative'
-            ).lower()
+            )
             
             strategy_mapping = {
                 'conservative': ClassificationStrategy.CONSERVATIVE,
