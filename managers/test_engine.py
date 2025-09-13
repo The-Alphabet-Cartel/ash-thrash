@@ -128,18 +128,18 @@ class TestEngineManager:
     # ========================================================================
     # INITIALIZE
     # ========================================================================
-    def __init__(self, unified_config_manager, nlp_client_manager, client_classifier_manager=None):
+    def __init__(self, unified_config_manager, nlp_client_manager, classifier_manager=None):
         """
         Initialize Test Engine Manager
         
         Args:
             unified_config_manager: UnifiedConfigManager instance
             nlp_client_manager: NLPClientManager instance
-            client_classifier_manager: Optional ClientCrisisClassifierManager for dual classification
+            classifier_manager: Optional ClientCrisisClassifierManager for dual classification
         """
         self.unified_config = unified_config_manager
         self.nlp_client = nlp_client_manager
-        self.client_classifier = client_classifier_manager  # NEW: Optional client classification
+        self.client_classifier = classifier_manager  # NEW: Optional client classification
         
         try:
             # Load test configuration
@@ -822,14 +822,14 @@ class TestEngineManager:
 # ========================================================================
 # FACTORY FUNCTION (Updated for dual classification)
 # ========================================================================
-def create_test_engine_manager(unified_config_manager, nlp_client_manager, client_classifier_manager=None) -> TestEngineManager:
+def create_test_engine_manager(unified_config_manager, nlp_client_manager, classifier_manager=None) -> TestEngineManager:
     """
     Factory function for TestEngineManager (Clean v3.1 Pattern) with dual classification support
     
     Args:
         unified_config_manager: UnifiedConfigManager instance
         nlp_client_manager: NLPClientManager instance
-        client_classifier_manager: Optional ClientCrisisClassifierManager instance for dual classification
+        classifier_manager: Optional ClientCrisisClassifierManager instance for dual classification
         
     Returns:
         Initialized TestEngineManager instance with dual classification support
@@ -846,12 +846,12 @@ def create_test_engine_manager(unified_config_manager, nlp_client_manager, clien
         raise ValueError("NLPClientManager is required for TestEngineManager factory")
     
     # ClientCrisisClassifierManager is optional - system falls back to server-only mode if not provided
-    if client_classifier_manager:
+    if classifier_manager:
         logger.debug("Dual classification mode enabled")
     else:
         logger.debug("Server-only classification mode")
     
-    return TestEngineManager(unified_config_manager, nlp_client_manager, client_classifier_manager)
+    return TestEngineManager(unified_config_manager, nlp_client_manager, classifier_manager)
 # ========================================================================
 
 # ========================================================================
