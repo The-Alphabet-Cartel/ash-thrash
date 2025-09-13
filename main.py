@@ -28,7 +28,7 @@ from managers.analyze_results import create_analyze_results_manager
 from managers.tuning_suggestions import create_tuning_suggestions_manager
 
 # NEW: Import client classification manager
-from managers.client_crisis_classifier import create_client_crisis_classifier_manager
+from managers.crisis_classifier import create_crisis_classifier_manager
 # ============================================================================
 
 # ============================================================================
@@ -124,7 +124,7 @@ def initialize_managers():
         try:
             client_classification_enabled = unified_config.get_config_section('client_classification', 'client_classification.enable_client_classification', True)
             if client_classification_enabled:
-                client_classifier = create_client_crisis_classifier_manager(unified_config)
+                client_classifier = create_crisis_classifier_manager(unified_config)
                 logger.info("Client classification manager initialized - DUAL CLASSIFICATION MODE")
             else:
                 logger.info("Client classification disabled - SERVER-ONLY MODE")
