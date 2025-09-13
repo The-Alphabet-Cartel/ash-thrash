@@ -135,7 +135,7 @@ class TestEngineManager:
         Args:
             unified_config_manager: UnifiedConfigManager instance
             nlp_client_manager: NLPClientManager instance
-            classifier_manager: Optional ClientCrisisClassifierManager for dual classification
+            classifier_manager: Optional CrisisClassifierManager for dual classification
         """
         self.unified_config = unified_config_manager
         self.nlp_client = nlp_client_manager
@@ -278,6 +278,7 @@ class TestEngineManager:
             client_result = self.client_classifier.classify_crisis_level(
                 crisis_score=crisis_score,
                 confidence_score=confidence_score,
+                server_suggested_level=analysis_result.crisis_level,  # FIX: Added missing parameter
                 threshold_config=threshold_config
             )
             
@@ -829,7 +830,7 @@ def create_test_engine_manager(unified_config_manager, nlp_client_manager, class
     Args:
         unified_config_manager: UnifiedConfigManager instance
         nlp_client_manager: NLPClientManager instance
-        classifier_manager: Optional ClientCrisisClassifierManager instance for dual classification
+        classifier_manager: Optional CrisisClassifierManager instance for dual classification
         
     Returns:
         Initialized TestEngineManager instance with dual classification support
@@ -845,7 +846,7 @@ def create_test_engine_manager(unified_config_manager, nlp_client_manager, class
     if not nlp_client_manager:
         raise ValueError("NLPClientManager is required for TestEngineManager factory")
     
-    # ClientCrisisClassifierManager is optional - system falls back to server-only mode if not provided
+    # CrisisClassifierManager is optional - system falls back to server-only mode if not provided
     if classifier_manager:
         logger.debug("Dual classification mode enabled")
     else:
