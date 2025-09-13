@@ -533,7 +533,7 @@ class ClientCrisisClassifierManager:
 # ============================================================================
 # FACTORY FUNCTION - Clean Architecture v3.1 Compliance
 # ============================================================================
-def create_client_crisis_classifier_manager(unified_config_manager) -> ClientCrisisClassifierManager:
+def create_crisis_classifier_manager(unified_config_manager) -> ClientCrisisClassifierManager:
     """
     Factory function for ClientCrisisClassifierManager (Clean v3.1 Pattern)
     
@@ -560,7 +560,7 @@ __all__ = [
     'ClassificationAgreement',
     'ClassificationResult',
     'ThresholdConfig',
-    'create_client_crisis_classifier_manager'
+    'create_crisis_classifier_manager'
 ]
 
 logger.info("ClientCrisisClassifierManager v3.1-4a-1 loaded with client-side crisis classification capabilities")
