@@ -24,18 +24,35 @@
     },
     "validation": {
       "enable_client_classification": {
-        "type": "boolean",
-        "description": "Enable dual classification mode with client-side crisis classification"
+        "description": "Enable dual classification mode with client-side crisis classification",
+        "type": "boolean"
       },
       "default_strategy": {
+        "description": "Default classification strategy to use",
         "type": "string",
-        "allowed_values": ["conservative", "aggressive", "consensus", "client_only"],
-        "description": "Default classification strategy to use"
+        "allowed_values": [
+          "conservative",
+          "aggressive",
+          "consensus",
+          "client_only"
+        ]
       },
       "default_threshold_config": {
+        "description": "Default threshold configuration set to use",
         "type": "string", 
-        "allowed_values": ["standard", "conservative", "aggressive"],
-        "description": "Default threshold configuration set to use"
+        "allowed_values": [
+          "standard",
+          "conservative",
+          "aggressive"
+        ]
+      },
+      "track_agreement_stats": {
+        "description": "Track agreement statistics",
+        "type": "boolean"
+      },
+      "log_disagreements": {
+        "description": "Log disagreements",
+        "type": "boolean"
       }
     }
   },
@@ -44,27 +61,99 @@
     "description": "Available client classification strategies for dual classification mode",
     "conservative": {
       "description": "Conservative strategy prioritizing safety - when in doubt, classify higher",
-      "threshold_bias": 0.05,
-      "confidence_multiplier": 1.1,
-      "safety_first": true
+      "threshold_bias": "${THRASH_CONSERVATIVE_THRESHOLD_BIAS}",
+      "confidence_multiplier": "${THRASH_CONSERVATIVE_CONFIDENCE_MULTIPLIER}",
+      "safety_first": "${THRASH_SAFETY_FIRST}",
+      "defaults": {
+        "threshold_bias": 0.05,
+        "confidence_multiplier": 1.1,
+        "safety_first": true
+      },
+      "validation": {
+        "threshold_bias": {
+          "type": "float",
+          "range": [0.001, 1.000]
+        },
+        "confidence_multiplier": {
+          "type": "float",
+          "range": [0.1, 5.0]
+        },
+        "safety_first": {
+          "type": "boolean"
+        }
+      }
     },
     "aggressive": {
       "description": "Aggressive strategy for higher sensitivity - lower thresholds for crisis detection",
-      "threshold_bias": -0.1,
-      "confidence_multiplier": 0.9,
-      "safety_first": true
+      "threshold_bias": "${THRASH_AGGRESIVE_THRESHOLD_BIAS}",
+      "confidence_multiplier": "${THRASH_AGGRESIVE_CONFIDENCE_MULTIPLIER}",
+      "safety_first": "${THRASH_SAFETY_FIRST}",
+      "defaults": {
+        "threshold_bias": -0.1,
+        "confidence_multiplier": 0.9,
+        "safety_first": true
+      },
+      "validation": {
+        "threshold_bias": {
+          "type": "float",
+          "range": [0.001, 1.000]
+        },
+        "confidence_multiplier": {
+          "type": "float",
+          "range": [0.1, 5.0]
+        },
+        "safety_first": {
+          "type": "boolean"
+        }
+      }
     },
     "consensus": {
       "description": "Consensus strategy combining server and client recommendations",
-      "threshold_bias": 0.0,
-      "confidence_multiplier": 1.0,
-      "safety_first": true
+      "threshold_bias": "${THRASH_CONSENSUS_THRESHOLD_BIAS}",
+      "confidence_multiplier": "${THRASH_CONSENSUS_CONFIDENCE_MULTIPLIER}",
+      "safety_first": "${THRASH_SAFETY_FIRST}",
+      "defaults": {
+        "threshold_bias": 0.0,
+        "confidence_multiplier": 1.0,
+        "safety_first": true
+      },
+      "validation": {
+        "threshold_bias": {
+          "type": "float",
+          "range": [0.001, 1.000]
+        },
+        "confidence_multiplier": {
+          "type": "float",
+          "range": [0.1, 5.0]
+        },
+        "safety_first": {
+          "type": "boolean"
+        }
+      }
     },
     "client_only": {
       "description": "Client-only strategy ignoring server crisis_level suggestions",
-      "threshold_bias": 0.0,
-      "confidence_multiplier": 1.0,
-      "safety_first": true
+      "threshold_bias": "${THRASH_CLIENT_ONLY_THRESHOLD_BIAS}",
+      "confidence_multiplier": "${THRASH_CLIENT_ONLY_CONFIDENCE_MULTIPLIER}",
+      "safety_first": "${THRASH_SAFETY_FIRST}",
+      "defaults": {
+        "threshold_bias": 0.0,
+        "confidence_multiplier": 1.0,
+        "safety_first": true
+      },
+      "validation": {
+        "threshold_bias": {
+          "type": "float",
+          "range": [0.001, 1.000]
+        },
+        "confidence_multiplier": {
+          "type": "float",
+          "range": [0.1, 5.0]
+        },
+        "safety_first": {
+          "type": "boolean"
+        }
+      }
     }
   },
 
@@ -73,43 +162,172 @@
     "standard": {
       "description": "Standard thresholds balanced for general use",
       "crisis_thresholds": {
-        "high_crisis": 0.75,
-        "medium_crisis": 0.50,
-        "low_crisis": 0.25,
-        "no_crisis": 0.10
+        "high_crisis": "${THRASH_THRESHOLD_STANDARD_HIGH}",
+        "medium_crisis": "${THRASH_THRESHOLD_STANDARD_MEDIUM}",
+        "low_crisis": "${THRASH_THRESHOLD_STANDARD_LOW}",
+        "no_crisis": "${THRASH_THRESHOLD_STANDARD_NONE}",
+        "defaults": {
+          "high_crisis": 0.75,
+          "medium_crisis": 0.50,
+          "low_crisis": 0.25,
+          "no_crisis": 0.10
+        },
+        "validation": {
+          "high_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "medium_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "low_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "no_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          }
+        }
       },
       "confidence_thresholds": {
-        "high_confidence": 0.80,
-        "medium_confidence": 0.60,
-        "low_confidence": 0.40
+        "high_confidence": "${THRASH_CONFIDENCE_STANDARD_HIGH}",
+        "medium_confidence": "${THRASH_CONFIDENCE_STANDARD_MEDIUM}",
+        "low_confidence": "${THRASH_CONFIDENCE_STANDARD_LOW}",
+        "defaults": {
+          "high_confidence": 0.80,
+          "medium_confidence": 0.60,
+          "low_confidence": 0.40
+        },
+        "validation": {
+          "high_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "medium_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "low_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          }
+        }
       }
     },
     "conservative": {
       "description": "Conservative thresholds with lower crisis detection barriers",
       "crisis_thresholds": {
-        "high_crisis": 0.65,
-        "medium_crisis": 0.40,
-        "low_crisis": 0.20,
-        "no_crisis": 0.05
+        "high_crisis": "${THRASH_THRESHOLD_CONSERVATIVE_HIGH}",
+        "medium_crisis": "${THRASH_THRESHOLD_CONSERVATIVE_MEDIUM}",
+        "low_crisis": "${THRASH_THRESHOLD_CONSERVATIVE_LOW}",
+        "no_crisis": "${THRASH_THRESHOLD_CONSERVATIVE_NONE}",
+        "defaults": {
+          "high_crisis": 0.75,
+          "medium_crisis": 0.50,
+          "low_crisis": 0.25,
+          "no_crisis": 0.10
+        },
+        "validation": {
+          "high_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "medium_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "low_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "no_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          }
+        }
       },
       "confidence_thresholds": {
-        "high_confidence": 0.75,
-        "medium_confidence": 0.55,
-        "low_confidence": 0.35
+        "high_confidence": "${THRASH_CONFIDENCE_CONSERVATIVE_HIGH}",
+        "medium_confidence": "${THRASH_CONFIDENCE_CONSERVATIVE_MEDIUM}",
+        "low_confidence": "${THRASH_CONFIDENCE_CONSERVATIVE_LOW}",
+        "defaults": {
+          "high_confidence": 0.80,
+          "medium_confidence": 0.60,
+          "low_confidence": 0.40
+        },
+        "validation": {
+          "high_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "medium_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "low_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          }
+        }
       }
     },
     "aggressive": {
       "description": "Aggressive thresholds with higher crisis detection sensitivity",
       "crisis_thresholds": {
-        "high_crisis": 0.85,
-        "medium_crisis": 0.60,
-        "low_crisis": 0.30,
-        "no_crisis": 0.15
+        "high_crisis": "${THRASH_THRESHOLD_AGGRESSIVE_HIGH}",
+        "medium_crisis": "${THRASH_THRESHOLD_AGGRESSIVE_MEDIUM}",
+        "low_crisis": "${THRASH_THRESHOLD_AGGRESSIVE_LOW}",
+        "no_crisis": "${THRASH_THRESHOLD_AGGRESSIVE_NONE}",
+        "defaults": {
+          "high_crisis": 0.75,
+          "medium_crisis": 0.50,
+          "low_crisis": 0.25,
+          "no_crisis": 0.10
+        },
+        "validation": {
+          "high_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "medium_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "low_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "no_crisis": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          }
+        }
       },
       "confidence_thresholds": {
-        "high_confidence": 0.85,
-        "medium_confidence": 0.65,
-        "low_confidence": 0.45
+        "high_confidence": "${THRASH_CONFIDENCE_AGGRESSIVE_HIGH}",
+        "medium_confidence": "${THRASH_CONFIDENCE_AGGRESSIVE_MEDIUM}",
+        "low_confidence": "${THRASH_CONFIDENCE_AGGRESSIVE_LOW}",
+        "defaults": {
+          "high_confidence": 0.80,
+          "medium_confidence": 0.60,
+          "low_confidence": 0.40
+        },
+        "validation": {
+          "high_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "medium_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          },
+          "low_confidence": {
+            "type": "float",
+            "range": [0.001, 1.000]
+          }
+        }
       }
     }
   },
@@ -117,43 +335,200 @@
   "category_specific_overrides": {
     "description": "Category-specific threshold and strategy overrides for specialized handling",
     "definite_high": {
-      "preferred_strategy": "conservative",
-      "threshold_config": "conservative",
-      "description": "High crisis categories use conservative approach for safety"
+      "description": "High crisis categories use configured defaults",
+      "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+      "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+      "defaults": {
+        "preferred_strategy": "client_only",
+        "threshold_config": "standard"
+      },
+      "validation": {
+        "preferred_strategy": {
+          "type": "string",
+          "allowed_values": [
+            "conservative",
+            "aggressive",
+            "consensus",
+            "client_only"
+          ]
+        },
+        "threshold_config": {
+          "type": "string",
+          "allowed_values": [
+            "standard",
+            "conservative",
+            "aggressive"
+          ]
+        }
+      }
     },
     "definite_medium": {
+      "description": "Medium crisis uses configured defaults",
       "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
       "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
-      "description": "Medium crisis uses configured defaults"
+      "defaults": {
+        "preferred_strategy": "client_only",
+        "threshold_config": "standard"
+      },
+      "validation": {
+        "preferred_strategy": {
+          "type": "string",
+          "allowed_values": [
+            "conservative",
+            "aggressive",
+            "consensus",
+            "client_only"
+          ]
+        },
+        "threshold_config": {
+          "type": "string",
+          "allowed_values": [
+            "standard",
+            "conservative",
+            "aggressive"
+          ]
+        }
+      }
     },
     "definite_low": {
+      "description": "Low crisis uses configured defaults",
       "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
       "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
-      "description": "Low crisis uses configured defaults"
+      "defaults": {
+        "preferred_strategy": "client_only",
+        "threshold_config": "standard"
+      },
+      "validation": {
+        "preferred_strategy": {
+          "type": "string",
+          "allowed_values": [
+            "conservative",
+            "aggressive",
+            "consensus",
+            "client_only"
+          ]
+        },
+        "threshold_config": {
+          "type": "string",
+          "allowed_values": [
+            "standard",
+            "conservative",
+            "aggressive"
+          ]
+        }
+      }
     },
     "definite_none": {
-      "preferred_strategy": "aggressive",
-      "threshold_config": "aggressive", 
-      "description": "None crisis categories can use aggressive thresholds"
+      "description": "None crisis categories can use configured defaults",
+      "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+      "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+      "defaults": {
+        "preferred_strategy": "client_only",
+        "threshold_config": "standard"
+      },
+      "validation": {
+        "preferred_strategy": {
+          "type": "string",
+          "allowed_values": [
+            "conservative",
+            "aggressive",
+            "consensus",
+            "client_only"
+          ]
+        },
+        "threshold_config": {
+          "type": "string",
+          "allowed_values": [
+            "standard",
+            "conservative",
+            "aggressive"
+          ]
+        }
+      }
     },
     "maybe_high_medium": {
-      "preferred_strategy": "conservative",
-      "threshold_config": "conservative",
-      "description": "Boundary categories between high/medium use conservative approach"
+      "description": "Boundary categories between high/medium use configured defaults",
+      "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+      "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+      "defaults": {
+        "preferred_strategy": "client_only",
+        "threshold_config": "standard"
+      },
+      "validation": {
+        "preferred_strategy": {
+          "type": "string",
+          "allowed_values": [
+            "conservative",
+            "aggressive",
+            "consensus",
+            "client_only"
+          ]
+        },
+        "threshold_config": {
+          "type": "string",
+          "allowed_values": [
+            "standard",
+            "conservative",
+            "aggressive"
+          ]
+        }
+      }
     },
     "maybe_medium_low": {
+      "description": "Boundary categories between medium/low use configured defaults",
       "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
       "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
-      "description": "Boundary categories between medium/low use configured defaults"
+      "defaults": {
+        "preferred_strategy": "client_only",
+        "threshold_config": "standard"
+      },
+      "validation": {
+        "preferred_strategy": {
+          "type": "string",
+          "allowed_values": [
+            "conservative",
+            "aggressive",
+            "consensus",
+            "client_only"
+          ]
+        },
+        "threshold_config": {
+          "type": "string",
+          "allowed_values": [
+            "standard",
+            "conservative",
+            "aggressive"
+          ]
+        }
+      }
     },
     "maybe_low_none": {
+      "description": "Boundary categories between low/none use configured defaults",
       "preferred_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
       "threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
-      "description": "Boundary categories between low/none use configured defaults"
-    },
-    "defaults": {
-      "preferred_strategy": "conservative",
-      "threshold_config": "standard"
+      "defaults": {
+        "preferred_strategy": "client_only",
+        "threshold_config": "standard"
+      },
+      "validation": {
+        "preferred_strategy": {
+          "type": "string",
+          "allowed_values": [
+            "conservative",
+            "aggressive",
+            "consensus",
+            "client_only"
+          ]
+        },
+        "threshold_config": {
+          "type": "string",
+          "allowed_values": [
+            "standard",
+            "conservative",
+            "aggressive"
+          ]
+        }
+      }
     }
   },
 
@@ -161,11 +536,13 @@
     "description": "Settings for client classification performance monitoring",
     "track_agreement_stats": "${THRASH_TRACK_CLASSIFICATION_STATS}",
     "log_disagreements": "${THRASH_LOG_CLASSIFICATION_DISAGREEMENTS}",
-    "min_agreement_threshold": 0.70,
-    "significant_disagreement_threshold": 2,
+    "min_agreement_threshold": "${THRASH_MIN_AGREEMENT_THRESHOLD}",
+    "significant_disagreement_threshold": "${THRASH_BIG_DISAGREEMENT_THRESHOLD}",
     "defaults": {
       "track_agreement_stats": true,
-      "log_disagreements": true
+      "log_disagreements": true,
+      "min_agreement_threshold": 0.70,
+      "significant_disagreement_threshold": 2
     },
     "validation": {
       "track_agreement_stats": {
@@ -180,25 +557,10 @@
         "type": "float",
         "range": [0.0, 1.0],
         "description": "Minimum acceptable agreement rate between server and client"
-      }
-    }
-  },
-
-  "validation": {
-    "crisis_thresholds": {
-      "type": "object",
-      "required_keys": ["high_crisis", "medium_crisis", "low_crisis", "no_crisis"],
-      "value_validation": {
+      },
+      "significant_disagreement_threshold": {
         "type": "float",
-        "range": [0.0, 1.0]
-      }
-    },
-    "confidence_thresholds": {
-      "type": "object", 
-      "required_keys": ["high_confidence", "medium_confidence", "low_confidence"],
-      "value_validation": {
-        "type": "float",
-        "range": [0.0, 1.0]
+        "range": [0.01, 5]
       }
     }
   }
