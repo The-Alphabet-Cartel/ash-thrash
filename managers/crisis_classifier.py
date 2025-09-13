@@ -276,8 +276,11 @@ class CrisisClassifierManager:
             # Update statistics
             self._update_classification_stats(result)
             
-            logger.debug(f"Client classification: {server_suggested_level} → {client_level} → {final_level} "
-                        f"(strategy: {strategy.value}, agreement: {agreement.value})")
+            logger.debug(f"Client classification:")
+            logger.debug(f"→ Suggested Level: {server_suggested_level}")
+            logger.debug(f"→ Client Level: {client_level}")
+            logger.debug(f"→ Final Level: {final_level}")
+            logger.debug(f"(strategy: {strategy.value}, agreement: {agreement.value})")
             
             return result
             
