@@ -4,8 +4,9 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Core Test Execution Engine for Ash-Thrash Service
 ---
-FILE VERSION: v3.1-1a-1
-LAST MODIFIED: 2025-08-30
+FILE VERSION: v3.1-4a-2
+LAST MODIFIED: 2025-09-12
+PHASE: 4a Step 2 - Client Classification Integration
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -33,23 +34,40 @@ class TestResult(Enum):
 
 @dataclass
 class PhraseTestResult:
-    """Individual phrase test result"""
+    """Individual phrase test result with dual classification support"""
     phrase_id: str
     message: str
     expected_priorities: List[str]
-    actual_priority: str
-    confidence_score: float
-    processing_time_ms: float
-    result: TestResult
+    
+    # Server classification
+    server_crisis_level: str
+    server_confidence_score: float
+    
+    # Client classification (new)
+    crisis_score: Optional[float] = None
+    client_crisis_level: Optional[str] = None
+    client_strategy_used: Optional[str] = None
+    
+    # Final classification (server, client, or strategy-determined)
+    final_crisis_level: str = ""
+    classification_source: str = "server"  # "server", "client", "strategy"
+    
+    # Analysis results
+    processing_time_ms: float = 0.0
+    result: TestResult = TestResult.PASS
     failure_severity: int = 0  # 0 = pass, 1-3 = severity levels
     is_false_negative: bool = False
     is_false_positive: bool = False
     error_message: Optional[str] = None
     analysis_data: Optional[Dict[str, Any]] = None
+    
+    # Classification agreement tracking (new)
+    server_client_agreement: Optional[bool] = None
+    agreement_level: Optional[int] = None  # 0=exact, 1=close, 2=distant
 
 @dataclass 
 class CategoryTestResult:
-    """Test category result summary"""
+    """Test category result summary with dual classification metrics"""
     category_name: str
     category_file: str
     expected_priorities: List[str]
@@ -65,10 +83,18 @@ class CategoryTestResult:
     false_positives: int = 0
     phrase_results: List[PhraseTestResult] = field(default_factory=list)
     execution_time_ms: float = 0.0
+    
+    # Dual classification metrics (new)
+    client_classification_enabled: bool = False
+    server_accuracy: float = 0.0
+    client_accuracy: float = 0.0
+    agreement_rate: float = 0.0
+    client_outperformed_server: bool = False
+    strategy_used: Optional[str] = None
 
 @dataclass
 class TestSuiteResult:
-    """Complete test suite result"""
+    """Complete test suite result with dual classification summary"""
     start_time: float
     end_time: float
     total_execution_time_ms: float
@@ -83,32 +109,37 @@ class TestSuiteResult:
     termination_reason: Optional[str]
     category_results: List[CategoryTestResult] = field(default_factory=list)
     server_info: Optional[Dict[str, Any]] = None
+    
+    # Dual classification summary (new)
+    client_classification_summary: Optional[Dict[str, Any]] = None
 # ========================================================================
 
 # ========================================================================
-# TestEngineMananger
+# TestEngineManager
 # ========================================================================
 class TestEngineManager:
     """
-    Core test execution engine for Ash-Thrash testing suite
+    Core test execution engine for Ash-Thrash testing suite with dual classification support
     
-    Handles phrase loading, test execution, result calculation,
+    Handles phrase loading, test execution, result calculation, dual classification,
     and safety-first failure analysis with early termination.
     """
     
     # ========================================================================
     # INITIALIZE
     # ========================================================================
-    def __init__(self, unified_config_manager, nlp_client_manager):
+    def __init__(self, unified_config_manager, nlp_client_manager, client_classifier_manager=None):
         """
         Initialize Test Engine Manager
         
         Args:
             unified_config_manager: UnifiedConfigManager instance
             nlp_client_manager: NLPClientManager instance
+            client_classifier_manager: Optional ClientCrisisClassifierManager for dual classification
         """
         self.unified_config = unified_config_manager
         self.nlp_client = nlp_client_manager
+        self.client_classifier = client_classifier_manager  # NEW: Optional client classification
         
         try:
             # Load test configuration
@@ -116,6 +147,11 @@ class TestEngineManager:
             self.category_config = self.unified_config.get_config_section('test_settings', 'test_categories', {})
             self.failure_config = self.unified_config.get_config_section('test_settings', 'failure_weighting', {})
             self.storage_config = self.unified_config.get_config_section('test_settings', 'storage', {})
+            
+            # Client classification configuration (NEW)
+            self.client_classification_enabled = self.unified_config.get_env_var('THRASH_ENABLE_CLIENT_CLASSIFICATION', 'true').lower() == 'true'
+            self.client_strategy = self.unified_config.get_env_var('THRASH_CLIENT_CLASSIFICATION_STRATEGY', 'conservative')
+            self.default_threshold_config = self.unified_config.get_env_var('THRASH_DEFAULT_THRESHOLD_CONFIG', 'standard')
             
             # Extract configuration values
             self.max_concurrent = self.test_config.get('max_concurrent_tests', 3)
@@ -147,8 +183,10 @@ class TestEngineManager:
                 'critical': 4
             }
             
+            # Log initialization status
+            classification_status = "enabled" if (self.client_classification_enabled and self.client_classifier) else "disabled"
             logger.info(f"TestEngineManager initialized: {len(self.category_config)} categories, "
-                       f"halt threshold: {self.failure_halt_threshold}%, delay: {self.test_delay_ms}ms")
+                       f"client classification: {classification_status}, strategy: {self.client_strategy}")
             
         except Exception as e:
             logger.error(f"Error initializing TestEngineManager: {e}")
@@ -205,7 +243,130 @@ class TestEngineManager:
     # ========================================================================
     
     # ========================================================================
-    # CALCULATIONS
+    # DUAL CLASSIFICATION METHODS (NEW)
+    # ========================================================================
+    def perform_dual_classification(self, analysis_result, category_name: str) -> Tuple[str, str, str, bool, int]:
+        """
+        Perform dual classification (server + client) if enabled
+        
+        Args:
+            analysis_result: NLP analysis result with crisis_score and confidence_score
+            category_name: Test category for strategy selection
+            
+        Returns:
+            Tuple of (client_crisis_level, final_crisis_level, classification_source, agreement, agreement_level)
+        """
+        # If client classification is disabled or not available, use server only
+        if not (self.client_classification_enabled and self.client_classifier):
+            return None, analysis_result.crisis_level, "server", None, None
+        
+        try:
+            # Extract scores for client classification
+            crisis_score = getattr(analysis_result, 'crisis_score', None)
+            confidence_score = analysis_result.confidence_score
+            
+            # Fallback to confidence score if crisis_score not available
+            if crisis_score is None:
+                crisis_score = confidence_score
+                logger.debug("Using confidence_score as fallback for crisis_score")
+            
+            # Get category-specific strategy and thresholds
+            strategy = self._get_category_strategy(category_name)
+            threshold_config = self._get_category_threshold_config(category_name)
+            
+            # Perform client classification
+            client_result = self.client_classifier.classify_crisis_level(
+                crisis_score=crisis_score,
+                confidence_score=confidence_score,
+                threshold_config=threshold_config
+            )
+            
+            client_crisis_level = client_result.crisis_level
+            
+            # Apply classification strategy to determine final result
+            final_crisis_level, classification_source = self._apply_classification_strategy(
+                server_level=analysis_result.crisis_level,
+                client_level=client_crisis_level,
+                strategy=strategy,
+                crisis_score=crisis_score,
+                confidence_score=confidence_score
+            )
+            
+            # Calculate agreement between server and client
+            agreement, agreement_level = self._calculate_classification_agreement(
+                analysis_result.crisis_level, client_crisis_level
+            )
+            
+            return client_crisis_level, final_crisis_level, classification_source, agreement, agreement_level
+            
+        except Exception as e:
+            logger.error(f"Error in dual classification: {e}")
+            # Fallback to server classification on error
+            return None, analysis_result.crisis_level, "server", None, None
+    
+    def _get_category_strategy(self, category_name: str) -> str:
+        """Get classification strategy for specific category"""
+        try:
+            if self.client_classifier:
+                category_config = self.client_classifier.config.get('category_specific_overrides', {})
+                category_settings = category_config.get(category_name, {})
+                return category_settings.get('preferred_strategy', self.client_strategy)
+            return self.client_strategy
+        except Exception as e:
+            logger.debug(f"Error getting category strategy, using default: {e}")
+            return self.client_strategy
+    
+    def _get_category_threshold_config(self, category_name: str) -> str:
+        """Get threshold configuration for specific category"""
+        try:
+            if self.client_classifier:
+                category_config = self.client_classifier.config.get('category_specific_overrides', {})
+                category_settings = category_config.get(category_name, {})
+                return category_settings.get('threshold_config', self.default_threshold_config)
+            return self.default_threshold_config
+        except Exception as e:
+            logger.debug(f"Error getting category threshold config, using default: {e}")
+            return self.default_threshold_config
+    
+    def _apply_classification_strategy(self, server_level: str, client_level: str, strategy: str, 
+                                     crisis_score: float, confidence_score: float) -> Tuple[str, str]:
+        """Apply classification strategy to determine final crisis level"""
+        try:
+            if not self.client_classifier:
+                return server_level, "server"
+            
+            strategy_result = self.client_classifier.apply_strategy(
+                server_level=server_level,
+                client_level=client_level,
+                strategy=strategy,
+                crisis_score=crisis_score,
+                confidence_score=confidence_score
+            )
+            
+            return strategy_result.final_level, strategy_result.source
+            
+        except Exception as e:
+            logger.error(f"Error applying classification strategy: {e}")
+            return server_level, "server"
+    
+    def _calculate_classification_agreement(self, server_level: str, client_level: str) -> Tuple[bool, int]:
+        """Calculate agreement between server and client classifications"""
+        if server_level == client_level:
+            return True, 0  # Exact agreement
+        
+        server_numeric = self.priority_levels.get(server_level, 0)
+        client_numeric = self.priority_levels.get(client_level, 0)
+        
+        distance = abs(server_numeric - client_numeric)
+        
+        if distance == 1:
+            return False, 1  # Close disagreement (1 level)
+        else:
+            return False, 2  # Distant disagreement (2+ levels)
+    # ========================================================================
+    
+    # ========================================================================
+    # CALCULATIONS (Updated for dual classification)
     # ========================================================================
     def calculate_failure_severity(self, expected_priorities: List[str], actual_priority: str) -> Tuple[int, bool, bool]:
         """
@@ -293,17 +454,17 @@ class TestEngineManager:
     # ========================================================================
     
     # ========================================================================
-    # RUN TESTS
+    # RUN TESTS (Updated for dual classification)
     # ========================================================================
     def run_category_test(self, category_name: str) -> CategoryTestResult:
         """
-        Run tests for a specific category
+        Run tests for a specific category with dual classification support
         
         Args:
             category_name: Name of category to test
             
         Returns:
-            CategoryTestResult with complete results
+            CategoryTestResult with complete results including dual classification metrics
         """
         logger.info(f"Starting tests for category: {category_name}")
         start_time = time.time()
@@ -318,17 +479,25 @@ class TestEngineManager:
             target_pass_rate = category_info.get('target_pass_rate', 85)
             is_critical = category_info.get('critical', False)
             
-            # Initialize category result
+            # Initialize category result with dual classification support
             category_result = CategoryTestResult(
                 category_name=category_name,
                 category_file=category_info.get('file', ''),
                 expected_priorities=expected_priorities,
                 target_pass_rate=target_pass_rate,
                 is_critical=is_critical,
-                total_tests=len(phrases)
+                total_tests=len(phrases),
+                client_classification_enabled=self.client_classification_enabled and self.client_classifier is not None,
+                strategy_used=self._get_category_strategy(category_name)
             )
             
-            logger.info(f"Testing {len(phrases)} phrases, target: {target_pass_rate}%, critical: {is_critical}")
+            classification_mode = "dual" if category_result.client_classification_enabled else "server-only"
+            logger.info(f"Testing {len(phrases)} phrases, target: {target_pass_rate}%, critical: {is_critical}, mode: {classification_mode}")
+            
+            # Counters for dual classification metrics
+            server_correct = 0
+            client_correct = 0
+            total_agreement = 0
             
             # Test each phrase
             for i, phrase_info in enumerate(phrases):
@@ -350,17 +519,27 @@ class TestEngineManager:
                             phrase_id=phrase_info['id'],
                             message=phrase_info['message'],
                             expected_priorities=expected_priorities,
-                            actual_priority='error',
-                            confidence_score=0.0,
+                            server_crisis_level='error',
+                            server_confidence_score=0.0,
+                            final_crisis_level='error',
+                            classification_source="server",
                             processing_time_ms=0.0,
                             result=TestResult.ERROR,
                             error_message="Analysis request failed"
                         )
                         category_result.error_tests += 1
                     else:
-                        # Calculate test result
+                        # Perform dual classification if enabled
+                        client_crisis_level, final_crisis_level, classification_source, agreement, agreement_level = self.perform_dual_classification(
+                            analysis_result, category_name
+                        )
+                        
+                        # Extract crisis score for tracking
+                        crisis_score = getattr(analysis_result, 'crisis_score', None)
+                        
+                        # Calculate test result based on final classification
                         severity, is_false_neg, is_false_pos = self.calculate_failure_severity(
-                            expected_priorities, analysis_result.crisis_level
+                            expected_priorities, final_crisis_level
                         )
                         
                         result_type = TestResult.PASS if severity == 0 else TestResult.FAIL
@@ -369,14 +548,21 @@ class TestEngineManager:
                             phrase_id=phrase_info['id'],
                             message=phrase_info['message'],
                             expected_priorities=expected_priorities,
-                            actual_priority=analysis_result.crisis_level,
-                            confidence_score=analysis_result.confidence_score,
+                            server_crisis_level=analysis_result.crisis_level,
+                            server_confidence_score=analysis_result.confidence_score,
+                            crisis_score=crisis_score,
+                            client_crisis_level=client_crisis_level,
+                            client_strategy_used=self._get_category_strategy(category_name),
+                            final_crisis_level=final_crisis_level,
+                            classification_source=classification_source,
                             processing_time_ms=analysis_result.processing_time_ms,
                             result=result_type,
                             failure_severity=severity,
                             is_false_negative=is_false_neg,
                             is_false_positive=is_false_pos,
-                            analysis_data=analysis_result.raw_response
+                            analysis_data=analysis_result.raw_response,
+                            server_client_agreement=agreement,
+                            agreement_level=agreement_level
                         )
                         
                         # Update counters
@@ -388,6 +574,20 @@ class TestEngineManager:
                                 category_result.false_negatives += 1
                             if is_false_pos:
                                 category_result.false_positives += 1
+                        
+                        # Track dual classification metrics
+                        if category_result.client_classification_enabled:
+                            # Check server accuracy
+                            if analysis_result.crisis_level in expected_priorities:
+                                server_correct += 1
+                            
+                            # Check client accuracy  
+                            if client_crisis_level and client_crisis_level in expected_priorities:
+                                client_correct += 1
+                            
+                            # Track agreement
+                            if agreement is True:
+                                total_agreement += 1
                     
                     category_result.phrase_results.append(phrase_result)
                     
@@ -401,8 +601,10 @@ class TestEngineManager:
                         phrase_id=phrase_info['id'],
                         message=phrase_info['message'],
                         expected_priorities=expected_priorities,
-                        actual_priority='error',
-                        confidence_score=0.0,
+                        server_crisis_level='error',
+                        server_confidence_score=0.0,
+                        final_crisis_level='error',
+                        classification_source="server",
                         processing_time_ms=0.0,
                         result=TestResult.ERROR,
                         error_message=str(e)
@@ -423,9 +625,25 @@ class TestEngineManager:
             )
             category_result.weighted_score = total_weighted_score / max(1, len(category_result.phrase_results))
             
-            logger.info(f"Category '{category_name}' complete: {category_result.pass_rate:.1f}% pass rate "
-                       f"({category_result.passed_tests}/{category_result.total_tests}), "
-                       f"{category_result.false_negatives} false negatives")
+            # Calculate dual classification metrics
+            if category_result.client_classification_enabled and category_result.total_tests > 0:
+                category_result.server_accuracy = (server_correct / category_result.total_tests) * 100
+                category_result.client_accuracy = (client_correct / category_result.total_tests) * 100
+                category_result.agreement_rate = (total_agreement / category_result.total_tests) * 100
+                category_result.client_outperformed_server = category_result.client_accuracy > category_result.server_accuracy
+            
+            # Log results
+            if category_result.client_classification_enabled:
+                logger.info(f"Category '{category_name}' complete: {category_result.pass_rate:.1f}% pass rate "
+                           f"({category_result.passed_tests}/{category_result.total_tests}), "
+                           f"{category_result.false_negatives} false negatives")
+                logger.info(f"  Server accuracy: {category_result.server_accuracy:.1f}%, "
+                           f"Client accuracy: {category_result.client_accuracy:.1f}%, "
+                           f"Agreement: {category_result.agreement_rate:.1f}%")
+            else:
+                logger.info(f"Category '{category_name}' complete: {category_result.pass_rate:.1f}% pass rate "
+                           f"({category_result.passed_tests}/{category_result.total_tests}), "
+                           f"{category_result.false_negatives} false negatives")
             
             return category_result
             
@@ -435,17 +653,22 @@ class TestEngineManager:
     
     def run_test_suite(self, categories: Optional[List[str]] = None) -> TestSuiteResult:
         """
-        Run complete test suite or specified categories
+        Run complete test suite or specified categories with dual classification support
         
         Args:
             categories: Optional list of category names to test (None = all)
             
         Returns:
-            TestSuiteResult with complete results
+            TestSuiteResult with complete results including dual classification summary
         """
         start_time = time.time()
         logger.info("=" * 70)
         logger.info("Starting Ash-Thrash Test Suite Execution")
+        if self.client_classification_enabled and self.client_classifier:
+            logger.info("DUAL CLASSIFICATION MODE: Server + Client")
+            logger.info(f"Strategy: {self.client_strategy}, Threshold Config: {self.default_threshold_config}")
+        else:
+            logger.info("SERVER-ONLY MODE: Traditional classification")
         logger.info("=" * 70)
         
         # Verify NLP server is ready
@@ -521,36 +744,100 @@ class TestEngineManager:
                 cat.weighted_score for cat in suite_result.category_results
             ) / len(suite_result.category_results)
         
+        # Generate dual classification summary
+        if self.client_classification_enabled and self.client_classifier:
+            suite_result.client_classification_summary = self._generate_classification_summary(suite_result.category_results)
+        
         logger.info("=" * 70)
         logger.info(f"Test Suite Complete: {suite_result.overall_pass_rate:.1f}% pass rate")
         logger.info(f"Total: {suite_result.total_passed}/{suite_result.total_phrases} passed, "
                    f"{suite_result.total_failed} failed, {suite_result.total_errors} errors")
         logger.info(f"Execution time: {suite_result.total_execution_time_ms/1000:.1f}s")
+        
+        if suite_result.client_classification_summary:
+            summary = suite_result.client_classification_summary
+            logger.info(f"Dual Classification Summary:")
+            logger.info(f"  Server accuracy: {summary['overall_server_accuracy']:.1f}%")
+            logger.info(f"  Client accuracy: {summary['overall_client_accuracy']:.1f}%")
+            logger.info(f"  Agreement rate: {summary['overall_agreement_rate']:.1f}%")
+            logger.info(f"  Client outperformed server: {summary['client_won_categories']} categories")
+        
         if suite_result.early_termination:
             logger.warning(f"Early termination: {suite_result.termination_reason}")
         logger.info("=" * 70)
         
         return suite_result
+    
+    def _generate_classification_summary(self, category_results: List[CategoryTestResult]) -> Dict[str, Any]:
+        """Generate summary statistics for dual classification results"""
+        client_enabled_categories = [cat for cat in category_results if cat.client_classification_enabled]
+        
+        if not client_enabled_categories:
+            return None
+        
+        total_tests = sum(cat.total_tests for cat in client_enabled_categories)
+        if total_tests == 0:
+            return None
+        
+        # Calculate weighted averages
+        overall_server_accuracy = sum(
+            cat.server_accuracy * cat.total_tests for cat in client_enabled_categories
+        ) / total_tests
+        
+        overall_client_accuracy = sum(
+            cat.client_accuracy * cat.total_tests for cat in client_enabled_categories
+        ) / total_tests
+        
+        overall_agreement_rate = sum(
+            cat.agreement_rate * cat.total_tests for cat in client_enabled_categories
+        ) / total_tests
+        
+        # Count categories where client outperformed server
+        client_won_categories = sum(1 for cat in client_enabled_categories if cat.client_outperformed_server)
+        
+        return {
+            'total_categories_tested': len(client_enabled_categories),
+            'total_phrases_tested': total_tests,
+            'overall_server_accuracy': overall_server_accuracy,
+            'overall_client_accuracy': overall_client_accuracy,
+            'overall_agreement_rate': overall_agreement_rate,
+            'client_won_categories': client_won_categories,
+            'server_won_categories': len(client_enabled_categories) - client_won_categories,
+            'strategy_used': self.client_strategy,
+            'threshold_config_used': self.default_threshold_config,
+            'category_breakdown': [
+                {
+                    'category': cat.category_name,
+                    'server_accuracy': cat.server_accuracy,
+                    'client_accuracy': cat.client_accuracy,
+                    'agreement_rate': cat.agreement_rate,
+                    'client_won': cat.client_outperformed_server,
+                    'strategy': cat.strategy_used
+                }
+                for cat in client_enabled_categories
+            ]
+        }
     # ========================================================================
 
 # ========================================================================
-# FACTORY FUNCTION
+# FACTORY FUNCTION (Updated for dual classification)
 # ========================================================================
-def create_test_engine_manager(unified_config_manager, nlp_client_manager) -> TestEngineManager:
+def create_test_engine_manager(unified_config_manager, nlp_client_manager, client_classifier_manager=None) -> TestEngineManager:
     """
-    Factory function for TestEngineManager (Clean v3.1 Pattern)
+    Factory function for TestEngineManager (Clean v3.1 Pattern) with dual classification support
     
     Args:
         unified_config_manager: UnifiedConfigManager instance
         nlp_client_manager: NLPClientManager instance
+        client_classifier_manager: Optional ClientCrisisClassifierManager instance for dual classification
         
     Returns:
-        Initialized TestEngineManager instance
+        Initialized TestEngineManager instance with dual classification support
         
     Raises:
         ValueError: If required managers are None or invalid
     """
-    logger.debug("Creating TestEngineManager with Clean v3.1 architecture")
+    logger.debug("Creating TestEngineManager v3.1-4a-2 with dual classification support")
     
     if not unified_config_manager:
         raise ValueError("UnifiedConfigManager is required for TestEngineManager factory")
@@ -558,7 +845,13 @@ def create_test_engine_manager(unified_config_manager, nlp_client_manager) -> Te
     if not nlp_client_manager:
         raise ValueError("NLPClientManager is required for TestEngineManager factory")
     
-    return TestEngineManager(unified_config_manager, nlp_client_manager)
+    # ClientCrisisClassifierManager is optional - system falls back to server-only mode if not provided
+    if client_classifier_manager:
+        logger.debug("Dual classification mode enabled")
+    else:
+        logger.debug("Server-only classification mode")
+    
+    return TestEngineManager(unified_config_manager, nlp_client_manager, client_classifier_manager)
 # ========================================================================
 
 # ========================================================================
@@ -573,5 +866,5 @@ __all__ = [
     'create_test_engine_manager'
 ]
 
-logger.info("TestEngineManager v3.1-1a-1 loaded")
+logger.info("TestEngineManager v3.1-4a-2 loaded with dual classification support")
 # ========================================================================
