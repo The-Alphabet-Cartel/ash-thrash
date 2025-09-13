@@ -4,9 +4,9 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Core Test Execution Engine for Ash-Thrash Service
 ---
-FILE VERSION: v3.1-4a-3
+FILE VERSION: v3.1-4a-4
 LAST MODIFIED: 2025-09-12
-PHASE: 4a Step 3 - Client Classification Integration Fixed
+PHASE: 4a Step 4 - Client Classification Integration Fixed
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -19,6 +19,13 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
+
+# Import ClassificationAgreement for dual classification support
+try:
+    from managers.client_crisis_classifier import ClassificationAgreement
+except ImportError:
+    # Fallback if client classifier not available
+    ClassificationAgreement = None
 
 logger = logging.getLogger(__name__)
 
@@ -274,29 +281,28 @@ class TestEngineManager:
             strategy = self._get_category_strategy(category_name)
             threshold_config = self._get_category_threshold_config(category_name)
             
-            # Perform client classification
+            # Perform client classification with all required parameters
             client_result = self.client_classifier.classify_crisis_level(
                 crisis_score=crisis_score,
                 confidence_score=confidence_score,
-                server_suggested_level=analysis_result.crisis_level,
+                server_suggested_level=analysis_result.crisis_level,  # FIX: Added missing parameter
                 threshold_config=threshold_config
             )
             
             client_crisis_level = client_result.client_determined_level
             
-            # Apply classification strategy to determine final result
-            final_crisis_level, classification_source = self._apply_classification_strategy(
-                server_level=analysis_result.crisis_level,
-                client_level=client_crisis_level,
-                strategy=strategy,
-                crisis_score=crisis_score,
-                confidence_score=confidence_score
-            )
+            # The client classifier already applied the strategy and returned final classification
+            final_crisis_level = client_result.final_classification
+            classification_source = "strategy"  # Strategy was applied by client classifier
             
-            # Calculate agreement between server and client
-            agreement, agreement_level = self._calculate_classification_agreement(
-                analysis_result.crisis_level, client_crisis_level
-            )
+            # Extract agreement information that's already calculated
+            if ClassificationAgreement:
+                agreement = client_result.classification_agreement in [ClassificationAgreement.FULL_AGREEMENT, ClassificationAgreement.PARTIAL_AGREEMENT]
+                agreement_level = 0 if client_result.classification_agreement == ClassificationAgreement.FULL_AGREEMENT else 1
+            else:
+                # Fallback agreement calculation if enum not available
+                agreement = analysis_result.crisis_level == client_crisis_level
+                agreement_level = 0 if agreement else 1
             
             return client_crisis_level, final_crisis_level, classification_source, agreement, agreement_level
             
@@ -308,11 +314,9 @@ class TestEngineManager:
     def _get_category_strategy(self, category_name: str) -> str:
         """Get classification strategy for specific category"""
         try:
-            if self.client_classifier:
-                category_overrides = self.unified_config.get_config_section('client_classification', 'category_specific_overrides', {})
-                category_settings = category_overrides.get(category_name, {})
-                return category_settings.get('preferred_strategy', self.client_strategy)
-            return self.client_strategy
+            category_overrides = self.unified_config.get_config_section('client_classification', 'category_specific_overrides', {})
+            category_settings = category_overrides.get(category_name, {})
+            return category_settings.get('preferred_strategy', self.client_strategy)
         except Exception as e:
             logger.debug(f"Error getting category strategy, using default: {e}")
             return self.client_strategy
@@ -320,50 +324,12 @@ class TestEngineManager:
     def _get_category_threshold_config(self, category_name: str) -> str:
         """Get threshold configuration for specific category"""
         try:
-            if self.client_classifier:
-                category_overrides = self.unified_config.get_config_section('client_classification', 'category_specific_overrides', {})
-                category_settings = category_overrides.get(category_name, {})
-                return category_settings.get('threshold_config', self.default_threshold_config)
-            return self.default_threshold_config
+            category_overrides = self.unified_config.get_config_section('client_classification', 'category_specific_overrides', {})
+            category_settings = category_overrides.get(category_name, {})
+            return category_settings.get('threshold_config', self.default_threshold_config)
         except Exception as e:
             logger.debug(f"Error getting category threshold config, using default: {e}")
             return self.default_threshold_config
-    
-    def _apply_classification_strategy(self, server_level: str, client_level: str, strategy: str, 
-                                     crisis_score: float, confidence_score: float) -> Tuple[str, str]:
-        """Apply classification strategy to determine final crisis level"""
-        try:
-            if not self.client_classifier:
-                return server_level, "server"
-            
-            strategy_result = self.client_classifier.apply_strategy(
-                server_level=server_level,
-                client_level=client_level,
-                strategy=strategy,
-                crisis_score=crisis_score,
-                confidence_score=confidence_score
-            )
-            
-            return strategy_result.final_level, strategy_result.source
-            
-        except Exception as e:
-            logger.error(f"Error applying classification strategy: {e}")
-            return server_level, "server"
-    
-    def _calculate_classification_agreement(self, server_level: str, client_level: str) -> Tuple[bool, int]:
-        """Calculate agreement between server and client classifications"""
-        if server_level == client_level:
-            return True, 0  # Exact agreement
-        
-        server_numeric = self.priority_levels.get(server_level, 0)
-        client_numeric = self.priority_levels.get(client_level, 0)
-        
-        distance = abs(server_numeric - client_numeric)
-        
-        if distance == 1:
-            return False, 1  # Close disagreement (1 level)
-        else:
-            return False, 2  # Distant disagreement (2+ levels)
     # ========================================================================
     
     # ========================================================================
@@ -838,7 +804,7 @@ def create_test_engine_manager(unified_config_manager, nlp_client_manager, class
     Raises:
         ValueError: If required managers are None or invalid
     """
-    logger.debug("Creating TestEngineManager v3.1-4a-3 with dual classification support")
+    logger.debug("Creating TestEngineManager v3.1-4a-4 with dual classification support")
     
     if not unified_config_manager:
         raise ValueError("UnifiedConfigManager is required for TestEngineManager factory")
@@ -867,5 +833,5 @@ __all__ = [
     'create_test_engine_manager'
 ]
 
-logger.info("TestEngineManager v3.1-4a-3 loaded with dual classification support")
+logger.info("TestEngineManager v3.1-4a-4 loaded with dual classification support")
 # ========================================================================
