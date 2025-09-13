@@ -1,11 +1,43 @@
 {
   "_metadata": {
     "title": "Client Crisis Classification Configuration",
-    "file_version": "v3.1-4a-1",
+    "file_version": "v3.1-4a-2",
     "last_modified": "2025-09-12",
     "clean_architecture": "v3.1",
     "description": "Client-side crisis classification thresholds and strategies for dual classification testing",
     "compliance": "Clean Architecture Standards"
+  },
+
+  "client_classification": {
+    "description": "Core client classification settings",
+    "enable_client_classification": "${THRASH_ENABLE_CLIENT_CLASSIFICATION}",
+    "default_strategy": "${THRASH_CLIENT_CLASSIFICATION_STRATEGY}",
+    "default_threshold_config": "${THRASH_DEFAULT_THRESHOLD_CONFIG}",
+    "track_agreement_stats": "${THRASH_TRACK_CLASSIFICATION_STATS}",
+    "log_disagreements": "${THRASH_LOG_CLASSIFICATION_DISAGREEMENTS}",
+    "defaults": {
+      "enable_client_classification": true,
+      "default_strategy": "conservative", 
+      "default_threshold_config": "standard",
+      "track_agreement_stats": true,
+      "log_disagreements": true
+    },
+    "validation": {
+      "enable_client_classification": {
+        "type": "boolean",
+        "description": "Enable dual classification mode with client-side crisis classification"
+      },
+      "default_strategy": {
+        "type": "string",
+        "allowed_values": ["conservative", "aggressive", "consensus", "client_only"],
+        "description": "Default classification strategy to use"
+      },
+      "default_threshold_config": {
+        "type": "string", 
+        "allowed_values": ["standard", "conservative", "aggressive"],
+        "description": "Default threshold configuration set to use"
+      }
+    }
   },
 
   "classification_strategies": {
@@ -131,10 +163,6 @@
     "log_disagreements": "${THRASH_LOG_CLASSIFICATION_DISAGREEMENTS}",
     "min_agreement_threshold": 0.70,
     "significant_disagreement_threshold": 2,
-    "defaults": {
-      "track_agreement_stats": true,
-      "log_disagreements": true
-    },
     "defaults": {
       "track_agreement_stats": true,
       "log_disagreements": true
