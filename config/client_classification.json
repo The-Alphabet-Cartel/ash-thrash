@@ -167,7 +167,7 @@
         "medium_min": "${THRASH_THRESHOLD_STANDARD_MEDIUM}",
         "low_min": "${THRASH_THRESHOLD_STANDARD_LOW}",
         "defaults": {
-          "critical_min": 0.800
+          "critical_min": 0.800,
           "high_min": 0.600,
           "medium_min": 0.400,
           "low_min": 0.200
