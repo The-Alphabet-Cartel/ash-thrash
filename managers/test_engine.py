@@ -168,8 +168,8 @@ class TestEngineManager:
             
             # Client classification configuration (NEW) - Using correct get_config_section
             self.client_classification_enabled = self.unified_config.get_config_section('client_classification', 'client_classification.enable_client_classification', True)
-            self.client_strategy = self.unified_config.get_config_section('client_classification', 'client_classification.default_strategy', 'conservative')  
-            self.default_threshold_config = self.unified_config.get_config_section('client_classification', 'client_classification.default_threshold_config', 'standard')
+            self.client_strategy = self.unified_config.get_config_section('client_classification', 'client_classification.strategy', 'conservative')  
+            self.threshold_config = self.unified_config.get_config_section('client_classification', 'client_classification.threshold_config', 'standard')
             
             # Extract configuration values
             self.max_concurrent = self.test_config.get('max_concurrent_tests', 3)
@@ -337,10 +337,10 @@ class TestEngineManager:
         try:
             category_overrides = self.unified_config.get_config_section('client_classification', 'category_specific_overrides', {})
             category_settings = category_overrides.get(category_name, {})
-            return category_settings.get('threshold_config', self.default_threshold_config)
+            return category_settings.get('threshold_config', self.threshold_config)
         except Exception as e:
             logger.debug(f"Error getting category threshold config, using default: {e}")
-            return self.default_threshold_config
+            return self.threshold_config
     # ========================================================================
     
     # ========================================================================
@@ -650,7 +650,7 @@ class TestEngineManager:
         logger.info("Starting Ash-Thrash Test Suite Execution")
         if self.client_classification_enabled and self.client_classifier:
             logger.info("DUAL CLASSIFICATION MODE: Server + Client")
-            logger.info(f"Strategy: {self.client_strategy}, Threshold Config: {self.default_threshold_config}")
+            logger.info(f"Strategy: {self.client_strategy}, Threshold Config: {self.threshold_config}")
         else:
             logger.info("SERVER-ONLY MODE: Traditional classification")
         logger.info("=" * 70)
@@ -788,7 +788,7 @@ class TestEngineManager:
             'client_won_categories': client_won_categories,
             'server_won_categories': len(client_enabled_categories) - client_won_categories,
             'strategy_used': self.client_strategy,
-            'threshold_config_used': self.default_threshold_config,
+            'threshold_config_used': self.threshold_config,
             'category_breakdown': [
                 {
                     'category': cat.category_name,
