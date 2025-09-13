@@ -6,7 +6,7 @@ Ash-Thrash Main Application Entry Point for Ash Thrash Service
 ---
 FILE VERSION: v3.1-4a-4
 LAST MODIFIED: 2025-09-12
-PHASE: 4a Step 3 - Main Application Client Classification Integration
+PHASE: 4a Step 4 - Main Application Client Classification Integration Fixed
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -119,15 +119,15 @@ def initialize_managers():
         unified_config = create_unified_config_manager()
         logging_config = create_logging_config_manager(unified_config)
         
-        # Client classification manager (NEW)
+        # Client classification manager (NEW) - Using correct configuration method
         client_classifier = None
         try:
-            client_classification_enabled = unified_config.get_env_var('THRASH_ENABLE_CLIENT_CLASSIFICATION', 'true').lower() == 'true'
+            client_classification_enabled = unified_config.get_config_section('client_classification', 'client_classification.enable_client_classification', True)
             if client_classification_enabled:
                 client_classifier = create_client_crisis_classifier_manager(unified_config)
-                logger.info("✅ Client classification manager initialized - DUAL CLASSIFICATION MODE")
+                logger.info("Client classification manager initialized - DUAL CLASSIFICATION MODE")
             else:
-                logger.info("ℹ️  Client classification disabled - SERVER-ONLY MODE")
+                logger.info("Client classification disabled - SERVER-ONLY MODE")
         except Exception as e:
             logger.warning(f"Client classification manager failed to initialize: {e}")
             logger.info("Continuing with server-only classification")
@@ -157,12 +157,12 @@ def initialize_managers():
         
         manager_count = len([m for m in managers.values() if m is not None])
         logger.info(f"All managers initialized successfully: {manager_count} total")
-        logger.info("✅ Phase 3a: Advanced Tuning Intelligence enabled")
+        logger.info("Phase 3a: Advanced Tuning Intelligence enabled")
         
         if client_classifier:
-            logger.info("✅ Phase 4a: Client-Side Crisis Classification enabled")
-            strategy = unified_config.get_env_var('THRASH_CLIENT_CLASSIFICATION_STRATEGY', 'conservative')
-            threshold_config = unified_config.get_env_var('THRASH_DEFAULT_THRESHOLD_CONFIG', 'standard')
+            logger.info("Phase 4a: Client-Side Crisis Classification enabled")
+            strategy = unified_config.get_config_section('client_classification', 'client_classification.default_strategy', 'conservative')
+            threshold_config = unified_config.get_config_section('client_classification', 'client_classification.default_threshold_config', 'standard')
             logger.info(f"   Strategy: {strategy}, Threshold Config: {threshold_config}")
         
         return managers
@@ -187,7 +187,7 @@ def run_comprehensive_test(managers):
     # Log classification mode
     if client_classifier:
         logger.info("Starting comprehensive test suite with DUAL CLASSIFICATION...")
-        strategy = managers['unified_config'].get_env_var('THRASH_CLIENT_CLASSIFICATION_STRATEGY', 'conservative')
+        strategy = managers['unified_config'].get_config_section('client_classification', 'client_classification.default_strategy', 'conservative')
         logger.info(f"Using strategy: {strategy}")
     else:
         logger.info("Starting comprehensive test suite with SERVER-ONLY classification...")
@@ -208,19 +208,19 @@ def run_comprehensive_test(managers):
             logger.info("Generating comprehensive markdown reports...")
             report_success = analyze_manager.generate_all_reports()
             if report_success:
-                logger.info("✅ All markdown reports generated successfully:")
-                logger.info("   📄 reports/latest_run_summary.md")
-                logger.info("   🔧 reports/threshold_recommendations.md") 
-                logger.info("   📈 reports/historical_performance.md")
+                logger.info("All markdown reports generated successfully:")
+                logger.info("   reports/latest_run_summary.md")
+                logger.info("   reports/threshold_recommendations.md") 
+                logger.info("   reports/historical_performance.md")
             else:
-                logger.warning("⚠️  Some markdown reports failed to generate")
+                logger.warning("Some markdown reports failed to generate")
         except Exception as e:
             logger.error(f"Failed to generate markdown reports: {e}")
         
         # Generate advanced tuning intelligence and recommendations
         try:
             logger.info("=" * 50)
-            logger.info("🧠 PHASE 3A: GENERATING ADVANCED TUNING INTELLIGENCE")
+            logger.info("PHASE 3A: GENERATING ADVANCED TUNING INTELLIGENCE")
             logger.info("=" * 50)
             
             # Convert suite result to format needed by tuning manager
@@ -236,7 +236,7 @@ def run_comprehensive_test(managers):
             
             # Log tuning intelligence summary
             logger.info("=" * 50)
-            logger.info("🎯 TUNING INTELLIGENCE SUMMARY")
+            logger.info("TUNING INTELLIGENCE SUMMARY")
             logger.info("=" * 50)
             logger.info(f"Current ensemble mode: {tuning_analysis.ensemble_mode.value}")
             logger.info(f"Critical issues identified: {len(tuning_analysis.critical_issues)}")
@@ -247,29 +247,29 @@ def run_comprehensive_test(managers):
             confidence_summary = tuning_analysis.confidence_summary
             if confidence_summary.get('total_recommendations', 0) > 0:
                 logger.info("Recommendation confidence breakdown:")
-                logger.info(f"  🟢 High confidence: {confidence_summary.get('high', 0)} recommendations")
-                logger.info(f"  🟡 Medium confidence: {confidence_summary.get('medium', 0)} recommendations")
-                logger.info(f"  🟠 Low confidence: {confidence_summary.get('low', 0)} recommendations")
-                logger.info(f"  🔴 Uncertain: {confidence_summary.get('uncertain', 0)} recommendations")
+                logger.info(f"  High confidence: {confidence_summary.get('high', 0)} recommendations")
+                logger.info(f"  Medium confidence: {confidence_summary.get('medium', 0)} recommendations")
+                logger.info(f"  Low confidence: {confidence_summary.get('low', 0)} recommendations")
+                logger.info(f"  Uncertain: {confidence_summary.get('uncertain', 0)} recommendations")
             
             # Display critical issues
             if tuning_analysis.critical_issues:
-                logger.warning("🚨 Critical issues requiring immediate attention:")
+                logger.warning("Critical issues requiring immediate attention:")
                 for issue in tuning_analysis.critical_issues[:3]:  # Show first 3
-                    logger.warning(f"   • {issue}")
+                    logger.warning(f"   {issue}")
                 if len(tuning_analysis.critical_issues) > 3:
-                    logger.warning(f"   • ... and {len(tuning_analysis.critical_issues) - 3} more")
+                    logger.warning(f"   ... and {len(tuning_analysis.critical_issues) - 3} more")
             
             # Display file locations
-            logger.info("📁 Analysis files generated:")
+            logger.info("Analysis files generated:")
             if analysis_file:
-                logger.info(f"   📊 Detailed analysis: {analysis_file}")
+                logger.info(f"   Detailed analysis: {analysis_file}")
             if env_file:
-                logger.info(f"   ⚙️ Recommended settings: {env_file}")
+                logger.info(f"   Recommended settings: {env_file}")
             
             # Show implementation order preview
             if tuning_analysis.implementation_order:
-                logger.info("📋 Implementation priority order (top 3):")
+                logger.info("Implementation priority order (top 3):")
                 for i, order_item in enumerate(tuning_analysis.implementation_order[:3], 1):
                     logger.info(f"   {i}. {order_item}")
                 if len(tuning_analysis.implementation_order) > 3:
@@ -283,48 +283,48 @@ def run_comprehensive_test(managers):
         if client_classifier and suite_result.client_classification_summary:
             try:
                 logger.info("=" * 50)
-                logger.info("🔄 PHASE 4A: CLIENT CLASSIFICATION ANALYSIS")
+                logger.info("PHASE 4A: CLIENT CLASSIFICATION ANALYSIS")
                 logger.info("=" * 50)
                 
                 summary = suite_result.client_classification_summary
                 logger.info("Dual Classification Performance Summary:")
-                logger.info(f"  📊 Total categories tested: {summary['total_categories_tested']}")
-                logger.info(f"  📝 Total phrases analyzed: {summary['total_phrases_tested']}")
-                logger.info(f"  🖥️  Server accuracy: {summary['overall_server_accuracy']:.1f}%")
-                logger.info(f"  💻 Client accuracy: {summary['overall_client_accuracy']:.1f}%")
-                logger.info(f"  🤝 Agreement rate: {summary['overall_agreement_rate']:.1f}%")
+                logger.info(f"  Total categories tested: {summary['total_categories_tested']}")
+                logger.info(f"  Total phrases analyzed: {summary['total_phrases_tested']}")
+                logger.info(f"  Server accuracy: {summary['overall_server_accuracy']:.1f}%")
+                logger.info(f"  Client accuracy: {summary['overall_client_accuracy']:.1f}%")
+                logger.info(f"  Agreement rate: {summary['overall_agreement_rate']:.1f}%")
                 
                 # Performance comparison
                 if summary['overall_client_accuracy'] > summary['overall_server_accuracy']:
                     improvement = summary['overall_client_accuracy'] - summary['overall_server_accuracy']
-                    logger.info(f"  ✅ Client outperformed server by {improvement:.1f} percentage points")
+                    logger.info(f"  Client outperformed server by {improvement:.1f} percentage points")
                 elif summary['overall_server_accuracy'] > summary['overall_client_accuracy']:
                     difference = summary['overall_server_accuracy'] - summary['overall_client_accuracy']
-                    logger.info(f"  ⚠️  Server outperformed client by {difference:.1f} percentage points")
+                    logger.info(f"  Server outperformed client by {difference:.1f} percentage points")
                 else:
-                    logger.info(f"  🤝 Server and client performed equally")
+                    logger.info(f"  Server and client performed equally")
                 
                 # Category breakdown
-                logger.info(f"  🏆 Client won categories: {summary['client_won_categories']}")
-                logger.info(f"  🖥️  Server won categories: {summary['server_won_categories']}")
+                logger.info(f"  Client won categories: {summary['client_won_categories']}")
+                logger.info(f"  Server won categories: {summary['server_won_categories']}")
                 
                 # Strategy effectiveness
-                logger.info(f"  📈 Strategy used: {summary['strategy_used']}")
-                logger.info(f"  🎛️  Threshold config: {summary['threshold_config_used']}")
+                logger.info(f"  Strategy used: {summary['strategy_used']}")
+                logger.info(f"  Threshold config: {summary['threshold_config_used']}")
                 
                 # Agreement analysis
                 if summary['overall_agreement_rate'] >= 80:
-                    logger.info("  ✅ High agreement rate - classifications are consistent")
+                    logger.info("  High agreement rate - classifications are consistent")
                 elif summary['overall_agreement_rate'] >= 70:
-                    logger.info("  ⚠️  Moderate agreement rate - some classification differences")
+                    logger.info("  Moderate agreement rate - some classification differences")
                 else:
-                    logger.warning("  🚨 Low agreement rate - significant classification differences")
+                    logger.warning("  Low agreement rate - significant classification differences")
                 
                 # Category-specific insights
                 if summary.get('category_breakdown'):
-                    logger.info("📋 Category-specific performance:")
+                    logger.info("Category-specific performance:")
                     for cat_info in summary['category_breakdown'][:5]:  # Show first 5
-                        status = "✅" if cat_info['client_won'] else "🖥️"
+                        status = "Client" if cat_info['client_won'] else "Server"
                         logger.info(f"   {status} {cat_info['category']}: "
                                    f"Server {cat_info['server_accuracy']:.1f}%, "
                                    f"Client {cat_info['client_accuracy']:.1f}%, "
@@ -960,9 +960,10 @@ def show_usage():
     logger.info("  Performance comparison reports showing client vs server accuracy")
     logger.info("")
     logger.info("Client Classification Configuration:")
-    logger.info("  THRASH_ENABLE_CLIENT_CLASSIFICATION=true/false  # Enable dual classification")
-    logger.info("  THRASH_CLIENT_CLASSIFICATION_STRATEGY=strategy  # conservative/aggressive/consensus/client_only")
-    logger.info("  THRASH_DEFAULT_THRESHOLD_CONFIG=config          # standard/conservative/aggressive")
+    logger.info("  Edit config/client_classification.json to adjust:")
+    logger.info("    - enable_client_classification: true/false")
+    logger.info("    - default_strategy: conservative/aggressive/consensus/client_only")
+    logger.info("    - default_threshold_config: standard/conservative/aggressive")
     logger.info("")
 # ============================================================================
 
