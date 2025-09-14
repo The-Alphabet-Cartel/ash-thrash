@@ -84,9 +84,6 @@ docker compose exec ash-thrash cat reports/latest_run_summary.md
 ```bash
 # Test high-priority categories only
 docker compose exec ash-thrash python main.py --categories definite_high definite_medium
-
-# Analyze specific category performance
-docker compose exec ash-thrash python analyze.py --category definite_high
 ```
 
 ### 📈 Understanding Results
