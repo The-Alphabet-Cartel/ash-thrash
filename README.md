@@ -72,9 +72,6 @@ docker compose exec ash-thrash python main.py
 ```bash
 # Test specific categories
 docker compose exec ash-thrash python main.py --categories definite_high definite_medium
-
-# Single category analysis
-docker compose exec ash-thrash python analyze.py --category definite_high
 ```
 
 ## 🧠 Advanced Tuning Intelligence
