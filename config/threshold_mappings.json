@@ -86,7 +86,6 @@
         }
       }
     },
-
     "majority": {
       "individual_thresholds": {
         "NLP_THRESHOLD_MAJORITY_CRISIS_TO_HIGH": {
@@ -165,7 +164,6 @@
         }
       }
     },
-
     "weighted": {
       "individual_thresholds": {
         "NLP_THRESHOLD_WEIGHTED_CRISIS_TO_HIGH": {
@@ -197,7 +195,7 @@
           "description": "Negative to low threshold (weighted mode)",
           "default": 0.720,
           "range_min": 0.550,
-          "range_max": 1.00,
+          "range_max": 0.900,
           "risk_level": "minimal"
         },
         "NLP_THRESHOLD_WEIGHTED_UNKNOWN_TO_LOW": {
@@ -205,7 +203,7 @@
           "description": "Unknown to low threshold (weighted mode)",
           "default": 0.520,
           "range_min": 0.350,
-          "range_max": 1.00,
+          "range_max": 0.900,
           "risk_level": "minimal"
         }
       },
@@ -215,7 +213,7 @@
           "description": "Critical crisis ensemble threshold (weighted)",
           "default": 0.700,
           "range_min": 0.500,
-          "range_max": 1.00,
+          "range_max": 0.900,
           "risk_level": "critical"
         },
         "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_HIGH": {
@@ -259,15 +257,15 @@
     "validation": {
       "high_confidence_min": {
         "type": "float",
-        "range": [0.01, 1.00]
+        "range": [0.001, 1.000]
       },
       "medium_confidence_min": {
         "type": "float",
-        "range": [0.01, 1.00]
+        "range": [0.001, 1.000]
       },
       "low_confidence_min": {
         "type": "float",
-        "range": [0.01, 1.00]
+        "range": [0.001, 1.000]
       }
     }
   },
