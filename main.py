@@ -43,6 +43,7 @@ def setup_unified_logging(unified_config_manager):
         log_level = unified_config_manager.get_config_section('logging_settings', 'global_settings.log_level', 'INFO')
         log_detailed = unified_config_manager.get_config_section('logging_settings', 'detailed_logging.enable_detailed', True)
         enable_file_logging = unified_config_manager.get_config_section('logging_settings', 'global_settings.enable_file_output', False)
+        log_dir = unified_config_manager.get_config_section('logging_settings', 'global_settings.log_directory', './logs')
         log_file = unified_config_manager.get_config_section('logging_settings', 'global_settings.log_file', 'ash-thrash.log')
         
         # Configure colorlog formatter
@@ -81,14 +82,14 @@ def setup_unified_logging(unified_config_manager):
         # Optional file handler
         if enable_file_logging:
             try:
-                file_handler = logging.FileHandler(log_file)
+                file_handler = logging.FileHandler(f'{log_dir}/{log_file}')
                 file_formatter = logging.Formatter(
                     '%(asctime)s - %(name)s - %(levelname)s: %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S'
                 )
                 file_handler.setFormatter(file_formatter)
                 root_logger.addHandler(file_handler)
-                logging.info(f"File logging enabled: {log_file}")
+                logging.info(f"File logging enabled: {log_dir}/{log_file}")
             except Exception as e:
                 logging.warning(f"Could not setup file logging: {e}")
         
