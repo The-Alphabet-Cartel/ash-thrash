@@ -183,7 +183,7 @@
           "risk_level": "low"
         },
         "NLP_THRESHOLD_WEIGHTED_MILD_CRISIS_TO_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Mild crisis to low threshold (weighted mode)",
           "default": 0.420,
           "range_min": 0.250,
@@ -209,7 +209,7 @@
       },
       "ensemble_thresholds": {
         "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_CRITICAL": {
-          "affects": ["high", "critical"],
+          "affects": ["critical"],
           "description": "Critical crisis ensemble threshold (weighted)",
           "default": 0.700,
           "range_min": 0.500,
