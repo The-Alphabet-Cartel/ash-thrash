@@ -242,7 +242,8 @@ except Exception as e:
       "*setting_name": {
         "type": "integer | boolean | list | float | string",
         "range": [min, max],
-        "allowed_values": ["*value1*", "*value2*", "*value3*", ...]
+        "allowed_values": ["*value1*", "*value2*", "*value3*", ...],
+        "required": true | false
       }
     }
   },
@@ -265,9 +266,9 @@ except Exception as e:
 
   "crisis_thresholds": {
     "description": "Core crisis level mapping thresholds for analysis algorithms",
-    "high": "${NLP_ANALYSIS_CRISIS_THRESHOLD_HIGH}",
-    "medium": "${NLP_ANALYSIS_CRISIS_THRESHOLD_MEDIUM}",
-    "low": "${NLP_ANALYSIS_CRISIS_THRESHOLD_LOW}",
+    "high": "${THRASH_ANALYSIS_CRISIS_THRESHOLD_HIGH}",
+    "medium": "${THRASH_ANALYSIS_CRISIS_THRESHOLD_MEDIUM}",
+    "low": "${THRASH_ANALYSIS_CRISIS_THRESHOLD_LOW}",
     "defaults": {
       "high": 0.55,
       "medium": 0.28,
