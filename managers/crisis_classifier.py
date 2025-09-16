@@ -66,7 +66,7 @@ class ThresholdConfig:
 # ============================================================================
 # CLIENT CRISIS CLASSIFIER MANAGER - Clean Architecture v3.1
 # ============================================================================
-class ClientCrisisClassifierManager:
+class CrisisClassifierManager:
     """
     Client-Side Crisis Classification Manager for Ash-Thrash testing suite
     
@@ -82,15 +82,15 @@ class ClientCrisisClassifierManager:
     # ============================================================================
     def __init__(self, unified_config_manager):
         """
-        Initialize ClientCrisisClassifierManager with dependency injection
+        Initialize CrisisClassifierManager with dependency injection
         
         Args:
             unified_config_manager: UnifiedConfigManager for configuration access
         """
-        logger.debug("Initializing ClientCrisisClassifierManager v3.1-4a-1")
+        logger.debug("Initializing CrisisClassifierManager v3.1-4a-1")
         
         if not unified_config_manager:
-            raise ValueError("UnifiedConfigManager is required for ClientCrisisClassifierManager")
+            raise ValueError("UnifiedConfigManager is required for CrisisClassifierManager")
             
         self.config_manager = unified_config_manager
         
@@ -108,7 +108,7 @@ class ClientCrisisClassifierManager:
             'strategy_usage': {strategy.value: 0 for strategy in ClassificationStrategy}
         }
         
-        logger.info("ClientCrisisClassifierManager v3.1-4a-1 initialized successfully")
+        logger.info("CrisisClassifierManager v3.1-4a-1 initialized successfully")
     
     def _load_threshold_configurations(self) -> Dict[str, ThresholdConfig]:
         """Load client-side threshold configurations from JSON config"""
@@ -119,7 +119,9 @@ class ClientCrisisClassifierManager:
             # Try to load from JSON configuration
             try:
                 config_data = self.config_manager.get_config_section(
-                    'client_classification', 'threshold_configs', {}
+                    'client_classification',
+                    'threshold_configurations',
+                    {}
                 )
             except Exception as e:
                 logger.warning(f"Could not load client threshold configs: {e}, using defaults")
@@ -158,12 +160,12 @@ class ClientCrisisClassifierManager:
                 config_section = config_data.get(config_name, {})
                 
                 threshold_configs[config_name] = ThresholdConfig(
-                    critical_min=config_section.get('critical_min', default_config.critical_min),
-                    high_min=config_section.get('high_min', default_config.high_min),
-                    medium_min=config_section.get('medium_min', default_config.medium_min),
-                    low_min=config_section.get('low_min', default_config.low_min),
-                    confidence_weight=config_section.get('confidence_weight', default_config.confidence_weight),
-                    variance_penalty=config_section.get('variance_penalty', default_config.variance_penalty)
+                    critical_min=config_section.get('crisis_thresholds.critical_min', default_config.critical_min),
+                    high_min=config_section.get('crisis_thresholds.high_min', default_config.high_min),
+                    medium_min=config_section.get('crisis_thresholds.medium_min', default_config.medium_min),
+                    low_min=config_section.get('crisis_thresholds.low_min', default_config.low_min),
+                    confidence_weight=config_section.get('confidence.confidence_weight', default_config.confidence_weight),
+                    variance_penalty=config_section.get('confidence.variance_penalty', default_config.variance_penalty)
                 )
             
             logger.debug(f"Loaded {len(threshold_configs)} threshold configurations")
@@ -181,10 +183,11 @@ class ClientCrisisClassifierManager:
     def _load_classification_strategy(self) -> ClassificationStrategy:
         """Load default classification strategy from configuration"""
         try:
-            strategy_str = os.environ.get(
-                'ASH_THRASH_CLIENT_CLASSIFICATION_STRATEGY', 
+            strategy_str = self.config_manager.get_config_section(
+                'client_classification',
+                'client_classification.strategy',
                 'conservative'
-            ).lower()
+            )
             
             strategy_mapping = {
                 'conservative': ClassificationStrategy.CONSERVATIVE,
@@ -276,8 +279,11 @@ class ClientCrisisClassifierManager:
             # Update statistics
             self._update_classification_stats(result)
             
-            logger.debug(f"Client classification: {server_suggested_level} → {client_level} → {final_level} "
-                        f"(strategy: {strategy.value}, agreement: {agreement.value})")
+            logger.debug(f"Client classification:")
+            logger.debug(f"→ Suggested Level: {server_suggested_level}")
+            logger.debug(f"→ Client Level: {client_level}")
+            logger.debug(f"→ Final Level: {final_level}")
+            logger.debug(f"(strategy: {strategy.value}, agreement: {agreement.value})")
             
             return result
             
@@ -533,34 +539,34 @@ class ClientCrisisClassifierManager:
 # ============================================================================
 # FACTORY FUNCTION - Clean Architecture v3.1 Compliance
 # ============================================================================
-def create_client_crisis_classifier_manager(unified_config_manager) -> ClientCrisisClassifierManager:
+def create_crisis_classifier_manager(unified_config_manager) -> CrisisClassifierManager:
     """
-    Factory function for ClientCrisisClassifierManager (Clean v3.1 Pattern)
+    Factory function for CrisisClassifierManager (Clean v3.1 Pattern)
     
     Args:
         unified_config_manager: UnifiedConfigManager instance for dependency injection
         
     Returns:
-        Initialized ClientCrisisClassifierManager instance
+        Initialized CrisisClassifierManager instance
         
     Raises:
         ValueError: If unified_config_manager is None or invalid
     """
-    logger.debug("Creating ClientCrisisClassifierManager v3.1-4a-1 with Clean v3.1 architecture")
+    logger.debug("Creating CrisisClassifierManager v3.1-4a-1 with Clean v3.1 architecture")
     
     if not unified_config_manager:
-        raise ValueError("UnifiedConfigManager is required for ClientCrisisClassifierManager factory")
+        raise ValueError("UnifiedConfigManager is required for CrisisClassifierManager factory")
     
-    return ClientCrisisClassifierManager(unified_config_manager)
+    return CrisisClassifierManager(unified_config_manager)
 
 # Export public interface
 __all__ = [
-    'ClientCrisisClassifierManager',
+    'CrisisClassifierManager',
     'ClassificationStrategy', 
     'ClassificationAgreement',
     'ClassificationResult',
     'ThresholdConfig',
-    'create_client_crisis_classifier_manager'
+    'create_crisis_classifier_manager'
 ]
 
-logger.info("ClientCrisisClassifierManager v3.1-4a-1 loaded with client-side crisis classification capabilities")
+logger.info("CrisisClassifierManager v3.1-4a-1 loaded with client-side crisis classification capabilities")

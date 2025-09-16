@@ -229,6 +229,7 @@ except Exception as e:
     "phase": "3d Step [X] - [Description]",
     "clean_architecture": "v3.1 Compliant",
   },
+
   "*setting_category*": {
     "description": "*settingDescription*",
     "*setting_name*": "${*ENV_VAR*}",
@@ -238,12 +239,20 @@ except Exception as e:
       [...moreSettings...],
     },
     "validation": {
-      [...categoryValidationValues...],
+      "*setting_name": {
+        "type": "integer | boolean | list | float | string",
+        "range": [min, max],
+        "allowed_values": ["*value1*", "*value2*", "*value3*", ...],
+        "required": true | false
+      }
     }
   },
   [...],
 }
 ```
+- **NOTES:**
+  - *Only Integers and Floats use the `"range"` validation field.*
+  - *Only Strings use the `"allowed_values"` validation field.*
 
 **Example**
 ```json
@@ -251,28 +260,44 @@ except Exception as e:
   "_metadata": {
     "file_version": "v3.1-3d-10.6-1",
     "last_modified": "2025-08-13",
-    "phase": "3d Step 10.6",
-    "clean_architecture": "v3.1",
+    "phase": "3d Step 10.6 - Scoring Functions Consolidated",
+    "clean_architecture": "v3.1 Compliant",
   },
+
   "crisis_thresholds": {
     "description": "Core crisis level mapping thresholds for analysis algorithms",
-    "high": "${NLP_ANALYSIS_CRISIS_THRESHOLD_HIGH}",
-    "medium": "${NLP_ANALYSIS_CRISIS_THRESHOLD_MEDIUM}",
-    "low": "${NLP_ANALYSIS_CRISIS_THRESHOLD_LOW}",
+    "high": "${THRASH_ANALYSIS_CRISIS_THRESHOLD_HIGH}",
+    "medium": "${THRASH_ANALYSIS_CRISIS_THRESHOLD_MEDIUM}",
+    "low": "${THRASH_ANALYSIS_CRISIS_THRESHOLD_LOW}",
     "defaults": {
       "high": 0.55,
       "medium": 0.28,
       "low": 0.16
     },
     "validation": {
-      "range": [0.0, 1.0],
-      "type": "float",
-      "ordering": "high > medium > low",
-      "fallback_behavior": "use_defaults_with_logging"
+      "high": {
+        "type": "float",
+        "range": [0.001, 1.000]
+      },
+      "medium": {
+        "type": "float",
+        "range": [0.001, 1.000]
+      },
+      "low": {
+        "type": "float",
+        "range": [0.001, 1.000]
+      }
     }
   }
 }
 ```
+**Note:**
+- *All data types in the JSON validation fields need to be full words*
+  - "integer", not "int"
+  - "float", not "flt"
+  - "string", not "str"
+  - "boolean", not "bool"
+  - "list" for dictionaries
 
 ---
 

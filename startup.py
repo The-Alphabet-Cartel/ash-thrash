@@ -145,7 +145,6 @@ def initialize_and_warm_managers():
         logger.info("Available commands:")
         logger.info("  docker compose exec ash-thrash python main.py                         # Run comprehensive test suite")
         logger.info("  docker compose exec ash-thrash python main.py [category]              # Run specific category test")
-        logger.info("  docker compose exec ash-thrash python analyze.py                      # Analyze results")
         logger.info("  docker compose exec ash-thrash python main.py weight-optimize         # Run Model Weight Optimization (Full)")
         logger.info("  docker compose exec ash-thrash python main.py weight-optimize-sample  # Run Model Weight Optimization (Sample)")
         logger.info("  docker compose exec ash-thrash python main.py label-optimize          # Run Model Weight Optimization (Full)")
