@@ -4,8 +4,9 @@ Ash-Thrash: Crisis Detection Testing for The Alphabet Cartel Discord Community
 ********************************************************************************
 Results Analysis and Markdown Report Generation Manager for Ash-Thrash Service
 ---
-FILE VERSION: v3.1-2a-1
-LAST MODIFIED: 2025-08-31
+FILE VERSION: v3.1-2a-2
+LAST MODIFIED: 2025-09-17
+PHASE: 2a Step 2 - Enhanced Failed Phrase Details in Reports
 CLEAN ARCHITECTURE: v3.1
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
@@ -25,8 +26,13 @@ class AnalyzeResultsManager:
     
     Handles analysis display, markdown report generation, and integration
     with the main test workflow for persistent reporting following Clean Architecture.
+    
+    Enhanced with detailed failed phrase analysis for improved debugging and tuning.
     """
     
+    # ========================================================================
+    # INITIALIZE
+    # ========================================================================
     def __init__(self, unified_config_manager, results_manager, logging_config_manager):
         """
         Initialize AnalyzeResults Manager
@@ -54,7 +60,11 @@ class AnalyzeResultsManager:
         except Exception as e:
             logger.error(f"Error initializing AnalyzeResultsManager: {e}")
             raise
+    # ========================================================================
     
+    # ========================================================================
+    # DISPLAY RESULTS
+    # ========================================================================
     def display_latest_results(self) -> bool:
         """Display the most recent test results using proper logging"""
         try:
@@ -86,96 +96,52 @@ class AnalyzeResultsManager:
             logger.info(f"Execution Time: {run_summary.get('execution_time_ms', 0)/1000:.1f}s")
             
             # Overall performance
-            overall_pass_rate = run_summary.get('overall_pass_rate', 0)
-            safety_score = run_summary.get('weighted_safety_score', 0)
-            
-            logger.info("OVERALL PERFORMANCE")
-            logger.info(f"Overall Pass Rate: {overall_pass_rate:.1f}%")
-            logger.info(f"Safety Score: {safety_score:.2f}")
-            logger.info(f"Total Phrases: {run_summary.get('total_phrases', 0)}")
-            logger.info(f"Passed: {run_summary.get('total_passed', 0)}")
-            logger.info(f"Failed: {run_summary.get('total_failed', 0)}")
-            logger.info(f"Errors: {run_summary.get('total_errors', 0)}")
+            logger.info("")
+            logger.info("OVERALL PERFORMANCE:")
+            logger.info(f"   Pass Rate: {run_summary.get('overall_pass_rate', 0):.1f}%")
+            logger.info(f"   Safety Score: {run_summary.get('weighted_safety_score', 0):.2f}")
+            logger.info(f"   Total Phrases: {run_summary.get('total_phrases', 0)}")
+            logger.info(f"   Passed: {run_summary.get('total_passed', 0)}")
+            logger.info(f"   Failed: {run_summary.get('total_failed', 0)}")
+            logger.info(f"   Errors: {run_summary.get('total_errors', 0)}")
             
             if run_summary.get('early_termination'):
-                logger.warning(f"Early Termination: {run_summary.get('termination_reason', 'unknown')}")
+                logger.warning(f"EARLY TERMINATION: {run_summary.get('termination_reason', 'unknown')}")
             
-            # Category performance
-            logger.info("CATEGORY PERFORMANCE")
-            for category in category_summaries:
-                name = category.get('category_name', 'unknown')
-                pass_rate = category.get('pass_rate', 0)
-                target = category.get('target_pass_rate', 0)
-                met_target = category.get('met_target', False)
-                is_critical = category.get('is_critical', False)
-                
-                status = "PASS" if met_target else "FAIL"
-                log_level = logger.info
-                if is_critical and not met_target:
-                    status = "CRITICAL FAIL"
-                    log_level = logger.error
-                elif not met_target:
-                    log_level = logger.warning
-                
-                log_level(f"{name}: {pass_rate:.1f}% (target: {target}%) - {status}")
+            # Category breakdown
+            logger.info("")
+            logger.info("CATEGORY BREAKDOWN:")
+            if category_summaries:
+                for category in category_summaries:
+                    status = "PASS" if category.get('met_target', False) else "FAIL"
+                    critical = " [CRITICAL]" if category.get('is_critical', False) else ""
+                    
+                    logger.info(f"   {category.get('category_name', 'unknown')}: {category.get('pass_rate', 0):.1f}% "
+                               f"(target: {category.get('target_pass_rate', 0)}%) - {status}{critical}")
+                    
+                    if category.get('false_negatives', 0) > 0:
+                        logger.info(f"      False Negatives: {category.get('false_negatives', 0)}")
+                    if category.get('false_positives', 0) > 0:
+                        logger.info(f"      False Positives: {category.get('false_positives', 0)}")
+            else:
+                logger.warning("   No category data available")
             
-            # Performance analysis
-            if performance_analysis:
-                logger.info("PERFORMANCE ANALYSIS")
-                overall_status = performance_analysis.get('overall_status', 'unknown')
-                safety_assessment = performance_analysis.get('safety_assessment', 'unknown')
-                
-                logger.info(f"Overall Status: {overall_status.upper()}")
-                logger.info(f"Safety Assessment: {safety_assessment.upper()}")
-                
-                # Critical failures
-                critical_failures = performance_analysis.get('critical_failures', [])
-                if critical_failures:
-                    logger.error("CRITICAL FAILURES DETECTED:")
-                    for failure in critical_failures:
-                        cat = failure.get('category', 'unknown')
-                        rate = failure.get('pass_rate', 0)
-                        target = failure.get('target', 0)
-                        false_negs = failure.get('false_negatives', 0)
-                        logger.error(f"  {cat}: {rate:.1f}% (need {target}%), {false_negs} false negatives")
-                
-                # Performance issues
-                performance_issues = performance_analysis.get('performance_issues', [])
-                if performance_issues:
-                    logger.warning("PERFORMANCE ISSUES:")
-                    for issue in performance_issues:
-                        cat = issue.get('category', 'unknown')
-                        issue_type = issue.get('issue_type', 'unknown')
-                        if issue_type == 'significantly_below_target':
-                            rate = issue.get('pass_rate', 0)
-                            target = issue.get('target', 0)
-                            logger.warning(f"  {cat}: {rate:.1f}% (target {target}%)")
-                        elif issue_type == 'false_negatives_detected':
-                            false_negs = issue.get('false_negatives', 0)
-                            logger.warning(f"  {cat}: {false_negs} false negatives")
-                
-                # Strengths
-                strengths = performance_analysis.get('strengths', [])
-                if strengths:
-                    logger.info("SYSTEM STRENGTHS:")
-                    for strength in strengths:
-                        cat = strength.get('category', 'unknown')
-                        rate = strength.get('pass_rate', 0)
-                        target = strength.get('target', 0)
-                        logger.info(f"  {cat}: {rate:.1f}% (exceeds {target}% target)")
+            # Display recommendations by priority
+            logger.info("")
+            logger.info("RECOMMENDATIONS BY PRIORITY:")
             
-            # Recommendations
             if recommendations:
-                logger.info("TUNING RECOMMENDATIONS")
+                # Group by priority
+                critical_recs = [r for r in recommendations if r.get('priority', 99) == 1]
+                high_recs = [r for r in recommendations if r.get('priority', 99) == 2]
+                medium_recs = [r for r in recommendations if r.get('priority', 99) == 3]
+                low_recs = [r for r in recommendations if r.get('priority', 99) > 3]
                 
-                high_priority = [r for r in recommendations if r.get('priority') == 'HIGH']
-                medium_priority = [r for r in recommendations if r.get('priority') == 'MEDIUM']
-                low_priority = [r for r in recommendations if r.get('priority') == 'LOW']
-                
-                for priority_group, title, log_level in [
-                    (high_priority, "HIGH PRIORITY", logger.error),
-                    (medium_priority, "MEDIUM PRIORITY", logger.warning),
-                    (low_priority, "LOW PRIORITY", logger.info)
+                for title, priority_group, log_level in [
+                    ("CRITICAL PRIORITY", critical_recs, logger.error),
+                    ("HIGH PRIORITY", high_recs, logger.warning), 
+                    ("MEDIUM PRIORITY", medium_recs, logger.info),
+                    ("LOW PRIORITY", low_recs, logger.info)
                 ]:
                     if priority_group:
                         log_level(f"{title} RECOMMENDATIONS:")
@@ -196,7 +162,11 @@ class AnalyzeResultsManager:
         except Exception as e:
             logger.error(f"Error displaying latest results: {e}")
             return False
+    # ========================================================================
     
+    # ========================================================================
+    # GENERATE MARKDOWN FILES
+    # ========================================================================
     def generate_latest_run_summary_markdown(self) -> bool:
         """Generate markdown report for latest test run"""
         try:
@@ -213,9 +183,12 @@ class AnalyzeResultsManager:
             performance_analysis = latest_results.get('performance_analysis', {})
             recommendations = latest_results.get('recommendations', [])
             
+            # NEW: Get the raw results to extract failed phrase details
+            raw_results = self._get_latest_raw_results()
+            
             # Generate markdown content
             markdown_content = self._build_latest_run_markdown(
-                run_summary, category_summaries, performance_analysis, recommendations
+                run_summary, category_summaries, performance_analysis, recommendations, raw_results
             )
             
             # Write to file
@@ -273,9 +246,12 @@ class AnalyzeResultsManager:
                 logger.warning("No historical data found for markdown generation")
                 return False
             
+            # NEW: Get failed phrase details for historical analysis
+            historical_failed_phrases = self._extract_historical_failed_phrases(test_runs)
+            
             # Generate historical markdown
             markdown_content = self._build_historical_performance_markdown(
-                test_runs, trends, days
+                test_runs, trends, days, historical_failed_phrases
             )
             
             # Write to file
@@ -289,7 +265,11 @@ class AnalyzeResultsManager:
         except Exception as e:
             logger.error(f"Error generating historical performance markdown: {e}")
             return False
+    # ========================================================================
     
+    # ========================================================================
+    # GENERATE REPORTS
+    # ========================================================================
     def generate_all_reports(self) -> bool:
         """Generate all markdown reports"""
         try:
@@ -310,10 +290,71 @@ class AnalyzeResultsManager:
         except Exception as e:
             logger.error(f"Error generating all reports: {e}")
             return False
+    # ========================================================================
     
-    def _build_latest_run_markdown(self, run_summary: Dict, category_summaries: List, 
-                                  performance_analysis: Dict, recommendations: List) -> str:
-        """Build markdown content for latest run summary"""
+    # ========================================================================
+    # ENHANCED MARKDOWN GENERATION WITH FAILED PHRASE DETAILS
+    # ========================================================================
+    def _get_latest_raw_results(self) -> Optional[Dict[str, Any]]:
+        """Get the latest raw results with full phrase details"""
+        try:
+            test_runs_dir = self.results_manager.results_dir / 'test_runs'
+            
+            if not test_runs_dir.exists():
+                return None
+            
+            # Find most recent test run directory
+            run_dirs = [d for d in test_runs_dir.iterdir() if d.is_dir()]
+            if not run_dirs:
+                return None
+            
+            latest_dir = max(run_dirs, key=lambda d: d.stat().st_mtime)
+            raw_results_file = latest_dir / 'raw_results.json'
+            
+            if raw_results_file.exists():
+                with open(raw_results_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting latest raw results: {e}")
+            return None
+    
+    def _extract_historical_failed_phrases(self, test_runs: List[Dict]) -> Dict[str, List[Dict]]:
+        """Extract failed phrases from historical test runs for trend analysis"""
+        try:
+            historical_failures = {}
+            
+            for run in test_runs[-5:]:  # Last 5 runs
+                run_id = run.get('run_id', 'unknown')
+                category_performance = run.get('category_performance', {})
+                
+                for category, performance in category_performance.items():
+                    if performance.get('false_negatives', 0) > 0 or performance.get('false_positives', 0) > 0:
+                        if category not in historical_failures:
+                            historical_failures[category] = []
+                        
+                        historical_failures[category].append({
+                            'run_id': run_id,
+                            'timestamp': run.get('timestamp', 0),
+                            'false_negatives': performance.get('false_negatives', 0),
+                            'false_positives': performance.get('false_positives', 0),
+                            'pass_rate': performance.get('pass_rate', 0)
+                        })
+            
+            return historical_failures
+            
+        except Exception as e:
+            logger.error(f"Error extracting historical failed phrases: {e}")
+            return {}
+    # ========================================================================
+    
+    # ========================================================================
+    # BUILD MARKDOWN
+    # ========================================================================
+    def _build_latest_run_markdown(self, run_summary: Dict, category_summaries: List, performance_analysis: Dict, recommendations: List, raw_results: Optional[Dict] = None) -> str:
+        """Build markdown content for latest run summary with enhanced failed phrase details"""
         
         timestamp_str = "Unknown"
         if run_summary.get('timestamp'):
@@ -354,273 +395,189 @@ class AnalyzeResultsManager:
 
 """
         
-        # Category Performance Table
+        # Category breakdown with status indicators
         content += """## 📋 Category Performance
 
-| Category | Pass Rate | Target | Status | False Negatives | False Positives |
-|----------|-----------|--------|---------|-----------------|-----------------|
+| Category | Pass Rate | Target | Status | False Neg | False Pos |
+|----------|-----------|--------|---------|-----------|-----------|
 """
         
-        for category in category_summaries:
-            name = category.get('category_name', 'unknown')
-            pass_rate = category.get('pass_rate', 0)
-            target = category.get('target_pass_rate', 0)
-            met_target = category.get('met_target', False)
-            is_critical = category.get('is_critical', False)
-            false_negs = category.get('false_negatives', 0)
-            false_pos = category.get('false_positives', 0)
-            
-            if is_critical and not met_target:
-                status = "🚨 **CRITICAL FAIL**"
-            elif not met_target:
-                status = "❌ FAIL"
-            else:
-                status = "✅ PASS"
-            
-            content += f"| {name} | {pass_rate:.1f}% | {target}% | {status} | {false_negs} | {false_pos} |\n"
+        if category_summaries:
+            for category in category_summaries:
+                status_icon = "✅" if category.get('met_target', False) else "❌"
+                critical_marker = "🚨" if category.get('is_critical', False) else ""
+                
+                content += f"| **{category.get('category_name', 'unknown')}** {critical_marker} | "
+                content += f"{category.get('pass_rate', 0):.1f}% | "
+                content += f"{category.get('target_pass_rate', 0)}% | "
+                content += f"{status_icon} | "
+                content += f"{category.get('false_negatives', 0)} | "
+                content += f"{category.get('false_positives', 0)} |\n"
         
-        # Performance Analysis
+        # NEW: Detailed Failed Phrase Analysis
+        if raw_results and raw_results.get('category_results'):
+            content += self._build_failed_phrase_analysis_section(raw_results['category_results'])
+        
+        # Performance insights
         if performance_analysis:
             content += f"""
-## 🔍 Performance Analysis
+## 🎯 Performance Insights
 
-- **Overall Status**: {performance_analysis.get('overall_status', 'unknown').upper()}
-- **Safety Assessment**: {performance_analysis.get('safety_assessment', 'unknown').upper()}
 """
+            insights = performance_analysis.get('insights', [])
+            if insights:
+                for insight in insights[:5]:  # Top 5 insights
+                    content += f"- {insight}\n"
             
-            # Critical failures
-            critical_failures = performance_analysis.get('critical_failures', [])
-            if critical_failures:
-                content += "\n### 🚨 Critical Failures\n\n"
-                for failure in critical_failures:
-                    cat = failure.get('category', 'unknown')
-                    rate = failure.get('pass_rate', 0)
-                    target = failure.get('target', 0)
-                    false_negs = failure.get('false_negatives', 0)
-                    content += f"- **{cat}**: {rate:.1f}% (need {target}%), {false_negs} false negatives\n"
-            
-            # Performance issues
-            performance_issues = performance_analysis.get('performance_issues', [])
-            if performance_issues:
-                content += "\n### ⚠️ Performance Issues\n\n"
-                for issue in performance_issues:
-                    cat = issue.get('category', 'unknown')
-                    issue_type = issue.get('issue_type', 'unknown')
-                    if issue_type == 'significantly_below_target':
-                        rate = issue.get('pass_rate', 0)
-                        target = issue.get('target', 0)
-                        content += f"- **{cat}**: {rate:.1f}% (target {target}%)\n"
-                    elif issue_type == 'false_negatives_detected':
-                        false_negs = issue.get('false_negatives', 0)
-                        content += f"- **{cat}**: {false_negs} false negatives detected\n"
-            
-            # Strengths
-            strengths = performance_analysis.get('strengths', [])
-            if strengths:
-                content += "\n### ✨ System Strengths\n\n"
-                for strength in strengths:
-                    cat = strength.get('category', 'unknown')
-                    rate = strength.get('pass_rate', 0)
-                    target = strength.get('target', 0)
-                    content += f"- **{cat}**: {rate:.1f}% (exceeds {target}% target)\n"
+            critical_issues = performance_analysis.get('critical_issues', [])
+            if critical_issues:
+                content += f"""
+### 🚨 Critical Issues
+
+"""
+                for issue in critical_issues:
+                    content += f"- **{issue.get('category', 'Unknown')}**: {issue.get('description', 'No description')}\n"
         
-        # Recommendations Summary
+        # Recommendations
         if recommendations:
-            content += "\n## 🔧 Tuning Recommendations Summary\n\n"
+            content += f"""
+## 🔧 Tuning Recommendations
+
+"""
+            # Group by priority
+            critical_recs = [r for r in recommendations if r.get('priority', 99) == 1]
+            high_recs = [r for r in recommendations if r.get('priority', 99) == 2]
+            medium_recs = [r for r in recommendations if r.get('priority', 99) == 3]
             
-            high_priority = [r for r in recommendations if r.get('priority') == 'HIGH']
-            medium_priority = [r for r in recommendations if r.get('priority') == 'MEDIUM']
-            low_priority = [r for r in recommendations if r.get('priority') == 'LOW']
+            if critical_recs:
+                content += f"""
+### 🚨 Critical Priority
+
+"""
+                for rec in critical_recs:
+                    content += f"- **{rec.get('category', 'Unknown')}**: {rec.get('recommendation', 'No recommendation')} (Confidence: {rec.get('confidence', 'unknown')})\n"
             
-            content += f"- 🚨 **High Priority**: {len(high_priority)} recommendations\n"
-            content += f"- ⚠️ **Medium Priority**: {len(medium_priority)} recommendations\n"
-            content += f"- 💡 **Low Priority**: {len(low_priority)} recommendations\n"
+            if high_recs:
+                content += f"""
+### ⚠️ High Priority
+
+"""
+                for rec in high_recs:
+                    content += f"- **{rec.get('category', 'Unknown')}**: {rec.get('recommendation', 'No recommendation')} (Confidence: {rec.get('confidence', 'unknown')})\n"
             
-            content += "\n> See `threshold_recommendations.md` for detailed tuning guidance.\n"
+            if medium_recs:
+                content += f"""
+### 📋 Medium Priority
+
+"""
+                for rec in medium_recs:
+                    content += f"- **{rec.get('category', 'Unknown')}**: {rec.get('recommendation', 'No recommendation')} (Confidence: {rec.get('confidence', 'unknown')})\n"
         
+        # Footer
         content += f"""
 ---
 
-**Generated by**: Ash-Thrash v3.1-2a-1  
-**For**: The Alphabet Cartel LGBTQIA+ Community Mental Health Support System
+**Generated by**: Ash-Thrash v3.1-2a-2  
+**For**: The Alphabet Cartel LGBTQIA+ Community Mental Health Support System  
+**Next Steps**: Review failed phrases and apply threshold adjustments as recommended
 """
         
         return content
     
-    def _build_threshold_recommendations_markdown(self, recommendations: List, 
-                                                category_summaries: List) -> str:
-        """Build markdown content for threshold recommendations"""
-        
-        content = f"""# NLP Threshold Tuning Recommendations
+    def _build_failed_phrase_analysis_section(self, category_results: List[Dict]) -> str:
+        """Build detailed failed phrase analysis section for markdown"""
+        content = """
+## 🔍 Detailed Failed Phrase Analysis
 
-**Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
-**Community**: [The Alphabet Cartel](https://discord.gg/alphabetcartel) | [alphabetcartel.org](https://alphabetcartel.org)  
-**Repository**: [ash-thrash](https://github.com/the-alphabet-cartel/ash-thrash)
-
----
-
-## 🎯 Executive Summary
-
-This report provides specific threshold adjustment recommendations for the Ash-NLP crisis detection system based on comprehensive testing results.
+This section shows exactly which phrases failed and how they were misclassified to help with debugging and threshold tuning.
 
 """
         
-        if not recommendations:
+        total_failed_phrases = 0
+        
+        for category_data in category_results:
+            category_name = category_data.get('category_name', 'unknown')
+            phrase_results = category_data.get('phrase_results', [])
+            
+            # Filter to only failed phrases
+            failed_phrases = [
+                phrase for phrase in phrase_results
+                if phrase.get('is_false_negative') or phrase.get('is_false_positive')
+            ]
+            
+            if not failed_phrases:
+                continue
+            
+            total_failed_phrases += len(failed_phrases)
+            
+            # Category header
+            is_critical = category_data.get('is_critical', False)
+            critical_marker = "🚨 " if is_critical else ""
+            
+            content += f"""
+### {critical_marker}Category: {category_name}
+
+**Failed Phrases**: {len(failed_phrases)} out of {len(phrase_results)}
+
+| # | Phrase | Expected | Actual | Error Type | Direction |
+|---|--------|----------|---------|-------------|-----------|
+"""
+            
+            # Sort by severity: false negatives first (more dangerous)
+            failed_phrases.sort(key=lambda p: (not p.get('is_false_negative', False), p.get('failure_severity', 0)))
+            
+            for i, phrase in enumerate(failed_phrases[:10], 1):  # Show max 10 per category
+                expected = phrase.get('expected_priorities', ['unknown'])[0]
+                actual = phrase.get('actual_priority', 'unknown')
+                
+                # Determine error type and direction
+                is_false_neg = phrase.get('is_false_negative', False)
+                is_false_pos = phrase.get('is_false_positive', False)
+                
+                if is_false_neg:
+                    error_type = "❌ False Negative"
+                    direction = "Too Low (Dangerous)"
+                elif is_false_pos:
+                    error_type = "⚠️ False Positive"
+                    direction = "Too High (Over-sensitive)"
+                else:
+                    error_type = "❓ Unknown"
+                    direction = "Unknown"
+                
+                # Truncate long phrases for readability
+                phrase_text = phrase.get('message', 'No message')
+                if len(phrase_text) > 60:
+                    phrase_text = phrase_text[:57] + "..."
+                
+                content += f"| {i} | {phrase_text} | **{expected}** | **{actual}** | {error_type} | {direction} |\n"
+            
+            if len(failed_phrases) > 10:
+                content += f"\n*... and {len(failed_phrases) - 10} more failed phrases in this category*\n"
+        
+        if total_failed_phrases == 0:
             content += """
-> ✅ **No tuning recommendations required** - All categories meeting performance targets.
+🎉 **No failed phrases found!** All test phrases were classified correctly.
 
 """
-            return content
-        
-        # Group recommendations by priority
-        high_priority = [r for r in recommendations if r.get('priority') == 'HIGH']
-        medium_priority = [r for r in recommendations if r.get('priority') == 'MEDIUM']
-        low_priority = [r for r in recommendations if r.get('priority') == 'LOW']
-        
-        # High Priority Recommendations
-        if high_priority:
-            content += f"""## 🚨 High Priority Recommendations ({len(high_priority)})
+        else:
+            content += f"""
+### 📈 Failure Analysis Summary
 
-> **⚠️ IMMEDIATE ACTION REQUIRED** - These issues affect safety-critical crisis detection
+- **Total Failed Phrases**: {total_failed_phrases}
+- **False Negatives**: More dangerous - classified as less severe than expected
+- **False Positives**: Over-sensitive - classified as more severe than expected
 
-"""
-            
-            for i, rec in enumerate(high_priority, 1):
-                category = rec.get('category', 'unknown')
-                issue = rec.get('issue', 'unknown issue')
-                recommendation = rec.get('recommendation', 'no recommendation')
-                confidence = rec.get('confidence', 'unknown')
-                
-                content += f"""### {i}. {category}
+**Key Insights**:
+- False negatives in crisis categories are weighted heavily due to safety implications
+- Review threshold settings to reduce false negatives while maintaining acceptable false positive rates
+- Pay special attention to critical categories (marked with 🚨)
 
-**Issue**: {issue}  
-**Recommendation**: {recommendation}  
-**Confidence**: {confidence}
-
-"""
-                
-                # Add specific threshold suggestions based on category
-                if 'definite_high' in category.lower():
-                    content += """**Suggested Actions**:
-- Lower `NLP_HIGH_CRISIS_THRESHOLD` from 0.8 to 0.7
-- Review `NLP_CRISIS_ESCALATION_THRESHOLD` settings
-- Test boundary cases between medium and high
-
-"""
-                elif 'false negatives' in issue.lower():
-                    content += """**Suggested Actions**:
-- Reduce detection thresholds by 0.1-0.2
-- Review pattern matching sensitivity
-- Consider ensemble model weight adjustments
-
-"""
-        
-        # Medium Priority Recommendations
-        if medium_priority:
-            content += f"""## ⚠️ Medium Priority Recommendations ({len(medium_priority)})
-
-"""
-            
-            for i, rec in enumerate(medium_priority, 1):
-                category = rec.get('category', 'unknown')
-                issue = rec.get('issue', 'unknown issue')
-                recommendation = rec.get('recommendation', 'no recommendation')
-                confidence = rec.get('confidence', 'unknown')
-                
-                content += f"""### {i}. {category}
-
-**Issue**: {issue}  
-**Recommendation**: {recommendation}  
-**Confidence**: {confidence}
-
-"""
-        
-        # Low Priority Recommendations
-        if low_priority:
-            content += f"""## 💡 Low Priority Recommendations ({len(low_priority)})
-
-"""
-            
-            for i, rec in enumerate(low_priority, 1):
-                category = rec.get('category', 'unknown')
-                issue = rec.get('issue', 'unknown issue')
-                recommendation = rec.get('recommendation', 'no recommendation')
-                confidence = rec.get('confidence', 'unknown')
-                
-                content += f"""### {i}. {category}
-
-**Issue**: {issue}  
-**Recommendation**: {recommendation}  
-**Confidence**: {confidence}
-
-"""
-        
-        # Current Performance Context
-        content += """## 📊 Current Performance Context
-
-| Category | Current Pass Rate | Target | Gap | Action Priority |
-|----------|------------------|--------|-----|-----------------|
-"""
-        
-        for category in category_summaries:
-            name = category.get('category_name', 'unknown')
-            pass_rate = category.get('pass_rate', 0)
-            target = category.get('target_pass_rate', 0)
-            met_target = category.get('met_target', False)
-            is_critical = category.get('is_critical', False)
-            
-            gap = target - pass_rate if not met_target else 0
-            
-            if is_critical and not met_target:
-                priority = "🚨 CRITICAL"
-            elif gap > 10:
-                priority = "⚠️ HIGH"
-            elif gap > 5:
-                priority = "💡 MEDIUM"
-            else:
-                priority = "✅ GOOD"
-            
-            content += f"| {name} | {pass_rate:.1f}% | {target}% | {gap:+.1f}% | {priority} |\n"
-        
-        content += f"""
-
-## 🔧 Implementation Guide
-
-### Step 1: Backup Current Settings
-```bash
-# Backup current NLP configuration
-cp ash-nlp/.env ash-nlp/.env.backup.$(date +%Y%m%d)
-```
-
-### Step 2: Apply High Priority Changes
-Focus on safety-critical categories first. Make incremental changes and test after each adjustment.
-
-### Step 3: Validate Changes
-```bash
-# Run focused tests on modified categories
-docker compose exec ash-thrash python main.py definite_high
-docker compose exec ash-thrash python main.py definite_medium
-```
-
-### Step 4: Full System Validation
-```bash
-# Run comprehensive test suite
-docker compose exec ash-thrash python main.py
-```
-
-### Step 5: Monitor and Iterate
-Review results and make additional adjustments as needed. Safety-first approach - err on the side of sensitivity for crisis detection.
-
----
-
-**Generated by**: Ash-Thrash v3.1-2a-1  
-**For**: The Alphabet Cartel LGBTQIA+ Community Mental Health Support System
 """
         
         return content
     
-    def _build_historical_performance_markdown(self, test_runs: List, trends: Dict, days: int) -> str:
-        """Build markdown content for historical performance"""
+    def _build_historical_performance_markdown(self, test_runs: List, trends: Dict, days: int, historical_failed_phrases: Dict[str, List[Dict]]) -> str:
+        """Build markdown content for historical performance with failed phrase trends"""
         
         content = f"""# Historical Performance Analysis
 
@@ -654,100 +611,289 @@ Review results and make additional adjustments as needed. Safety-first approach 
             elif safety_trend < 0:  # Lower safety score is better
                 safety_indicator = f"⬆️ Improved by {-safety_trend:.2f}"
             else:
-                safety_indicator = f"⬇️ Worsened by {safety_trend:+.2f}"
+                safety_indicator = f"⬇️ Worsened by {safety_trend:.2f}"
             
-            if abs(time_trend) < 1000:  # Less than 1 second change
+            if abs(time_trend) < 100:
                 time_indicator = "➡️ Stable"
             elif time_trend < 0:
-                time_indicator = f"⚡ Faster by {-time_trend/1000:.1f}s"
+                time_indicator = f"⚡ Faster by {-time_trend:.0f}ms"
             else:
-                time_indicator = f"🐌 Slower by {time_trend/1000:.1f}s"
+                time_indicator = f"⏳ Slower by {time_trend:.0f}ms"
             
             content += f"""
-### Trend Analysis
-
-| Metric | Trend |
-|--------|-------|
-| **Pass Rate** | {pass_indicator} |
-| **Safety Score** | {safety_indicator} |
-| **Execution Time** | {time_indicator} |
+| Metric | Trend | Change |
+|--------|-------|---------|
+| **Pass Rate** | {pass_indicator} | {pass_rate_trend:+.1f}% |
+| **Safety Score** | {safety_indicator} | {safety_trend:+.2f} |
+| **Execution Time** | {time_indicator} | {time_trend:+.0f}ms |
 
 """
         
-        # Recent test runs table
-        content += """## 📊 Recent Test Runs
+        # Test run history table
+        content += f"""
+## 📊 Test Run History
 
-| Date/Time | Pass Rate | Safety Score | Total Phrases | Status | Notes |
-|-----------|-----------|--------------|---------------|---------|-------|
+| Run ID | Date | Pass Rate | Safety Score | Failed Phrases | Notes |
+|--------|------|-----------|--------------|-----------------|-------|
 """
         
-        # Show last 15 runs
-        for run in test_runs[-15:]:
-            timestamp = datetime.fromtimestamp(run['timestamp'])
+        for run in reversed(test_runs[-10:]):  # Last 10 runs, newest first
+            timestamp = datetime.fromtimestamp(run.get('timestamp', 0))
             date_str = timestamp.strftime('%m-%d %H:%M')
+            
+            run_id = run.get('run_id', 'unknown')[:12]  # Truncate for display
             pass_rate = run.get('overall_pass_rate', 0)
             safety_score = run.get('weighted_safety_score', 0)
-            total_phrases = run.get('total_phrases', 0)
             
-            if run.get('early_termination'):
-                status = "❌ HALT"
-                notes = "Early termination"
-            elif pass_rate >= 85.0:
-                status = "✅ PASS"
-                notes = ""
-            else:
-                status = "⚠️ FAIL"
-                notes = f"Below 85% threshold"
+            # Calculate total failed phrases
+            failed_count = 0
+            category_performance = run.get('category_performance', {})
+            for category, perf in category_performance.items():
+                failed_count += perf.get('false_negatives', 0) + perf.get('false_positives', 0)
             
-            content += f"| {date_str} | {pass_rate:.1f}% | {safety_score:.2f} | {total_phrases} | {status} | {notes} |\n"
+            # Status indicators
+            status_notes = []
+            if run.get('early_termination', False):
+                status_notes.append("⚠️ Early term")
+            if pass_rate < 80:
+                status_notes.append("❌ Low pass rate")
+            
+            notes = " ".join(status_notes) if status_notes else "✅"
+            
+            content += f"| `{run_id}` | {date_str} | {pass_rate:.1f}% | {safety_score:.2f} | {failed_count} | {notes} |\n"
         
-        # Performance insights
-        if len(test_runs) >= 5:
-            recent_5 = test_runs[-5:]
-            avg_pass_rate = sum(r.get('overall_pass_rate', 0) for r in recent_5) / 5
-            avg_safety_score = sum(r.get('weighted_safety_score', 0) for r in recent_5) / 5
-            
-            content += f"""
-## 🔍 Performance Insights (Last 5 Runs)
+        # NEW: Historical failed phrase trend analysis
+        if historical_failed_phrases:
+            content += self._build_historical_failure_trends_section(historical_failed_phrases)
+        
+        # Weekly review recommendations
+        content += f"""
+## 📋 Historical Analysis Insights
 
-- **Average Pass Rate**: {avg_pass_rate:.1f}%
-- **Average Safety Score**: {avg_safety_score:.2f}
-- **Performance Stability**: {"Stable" if max(r.get('overall_pass_rate', 0) for r in recent_5) - min(r.get('overall_pass_rate', 0) for r in recent_5) < 10 else "Variable"}
+### 🔍 Key Observations
 
 """
+        
+        # Generate insights based on trends
+        if len(test_runs) >= 3:
+            recent_runs = test_runs[-3:]
+            pass_rates = [run.get('overall_pass_rate', 0) for run in recent_runs]
             
-            if avg_pass_rate < 70:
-                content += "> 🚨 **Alert**: Average pass rate below 70% - immediate threshold review recommended\n\n"
-            elif avg_pass_rate < 80:
-                content += "> ⚠️ **Warning**: Average pass rate below 80% - consider threshold adjustments\n\n"
-            else:
-                content += "> ✅ **Good**: Average pass rate above 80% - system performing within acceptable range\n\n"
+            if all(rate >= 85 for rate in pass_rates):
+                content += "- ✅ **Consistent Performance**: Pass rates have been stable above 85%\n"
+            elif any(rate < 75 for rate in pass_rates):
+                content += "- ⚠️ **Performance Concern**: Some runs below 75% pass rate detected\n"
+            
+            # Check for improvement or decline
+            if pass_rates[-1] > pass_rates[0] + 5:
+                content += "- 📈 **Improving Trend**: Recent performance shows significant improvement\n"
+            elif pass_rates[-1] < pass_rates[0] - 5:
+                content += "- 📉 **Declining Trend**: Recent performance shows concerning decline\n"
         
         content += f"""
-## 📋 Historical Analysis Summary
-
-This analysis covers {len(test_runs)} test runs over the past {days} days, providing insights into:
-
-- **Performance Trends**: Overall system improvement or degradation patterns
-- **Stability Metrics**: Consistency of results across multiple test runs  
-- **Safety Evolution**: How well the system maintains crisis detection accuracy
-- **Execution Efficiency**: Performance optimization tracking
-
-### Recommendations for Historical Review
+### 🎯 Recommendations
 
 1. **Weekly Reviews**: Monitor trends weekly to catch performance degradation early
-2. **Threshold Stability**: Ensure changes don't negatively impact long-term performance
+2. **Threshold Stability**: Ensure changes don't negatively impact long-term performance  
 3. **Safety First**: Prioritize maintaining high detection rates for critical categories
 4. **Continuous Improvement**: Use historical data to guide optimization efforts
 
 ---
 
-**Generated by**: Ash-Thrash v3.1-2a-1  
+**Generated by**: Ash-Thrash v3.1-2a-2  
 **For**: The Alphabet Cartel LGBTQIA+ Community Mental Health Support System
 """
         
         return content
+    
+    def _build_historical_failure_trends_section(self, historical_failed_phrases: Dict[str, List[Dict]]) -> str:
+        """Build section showing historical trends in failed phrases by category"""
+        content = """
+## 📉 Historical Failure Trends by Category
 
+This section shows patterns in failed phrases over recent test runs to identify persistent issues.
+
+"""
+        
+        for category, failure_history in historical_failed_phrases.items():
+            if not failure_history:
+                continue
+            
+            content += f"""
+### Category: {category}
+
+| Run | Date | False Negatives | False Positives | Pass Rate | Trend |
+|-----|------|------------------|------------------|-----------|--------|
+"""
+            
+            for i, failure_data in enumerate(failure_history):
+                timestamp = datetime.fromtimestamp(failure_data.get('timestamp', 0))
+                date_str = timestamp.strftime('%m-%d %H:%M')
+                
+                false_negs = failure_data.get('false_negatives', 0)
+                false_pos = failure_data.get('false_positives', 0)
+                pass_rate = failure_data.get('pass_rate', 0)
+                
+                # Determine trend
+                if i > 0:
+                    prev_pass_rate = failure_history[i-1].get('pass_rate', 0)
+                    if pass_rate > prev_pass_rate + 2:
+                        trend = "⬆️ Improving"
+                    elif pass_rate < prev_pass_rate - 2:
+                        trend = "⬇️ Declining" 
+                    else:
+                        trend = "➡️ Stable"
+                else:
+                    trend = "➡️ Baseline"
+                
+                run_id = failure_data.get('run_id', 'unknown')[:8]
+                content += f"| `{run_id}` | {date_str} | {false_negs} | {false_pos} | {pass_rate:.1f}% | {trend} |\n"
+            
+            # Analysis for this category
+            latest = failure_history[-1]
+            total_failures = latest.get('false_negatives', 0) + latest.get('false_positives', 0)
+            
+            if latest.get('false_negatives', 0) > latest.get('false_positives', 0):
+                primary_issue = "false negatives (under-classification)"
+            else:
+                primary_issue = "false positives (over-classification)"
+            
+            content += f"""
+**Analysis**: This category shows {total_failures} total failures in the latest run, primarily {primary_issue}.
+
+"""
+        
+        return content
+    
+    def _build_threshold_recommendations_markdown(self, recommendations: List, category_summaries: List) -> str:
+        """Build markdown content for threshold tuning recommendations"""
+        
+        content = f"""# Threshold Tuning Recommendations
+
+**Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
+**Community**: [The Alphabet Cartel](https://discord.gg/alphabetcartel) | [alphabetcartel.org](https://alphabetcartel.org)  
+**Repository**: [ash-thrash](https://github.com/the-alphabet-cartel/ash-thrash)
+
+---
+
+## 🎯 Executive Summary
+
+This report provides specific threshold adjustment recommendations based on the latest test results.
+Focus on high-confidence recommendations first, especially for critical categories.
+
+"""
+        
+        if not recommendations:
+            content += """
+## ✅ No Threshold Adjustments Needed
+
+Current threshold settings are performing well across all categories. 
+Continue monitoring for any performance changes.
+
+"""
+            return content
+        
+        # Group recommendations by priority and confidence
+        critical_recs = [r for r in recommendations if r.get('priority', 99) == 1]
+        high_recs = [r for r in recommendations if r.get('priority', 99) == 2]
+        medium_recs = [r for r in recommendations if r.get('priority', 99) == 3]
+        
+        # High confidence recommendations
+        high_confidence = [r for r in recommendations if r.get('confidence', '').lower() == 'high']
+        
+        if critical_recs:
+            content += f"""
+## 🚨 Critical Priority Recommendations
+
+These issues require immediate attention due to safety implications.
+
+"""
+            for i, rec in enumerate(critical_recs, 1):
+                content += f"""
+### {i}. {rec.get('category', 'Unknown Category')}
+
+- **Issue**: {rec.get('issue', 'No issue description')}
+- **Recommendation**: {rec.get('recommendation', 'No recommendation')}
+- **Confidence**: {rec.get('confidence', 'Unknown')}
+- **Risk Level**: {rec.get('risk_level', 'Unknown')}
+
+"""
+        
+        if high_recs:
+            content += f"""
+## ⚠️ High Priority Recommendations
+
+Important optimizations that will improve performance.
+
+"""
+            for i, rec in enumerate(high_recs, 1):
+                content += f"""
+### {i}. {rec.get('category', 'Unknown Category')}
+
+- **Issue**: {rec.get('issue', 'No issue description')}
+- **Recommendation**: {rec.get('recommendation', 'No recommendation')}
+- **Confidence**: {rec.get('confidence', 'Unknown')}
+- **Expected Improvement**: {rec.get('expected_improvement', 'Unknown')}
+
+"""
+        
+        if high_confidence:
+            content += f"""
+## 💡 High Confidence Recommendations
+
+These recommendations have strong statistical backing and should be prioritized.
+
+"""
+            for rec in high_confidence:
+                if rec.get('priority', 99) <= 2:  # Don't duplicate critical/high priority ones
+                    continue
+                    
+                content += f"""
+- **{rec.get('category', 'Unknown')}**: {rec.get('recommendation', 'No recommendation')}
+
+"""
+        
+        # Implementation guidance
+        content += f"""
+## 🔧 Implementation Guidance
+
+### Step 1: Backup Current Settings
+```bash
+# Save current NLP server configuration
+cp ash-nlp/.env ash-nlp/.env.backup
+```
+
+### Step 2: Apply Critical Changes First
+Make incremental changes and test after each adjustment.
+
+### Step 3: Validate Changes  
+```bash
+# Run focused tests on modified categories
+docker compose exec ash-thrash python main.py definite_high
+docker compose exec ash-thrash python main.py definite_medium
+```
+
+### Step 4: Full System Validation
+```bash
+# Run comprehensive test suite
+docker compose exec ash-thrash python main.py
+```
+
+### Step 5: Monitor and Iterate
+Review results and make additional adjustments as needed. Safety-first approach - err on the side of sensitivity for crisis detection.
+
+---
+
+**Generated by**: Ash-Thrash v3.1-2a-2  
+**For**: The Alphabet Cartel LGBTQIA+ Community Mental Health Support System
+"""
+        
+        return content
+    # ========================================================================
+
+# ========================================================================
+# FACTORY FUNCTION
+# ========================================================================
 def create_analyze_results_manager(unified_config_manager, results_manager, logging_config_manager) -> AnalyzeResultsManager:
     """
     Factory function for AnalyzeResultsManager (Clean v3.1 Pattern)
@@ -776,7 +922,13 @@ def create_analyze_results_manager(unified_config_manager, results_manager, logg
     
     return AnalyzeResultsManager(unified_config_manager, results_manager, logging_config_manager)
 
-# Export public interface
-__all__ = ['AnalyzeResultsManager', 'create_analyze_results_manager']
+# ========================================================================
+# PUBLIC INTERFACE
+# ========================================================================
+__all__ = [
+    'AnalyzeResultsManager',
+    'create_analyze_results_manager'
+]
 
-logger.info("AnalyzeResultsManager v3.1-2a-1 loaded")
+logger.info("AnalyzeResultsManager loaded with enhanced failed phrase analysis")
+# ========================================================================
