@@ -181,6 +181,7 @@ class ResultsManager:
                         'expected_priorities': phrase_result.expected_priorities,
                         'actual_priority': phrase_result.actual_priority,
                         'confidence_score': phrase_result.confidence_score,
+                        'crisis_score': getattr(phrase_result, 'crisis_score', None),
                         'processing_time_ms': phrase_result.processing_time_ms,
                         'result': phrase_result.result.value,
                         'failure_severity': phrase_result.failure_severity,
