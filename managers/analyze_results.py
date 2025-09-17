@@ -501,6 +501,104 @@ class AnalyzeResultsManager:
         
         return content
     
+    def _build_score_correlation_analysis(self, category_results: List[Dict]) -> str:
+        """Build analysis section showing correlations between crisis scores, confidence scores, and classification errors"""
+        content = """
+### 🔍 Score Correlation Analysis
+
+This section analyzes patterns between crisis scores, confidence scores, and classification errors.
+
+"""
+        
+        # Collect all failed phrases with scores
+        all_failed_with_scores = []
+        for category_data in category_results:
+            phrase_results = category_data.get('phrase_results', [])
+            failed_phrases = [
+                phrase for phrase in phrase_results
+                if phrase.get('is_false_negative') or phrase.get('is_false_positive')
+            ]
+            
+            for phrase in failed_phrases:
+                crisis_score = phrase.get('crisis_score')
+                confidence_score = phrase.get('confidence_score', 0)
+                is_false_pos = phrase.get('is_false_positive', False)
+                is_false_neg = phrase.get('is_false_negative', False)
+                
+                if crisis_score is not None and confidence_score > 0:
+                    all_failed_with_scores.append({
+                        'crisis_score': crisis_score,
+                        'confidence_score': confidence_score,
+                        'is_false_positive': is_false_pos,
+                        'is_false_negative': is_false_neg,
+                        'category': category_data.get('category_name', 'unknown')
+                    })
+        
+        if not all_failed_with_scores:
+            content += """
+**No score data available** for correlation analysis.
+
+"""
+            return content
+        
+        # Analyze patterns
+        false_positives = [p for p in all_failed_with_scores if p['is_false_positive']]
+        false_negatives = [p for p in all_failed_with_scores if p['is_false_negative']]
+        
+        if false_positives:
+            avg_fp_crisis = sum(p['crisis_score'] for p in false_positives) / len(false_positives)
+            avg_fp_confidence = sum(p['confidence_score'] for p in false_positives) / len(false_positives)
+            
+            # Find high crisis + low confidence false positives
+            high_crisis_low_conf_fp = [
+                p for p in false_positives 
+                if p['crisis_score'] > 0.7 and p['confidence_score'] < 0.5
+            ]
+        else:
+            avg_fp_crisis = 0
+            avg_fp_confidence = 0
+            high_crisis_low_conf_fp = []
+        
+        if false_negatives:
+            avg_fn_crisis = sum(p['crisis_score'] for p in false_negatives) / len(false_negatives)
+            avg_fn_confidence = sum(p['confidence_score'] for p in false_negatives) / len(false_negatives)
+        else:
+            avg_fn_crisis = 0
+            avg_fn_confidence = 0
+        
+        content += f"""
+| Error Type | Count | Avg Crisis Score | Avg Confidence | Pattern |
+|------------|-------|------------------|----------------|---------|
+| **False Positives** | {len(false_positives)} | {avg_fp_crisis:.3f} | {avg_fp_confidence:.3f} | {"High Crisis + Low Conf" if len(high_crisis_low_conf_fp) > len(false_positives) * 0.3 else "Normal Distribution"} |
+| **False Negatives** | {len(false_negatives)} | {avg_fn_crisis:.3f} | {avg_fn_confidence:.3f} | {"Scores Available" if false_negatives else "No Data"} |
+
+"""
+        
+        # Highlight concerning patterns
+        if len(high_crisis_low_conf_fp) > 0:
+            percentage = (len(high_crisis_low_conf_fp) / len(false_positives)) * 100
+            content += f"""
+**🚨 Pattern Alert**: {len(high_crisis_low_conf_fp)} false positives ({percentage:.1f}%) show **high crisis scores (>0.7) with low confidence (<0.5)**. This suggests the model is detecting crisis signals but isn't confident about them, leading to over-classification.
+
+**Categories affected**: {', '.join(set(p['category'] for p in high_crisis_low_conf_fp))}
+
+**Tuning Suggestion**: Consider raising crisis thresholds or implementing confidence-weighted classification to reduce false positives from uncertain high-crisis detections.
+
+"""
+        
+        # Additional insights
+        if false_positives and false_negatives:
+            crisis_diff = avg_fp_crisis - avg_fn_crisis
+            conf_diff = avg_fp_confidence - avg_fn_confidence
+            
+            if crisis_diff > 0.2:
+                content += f"**Insight**: False positives have significantly higher crisis scores ({crisis_diff:+.3f}) than false negatives, indicating over-sensitivity to crisis signals.\n\n"
+            
+            if conf_diff < -0.1:
+                content += f"**Insight**: False positives have lower confidence ({conf_diff:+.3f}) than false negatives, suggesting uncertainty in over-classifications.\n\n"
+        
+        return content
+    
     def _build_failed_phrase_analysis_section(self, category_results: List[Dict]) -> str:
         """Build detailed failed phrase analysis section for markdown"""
         content = """
@@ -536,8 +634,8 @@ This section shows exactly which phrases failed and how they were misclassified 
 
 **Failed Phrases**: {len(failed_phrases)} out of {len(phrase_results)}
 
-| # | Phrase | Expected | Actual | Error Type | Direction |
-|---|--------|----------|---------|-------------|-----------|
+| # | Phrase | Expected | Actual | Crisis Score | Confidence | Error Type | Direction |
+|---|--------|----------|---------|--------------|------------|-------------|-----------|
 """
             
             # Sort by severity: false negatives first (more dangerous)
@@ -547,26 +645,38 @@ This section shows exactly which phrases failed and how they were misclassified 
                 expected = phrase.get('expected_priorities', ['unknown'])[0]
                 actual = phrase.get('actual_priority', 'unknown')
                 
+                # Get crisis_score and confidence_score with proper formatting
+                crisis_score = phrase.get('crisis_score')
+                confidence_score = phrase.get('confidence_score', 0)
+                
+                # Format scores for display
+                if crisis_score is not None:
+                    crisis_display = f"{crisis_score:.3f}"
+                else:
+                    crisis_display = "N/A"
+                
+                confidence_display = f"{confidence_score:.3f}" if confidence_score > 0 else "N/A"
+                
                 # Determine error type and direction
                 is_false_neg = phrase.get('is_false_negative', False)
                 is_false_pos = phrase.get('is_false_positive', False)
                 
                 if is_false_neg:
-                    error_type = "❌ False Negative"
-                    direction = "Too Low (Dangerous)"
+                    error_type = "❌ False Neg"
+                    direction = "Too Low"
                 elif is_false_pos:
-                    error_type = "⚠️ False Positive"
-                    direction = "Too High (Over-sensitive)"
+                    error_type = "⚠️ False Pos"
+                    direction = "Too High"
                 else:
                     error_type = "❓ Unknown"
                     direction = "Unknown"
                 
-                # Truncate long phrases for readability
+                # Truncate long phrases for readability (reduced to fit more columns)
                 phrase_text = phrase.get('message', 'No message')
-                if len(phrase_text) > 60:
-                    phrase_text = phrase_text[:57] + "..."
+                if len(phrase_text) > 45:
+                    phrase_text = phrase_text[:42] + "..."
                 
-                content += f"| {i} | {phrase_text} | **{expected}** | **{actual}** | {error_type} | {direction} |\n"
+                content += f"| {i} | {phrase_text} | **{expected}** | **{actual}** | {crisis_display} | {confidence_display} | {error_type} | {direction} |\n"
             
             if len(failed_phrases) > 10:
                 content += f"\n*... and {len(failed_phrases) - 10} more failed phrases in this category*\n"
@@ -577,6 +687,9 @@ This section shows exactly which phrases failed and how they were misclassified 
 
 """
         else:
+            # NEW: Add correlation analysis between scores and errors
+            content += self._build_score_correlation_analysis(category_results)
+            
             content += f"""
 ### 📈 Failure Analysis Summary
 
