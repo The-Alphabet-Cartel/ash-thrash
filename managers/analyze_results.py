@@ -793,10 +793,27 @@ Continue monitoring for any performance changes.
 """
             return content
         
-        # Group recommendations by priority and confidence
-        critical_recs = [r for r in recommendations if r.get('priority', 99) == 1]
-        high_recs = [r for r in recommendations if r.get('priority', 99) == 2]
-        medium_recs = [r for r in recommendations if r.get('priority', 99) == 3]
+        # Group recommendations by priority and confidence (handle mixed data types)
+        def get_priority_level(rec):
+            priority = rec.get('priority', 'UNKNOWN')
+            if isinstance(priority, str):
+                priority_upper = priority.upper()
+                if priority_upper in ['HIGH', 'CRITICAL']:
+                    return 1
+                elif priority_upper == 'MEDIUM':
+                    return 2
+                elif priority_upper == 'LOW':
+                    return 3
+                else:
+                    return 99
+            elif isinstance(priority, int):
+                return priority
+            else:
+                return 99
+        
+        critical_recs = [r for r in recommendations if get_priority_level(r) == 1]
+        high_recs = [r for r in recommendations if get_priority_level(r) == 2]
+        medium_recs = [r for r in recommendations if get_priority_level(r) == 3]
         
         # High confidence recommendations
         high_confidence = [r for r in recommendations if r.get('confidence', '').lower() == 'high']
@@ -845,7 +862,7 @@ These recommendations have strong statistical backing and should be prioritized.
 
 """
             for rec in high_confidence:
-                if rec.get('priority', 99) <= 2:  # Don't duplicate critical/high priority ones
+                if get_priority_level(rec) <= 2:  # Don't duplicate critical/high priority ones
                     continue
                     
                 content += f"""
