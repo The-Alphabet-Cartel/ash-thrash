@@ -658,7 +658,13 @@ This section shows exactly which phrases failed and how they were misclassified 
             timestamp = datetime.fromtimestamp(run.get('timestamp', 0))
             date_str = timestamp.strftime('%m-%d %H:%M')
             
-            run_id = run.get('run_id', 'unknown')[:12]  # Truncate for display
+            # Get meaningful run ID - extract timestamp or use last part
+            full_run_id = run.get('run_id', 'unknown')
+            if '_' in full_run_id:
+                # Extract the timestamp part after the last underscore
+                run_id = full_run_id.split('_')[-1][:10]  # Get timestamp, limit to 10 chars
+            else:
+                run_id = full_run_id[:10]  # Fallback truncation
             pass_rate = run.get('overall_pass_rate', 0)
             safety_score = run.get('weighted_safety_score', 0)
             
@@ -763,7 +769,13 @@ This section shows patterns in failed phrases over recent test runs to identify 
                 else:
                     trend = "➡️ Baseline"
                 
-                run_id = failure_data.get('run_id', 'unknown')[:8]
+                # Get meaningful run ID - extract timestamp or use last part
+                full_run_id = failure_data.get('run_id', 'unknown')
+                if '_' in full_run_id:
+                    # Extract the timestamp part after the last underscore
+                    run_id = full_run_id.split('_')[-1][:8]  # Get timestamp, limit to 8 chars for table
+                else:
+                    run_id = full_run_id[:8]  # Fallback truncation
                 content += f"| `{run_id}` | {date_str} | {false_negs} | {false_pos} | {pass_rate:.1f}% | {trend} |\n"
             
             # Analysis for this category
