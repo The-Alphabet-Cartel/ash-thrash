@@ -401,7 +401,7 @@ class WeightOptimizer:
                             self.total_api_calls += 1
                             
                             # ENHANCED: More detailed progress logging
-                            if (i + 1) % 10 == 0:
+                            if (i + 1) % 50 == 0:
                                 progress_pct = ((i + 1) / len(self.all_test_data)) * 100
                                 recent_predictions = predictions[-10:] if len(predictions) >= 10 else predictions
                                 recent_correct_count = sum(1 for j in range(max(0, i-9), i+1) 
