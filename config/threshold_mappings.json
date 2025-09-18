@@ -35,7 +35,7 @@
           "risk_level": "low"
         },
         "NLP_THRESHOLD_CONSENSUS_NEGATIVE_TO_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Negative to low threshold (consensus mode)",
           "default": 0.700,
           "range_min": 0.500,
@@ -43,7 +43,7 @@
           "risk_level": "minimal"
         },
         "NLP_THRESHOLD_CONSENSUS_UNKNOWN_TO_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Unknown to low threshold (consensus mode)",
           "default": 0.500,
           "range_min": 0.300,
@@ -113,7 +113,7 @@
           "risk_level": "low"
         },
         "NLP_THRESHOLD_MAJORITY_NEGATIVE_TO_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Negative to low threshold (majority mode)",
           "default": 0.650,
           "range_min": 0.450,
@@ -121,7 +121,7 @@
           "risk_level": "minimal"
         },
         "NLP_THRESHOLD_MAJORITY_UNKNOWN_TO_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Unknown to low threshold (majority mode)",
           "default": 0.450,
           "range_min": 0.250,
@@ -155,7 +155,7 @@
           "risk_level": "low"
         },
         "NLP_THRESHOLD_MAJORITY_ENSEMBLE_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Low crisis ensemble threshold (majority)",
           "default": 0.110,
           "range_min": 0.025,
@@ -191,7 +191,7 @@
           "risk_level": "low"
         },
         "NLP_THRESHOLD_WEIGHTED_NEGATIVE_TO_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Negative to low threshold (weighted mode)",
           "default": 0.720,
           "range_min": 0.550,
@@ -199,7 +199,7 @@
           "risk_level": "minimal"
         },
         "NLP_THRESHOLD_WEIGHTED_UNKNOWN_TO_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Unknown to low threshold (weighted mode)",
           "default": 0.520,
           "range_min": 0.350,
@@ -233,7 +233,7 @@
           "risk_level": "low"
         },
         "NLP_THRESHOLD_WEIGHTED_ENSEMBLE_LOW": {
-          "affects": ["none", "low"],
+          "affects": ["low"],
           "description": "Low crisis ensemble threshold (weighted)",
           "default": 0.100,
           "range_min": 0.025,
