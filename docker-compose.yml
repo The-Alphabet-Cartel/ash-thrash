@@ -35,11 +35,11 @@
 
 services:
   # ===========================================================================
-  # Ash-Bot Service
+  # Ash-Thrash Service
   # ===========================================================================
-  ash-bot:
-    image: ghcr.io/the-alphabet-cartel/ash-bot:latest
-    container_name: ash-bot
+  ash-thrash:
+    image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
+    container_name: ash-thrash
     build:
       context: .
       dockerfile: Dockerfile
@@ -55,7 +55,7 @@ services:
     # Network
     networks:
       ash-network:
-        ipv4_address: 172.20.0.40
+        ipv4_address: 10.20.60.40
 
     # Environment variables
     env_file:
@@ -87,9 +87,9 @@ services:
 
     # Labels for organization
     labels:
-      - "com.alphabetcartel.service=ash-bot"
+      - "com.alphabetcartel.service=ash-thrash"
       - "com.alphabetcartel.version=5.0.0"
-      - "com.alphabetcartel.description=Crisis Detection Discord Bot"
+      - "com.alphabetcartel.description=Crisis Detection Testing Suite"
 
 # =============================================================================
 # Volumes
@@ -117,4 +117,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/24
+        - subnet: 10.20.60.0/24
