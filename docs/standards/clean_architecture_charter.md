@@ -1,20 +1,21 @@
-# Clean Architecture Charter - Ash-Thrash
+# Clean Architecture Charter - Ash-Bot
 
 ## Sacred Principles - NEVER TO BE VIOLATED
 
-**Version**: v5.0  
-**Repository**: https://github.com/the-alphabet-cartel/ash-thrash
+**Version**: v5.1  
+**Last Modified**: 2026-01-03  
+**Repository**: https://github.com/the-alphabet-cartel/ash-bot  
 **Community**: [The Alphabet Cartel](https://discord.gg/alphabetcartel) | [alphabetcartel.org](https://alphabetcartel.org)
 
 ---
 
 # 🎯 CORE SYSTEM VISION (Never to be violated):
 
-## **Ash-Thrash is a CRISIS DETECTION Discord Bot that**:
+## **Ash-Bot is a CRISIS DETECTION Discord Bot that**:
 1. **FIRST**: Monitors all messages within our discord server and sends them to our NLP server for semantic classification.
-2. **SECOND**: If the NLP server detects a crisis, the bot alerts the appropriate staff members within the Crisis Response Team (CRT) using "pings" (@crisis_response) to the CRT role within the crisis-response channel utilizing discord's embeds feature to show crisis details based on the NLP determined severity of the crisis.
-3. **THIRD**: Tracks historical patterns and messages and sends them to our NLP server for semantic classification to determine if there is a pattern of escalation over time.
-5. **PURPOSE**: To detect crisis messages in Discord community communications.
+2. **SECONDARY**: If the NLP server detects a crisis, the bot alerts the appropriate staff members within the Crisis Response Team (CRT) using "pings" (@crisis_response) to the CRT role within the crisis-response channel utilizing discord's embeds feature to show crisis details based on the NLP determined severity of the crisis.
+3. **TERTIARY**: Tracks historical patterns and messages and sends them to our NLP server for semantic classification to determine if there is a pattern of escalation over time.
+4. **PURPOSE**: To detect crisis messages in Discord community communications.
 
 ## 🏛️ **IMMUTABLE ARCHITECTURE RULES**
 
@@ -59,28 +60,86 @@
 - **Version increments**: Required for each meaningful change within a step
 - **Cross-conversation continuity**: Ensures accurate file tracking across sessions
 - **Version Headers should include at the top of the header a file description of what the file code does**
-  - `[fileDescription] for Ash-Thrash Service`
+  - `[fileDescription] for Ash-Bot Service`
 
-#### **Required Version Header Format:**
+#### **Required Version Header Format - Ash Ecosystem Standard:**
+
 ```python
 """
-Ash-Thrash: Crisis Detection Testing Framework for The Alphabet Cartel Discord Community
-CORE PRINCIPLE:
-******************  CORE SYSTEM VISION (Never to be violated):  ****************
-Ash-Thrash is a CRISIS DETECTION TESTING FRAMEWORK that:
-1. PRIMARY:
-2. CONTEXTUAL:
-3. HISTORICAL:
-5. **PURPOSE**:
-********************************************************************************
-{fileDescription} for Ash-Thrash Service
----
-FILE VERSION: v5.0-1a-1.1-1
-LAST MODIFIED: 2025-12-30
-PHASE: 1a Step 1.1-1 - {Phase / Step Description}
+============================================================================
+{Project Name}: {Project Tagline}
+The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
+============================================================================
+
+MISSION - NEVER TO BE VIOLATED:
+    {Mission Line 1}
+    {Mission Line 2}
+    {Mission Line 3}
+    {Mission Line 4}
+
+============================================================================
+{File Description}
+----------------------------------------------------------------------------
+FILE VERSION: {version}
+LAST MODIFIED: {date}
+PHASE: {phase}
 CLEAN ARCHITECTURE: Compliant
-Repository: https://github.com/the-alphabet-cartel/ash-thrash
-Community: The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org
+Repository: {repository_url}
+============================================================================
+"""
+```
+
+#### **Ash-Bot Specific Header:**
+
+```python
+"""
+============================================================================
+Ash-Bot: Crisis Detection Discord Bot
+The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
+============================================================================
+
+MISSION - NEVER TO BE VIOLATED:
+    Monitor  → Send messages to Ash-NLP for crisis classification
+    Alert    → Notify Crisis Response Team via embeds when crisis detected
+    Track    → Maintain user history for escalation pattern detection
+    Protect  → Safeguard our LGBTQIA+ community through early intervention
+
+============================================================================
+{File Description}
+----------------------------------------------------------------------------
+FILE VERSION: v5.0-1-1.0-1
+LAST MODIFIED: 2026-01-03
+PHASE: Phase 1 - {Phase Description}
+CLEAN ARCHITECTURE: Compliant
+Repository: https://github.com/the-alphabet-cartel/ash-bot
+============================================================================
+"""
+```
+
+#### **Ash-NLP Specific Header:**
+
+```python
+"""
+============================================================================
+Ash-NLP: Crisis Detection NLP Server
+The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
+============================================================================
+
+MISSION - NEVER TO BE VIOLATED:
+    Analyze  → Process messages through multi-model ensemble classification
+    Detect   → Identify crisis signals with weighted consensus algorithms
+    Explain  → Provide human-readable explanations for all decisions
+    Protect  → Safeguard our LGBTQIA+ community through accurate detection
+
+============================================================================
+{File Description}
+----------------------------------------------------------------------------
+FILE VERSION: v5.0-1-1.0-1
+LAST MODIFIED: 2026-01-03
+PHASE: Phase 1 - {Phase Description}
+CLEAN ARCHITECTURE: Compliant
+Repository: https://github.com/the-alphabet-cartel/ash-nlp
+============================================================================
 """
 ```
 
@@ -298,21 +357,26 @@ bash_tool      - Execute commands in Claude's container
 ### **Required Manager Structure:**
 ```python
 """
-Ash-Thrash: Crisis Detection Testing Framework for The Alphabet Cartel Discord Community
-CORE PRINCIPLE:
-******************  CORE SYSTEM VISION (Never to be violated):  ****************
-Ash-Thrash is a CRISIS DETECTION TESTING FRAMEWORK that:
-1. PRIMARY:
-2. CONTEXTUAL:
-3. HISTORICAL:
-5. **PURPOSE**:
-********************************************************************************
-{managerDescription} for Ash-Thrash Service
----
+============================================================================
+Ash-Bot: Crisis Detection Discord Bot
+The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
+============================================================================
+
+MISSION - NEVER TO BE VIOLATED:
+    Monitor  → Send messages to Ash-NLP for crisis classification
+    Alert    → Notify Crisis Response Team via embeds when crisis detected
+    Track    → Maintain user history for escalation pattern detection
+    Protect  → Safeguard our LGBTQIA+ community through early intervention
+
+============================================================================
+{Manager Description}
+----------------------------------------------------------------------------
 FILE VERSION: v{major}.{minor}-{phase}-{step}-{increment}
 LAST MODIFIED: {date}
-PHASE: {phase}, {step}
+PHASE: {phase} - {step description}
 CLEAN ARCHITECTURE: Compliant
+Repository: https://github.com/the-alphabet-cartel/ash-bot
+============================================================================
 """
 
 class [Manager]Manager:
@@ -574,10 +638,10 @@ This system serves **The Alphabet Cartel LGBTQIA+ community** by providing **lif
 
 ---
 
-**Status**: Living Document - Updated for Production Resilience
+**Status**: Living Document - Updated for Ash Ecosystem Header Standard
 **Authority**: Project Lead + AI Assistant Collaboration
 **Enforcement**: Mandatory for ALL code changes
-**Version**: v5.0
+**Version**: v5.1
 
 ---
 
