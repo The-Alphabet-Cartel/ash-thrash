@@ -54,7 +54,8 @@ services:
 
     # Network
     networks:
-      - ash-network
+      ash-network:
+        ipv4_address: 172.20.0.40
 
     # Environment variables
     env_file:
@@ -67,10 +68,7 @@ services:
 
     # Docker Secrets
     secrets:
-      - claude_api_key
-      - discord_bot_token
       - discord_alert_webhook
-      - redis
 
     # Health check
     healthcheck:
