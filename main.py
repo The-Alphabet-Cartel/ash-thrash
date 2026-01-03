@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Ash-Thrash: Crisis Detection Testing Framework for The Alphabet Cartel Discord Community
+Ash-Thrash: Testing Suite for the Ash-NLP Server
 CORE PRINCIPLE:
 ******************  CORE SYSTEM VISION (Never to be violated):  ****************
-Ash-Thrash is a CRISIS DETECTION TESTING FRAMEWORK that:
-1. PRIMARY:
-2. CONTEXTUAL:
-3. HISTORICAL:
-5. **PURPOSE**:
+Ash-Thrash is a TESTING SUITE for the Ash-NLP Server that:
+1. **PRIMARY**:
+2. **SECONDARY**:
+3. **TERTIARY**:
+4. **PURPOSE**:
 ********************************************************************************
 Main Entry Point for Ash-Thrash Service
 ---
