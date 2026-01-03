@@ -1,25 +1,45 @@
-# Ash-Thrash Testing Suite Requirements
+# ============================================================================
+# Ash-Thrash v5.0 Requirements
+# ============================================================================
+# FILE VERSION: v5.0
+# LAST MODIFIED: 2026-01-02
 # Repository: https://github.com/the-alphabet-cartel/ash-thrash
+# Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
+# ============================================================================
 
-# HTTP Client for NLP API calls
-aiohttp==3.9.1
-requests==2.31.0
+# =============================================================================
+# Core Framework
+# =============================================================================
 
-# JSON and Data Processing
-orjson==3.9.10
+# =============================================================================
+# Utilities
+# =============================================================================
 
-# Environment and Configuration
-python-dotenv==1.0.0
+# Python-dotenv - Environment variable loading
+python-dotenv>=1.0.0,<2.0.0
 
-# Date and Time Utilities
-python-dateutil==2.8.2
+# Structlog - Structured logging (optional, for JSON logs)
+# structlog>=24.1.0,<25.0.0
 
-# Logging and monitoring
-python-json-logger>=2.0.0
+# =============================================================================
+# HTTP and Networking
+# =============================================================================
 
-# Colorize logs
-colorlog>=6.8.0
+# HTTPX - Async HTTP client (for webhooks)
+httpx>=0.26.0,<1.0.0
 
-# Machine Learning
-numpy>=1.21.0
-scikit-learn>=1.0.0
+# AIOHTTP - Async HTTP client (for Discord alerting)
+aiohttp>=3.9.0,<4.0.0
+
+# =============================================================================
+# Testing (Development Only)
+# =============================================================================
+
+# Pytest - Testing framework
+pytest>=7.4.0,<8.0.0
+
+# Pytest-asyncio - Async test support
+pytest-asyncio>=0.23.0,<1.0.0
+
+# HTTPX - For TestClient
+# (already included above)

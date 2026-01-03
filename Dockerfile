@@ -1,58 +1,30 @@
-# Ash-Thrash Testing Suite Dockerfile
+# ============================================================================
+# Ash-Thrash v5.0 Production Dockerfile
+# ============================================================================
+# FILE VERSION: v5.0
+# LAST MODIFIED: 2026-01-02
 # Repository: https://github.com/the-alphabet-cartel/ash-thrash
-# Discord: https://discord.gg/alphabetcartel
-# Website: http://alphabetcartel.org
+# Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
+# ============================================================================
+#
+# USAGE:
+#   # Build the image
+#   docker build -t ghcr.io/the-alphabet-cartel/ash-thrash:latest .
+#
+#   # Run with docker-compose (recommended)
+#   docker-compose up -d
+#
+# MULTI-STAGE BUILD:
+#   Stage 1 (builder): Install dependencies
+#   Stage 2 (runtime): Minimal production image
+#
+# ============================================================================
 
-FROM python:3.11-slim
+# =============================================================================
+# Stage 1: Builder
+# =============================================================================
 
-LABEL maintainer="The Alphabet Cartel"
-LABEL description="Ash-Thrash Testing Suite"
-LABEL repository="https://github.com/The-Alphabet-Cartel/ash-thrash"
 
-# Set working directory
-WORKDIR /app
-
-# Copy requirements first for better caching
-COPY requirements.txt .
-
-# Create non-root user with /app as home directory (no separate home dir)
-RUN groupadd -g 1001 thrash && \
-    useradd -g 1001 -u 1001 -d /app -M thrash
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
-COPY --chown=thrash:thrash . .
-
-# Create directories for results and logs
-RUN mkdir -p ./logs ./reports ./results && \
-    chown -R thrash:thrash /app  && \
-    chmod 755 /app
-
-# Create non-root user for security
-USER thrash
-
-# Set working directory
-WORKDIR /app
-
-# Environmental Variables
-ENV TZ="America/Los_Angeles"
-ENV PYTHONUNBUFFERED="1"
-ENV PYTHONDONTWRITEBYTECODE="1"
-ENV PYTHONPATH="/app"
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8884/health || exit 1
-
-# Expose API port
-# EXPOSE 8884
-
-# Default command
-CMD ["python", "startup.py"]
+# =============================================================================
+# Stage 2: Runtime
+# =============================================================================

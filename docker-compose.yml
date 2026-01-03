@@ -1,78 +1,119 @@
-# =============================================================================
-# ASH-THRASH DOCKER COMPOSE CONFIGURATION
-# Repository: https://github.com/the-alphabet-cartel/ash-thrash
-# Discord: https://discord.gg/alphabetcartel
-# Website: http://alphabetcartel.org
-# =============================================================================
+# ============================================================================
+# Ash-Bot v5.0 Docker Compose Configuration
+# ============================================================================
+# FILE VERSION: v5.0
+# LAST MODIFIED: 2026-01-02
+# Repository: https://github.com/the-alphabet-cartel/ash-bot
+# Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
+# ============================================================================
+#
+# USAGE:
+#   # Start services
+#   docker-compose up -d
+#
+#   # View logs
+#   docker-compose logs -f ash-bot
+#
+#   # Stop services
+#   docker-compose down
+#
+#   # Rebuild and start
+#   docker-compose up -d --build
+#
+# SECRETS:
+#   Secrets are stored in ./secrets/ directory:
+#   - ./secrets/claude_api_key - Claude API key
+#   - ./secrets/discord_bot_token - Discord bot token
+#   - ./secrets/discord_alert_webhook - Discord webhook for alerts (optional)
+#   - ./secrets/redis - Redis password
+#
+# REQUIREMENTS:
+#   - Docker Engine 24.0+
+#   - Docker Compose v2.20+
+#
+# ============================================================================
 
 services:
-  # =========================================================================
-  # Ash-Thrash Service
-  # =========================================================================
-  ash-thrash:
+  # ===========================================================================
+  # Ash-Bot Service
+  # ===========================================================================
+  ash-bot:
+    image: ghcr.io/the-alphabet-cartel/ash-bot:latest
+    container_name: ash-bot
     build:
       context: .
-    image: ghcr.io/the-alphabet-cartel/ash-thrash:latest
-    container_name: ash-thrash
+      dockerfile: Dockerfile
+      target: runtime
+      args:
+        APP_USER: bot
+        APP_UID: 1001
+        APP_GID: 1001
+
+    # Restart policy
     restart: unless-stopped
+
+    # Network
     networks:
-      ash-network:
-        ipv4_address: 172.20.0.14
-    environment:
-      - TZ=America/Los_Angeles
+      - ash-network
+
+    # Environment variables
+    env_file:
+      - .env
+
+    # Volume mounts
     volumes:
-      - ./results:/app/results
+      # Logs (optional)
       - ./logs:/app/logs
-      - ./reports:/app/reports
-#      - ./secrets:/run/secrets:ro
-    depends_on:
-      - ash-nlp-check
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '2'
-        reservations:
-          memory: 256M
-          cpus: '1'
 
-  # =========================================================================
-  # NLP Server Health Check (dependency)
-  # =========================================================================
-  ash-nlp-check:
-    image: curlimages/curl:latest
-    container_name: ash-nlp-health-check
-    restart: "no"
-    networks:
-      ash-network:
-        ipv4_address: 172.20.0.15
-    command: >
-      sh -c "
-        echo 'Checking NLP server health...';
-        until curl -f ${GLOBAL_NLP_API_URL:-http://172.20.0.11:8881}/health; do
-          echo 'NLP server not ready, waiting...';
-          sleep 5;
-        done;
-        echo 'NLP server is healthy!';
-        exit 0;
-      "
+    # Docker Secrets
+    secrets:
+      - claude_api_key
+      - discord_bot_token
+      - discord_alert_webhook
+      - redis
 
+    # Health check
+    healthcheck:
+      test:
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+    # Labels for organization
+    labels:
+      - "com.alphabetcartel.service=ash-bot"
+      - "com.alphabetcartel.version=5.0.0"
+      - "com.alphabetcartel.description=Crisis Detection Discord Bot"
+
+# =============================================================================
+# Volumes
+# =============================================================================
+
+# =============================================================================
+# Secrets
+# =============================================================================
+secrets:
+  claude_api_key:
+    file: ./secrets/claude_api_key
+  discord_bot_token:
+    file: ./secrets/discord_bot_token
+  discord_alert_webhook:
+    file: ./secrets/discord_alert_webhook
+  redis:
+    file: ./secrets/redis
+
+# =============================================================================
+# Networks
+# =============================================================================
 networks:
   ash-network:
     name: ash-network
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1
-
-volumes:
-  ash-thrash-reports:
-    name: ash-thrash-reports
-    driver: local
-  ash-thrash-results:
-    name: ash-thrash-results
-    driver: local
-  ash-thrash-logs:
-    name: ash-thrash-logs
-    driver: local
