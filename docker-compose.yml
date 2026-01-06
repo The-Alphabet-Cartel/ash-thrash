@@ -32,6 +32,25 @@
 #   - Docker Compose v2.20+
 #
 # ============================================================================
+### Common Variables ###
+x-common: &common
+  networks:
+    - ash-network
+  restart: unless-stopped
+
+### Common Environmental Variables ###
+x-env: &env
+  TZ: America/Los_Angeles
+  PGID: 1001
+  PUID: 1001
+
+### Healthchecks ###
+x-health: &health
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 120s
+  start_interval: 30s
 
 services:
   # ===========================================================================
@@ -43,39 +62,41 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: runtime
-      args:
-        APP_USER: bot
-        APP_UID: 1001
-        APP_GID: 1001
+    <<: *common
 
-    # Restart policy
-    restart: unless-stopped
-
-    # Network
-    networks:
-      - ash-network
+    # Resource limits (production)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
 
     # Environment variables
+    environment:
+      <<: *env
     env_file:
       - .env
 
-    # Volume mounts
+    # Volume Mounts
     volumes:
-      # Logs (optional)
+      # Logs
       - ./logs:/app/logs
+      # Testing (Development only)
+      - ./tests:/app/tests
+
+    # Port mapping for health checks (Ash ecosystem: 30883)
+    ports:
+      - "30883:30883"
 
     # Docker Secrets
     secrets:
       - discord_alert_token
+      #- redis_token
 
-    # Health check
+    # Health check - uses HTTP endpoint from health server
     healthcheck:
-      test:
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 120s
+      <<: *health
+      test: ["CMD", "curl", "-f", "http://localhost:30883/health"]
 
     # Logging configuration
     logging:
@@ -86,13 +107,22 @@ services:
 
     # Labels for organization
     labels:
-      - "com.alphabetcartel.service=ash-thrash"
-      - "com.alphabetcartel.version=5.0.0"
-      - "com.alphabetcartel.description=Crisis Detection Testing Suite"
+      - "org.alphabetcartel.service=ash-thrash"
+      - "org.alphabetcartel.version=5.0.0"
+      - "org.alphabetcartel.description=Ash Crisis Detection Performance Testing"
+
+    # Dependencies
+    #depends_on:
+    #  ash-redis:
+    #  condition: service_healthy
 
 # =============================================================================
 # Volumes
 # =============================================================================
+#volumes:
+#  redis_data:
+#    name: ash-redis-data
+#    driver: local
 
 # =============================================================================
 # Secrets
@@ -100,6 +130,8 @@ services:
 secrets:
   discord_alert_token:
     file: ./secrets/discord_alert_token
+  redis_token:
+    file: ./secrets/redis_token
   webhook_token:
     file: ./secrets/webhook_token
 
