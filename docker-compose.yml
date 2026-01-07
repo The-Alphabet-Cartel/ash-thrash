@@ -130,10 +130,10 @@ services:
 secrets:
   discord_alert_token:
     file: ./secrets/discord_alert_token
-  redis_token:
-    file: ./secrets/redis_token
-  webhook_token:
-    file: ./secrets/webhook_token
+  #redis_token:
+  #file: ./secrets/redis_token
+  #webhook_token:
+  #file: ./secrets/webhook_token
 
 # =============================================================================
 # Networks
