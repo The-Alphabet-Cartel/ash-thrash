@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Secrets Manager for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-1-1.0-1
-LAST MODIFIED: 2026-01-03
-PHASE: Phase 1
+FILE VERSION: v5.0-1-1.3-1
+LAST MODIFIED: 2026-01-20
+PHASE: Phase 1 - Foundation
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -23,7 +23,7 @@ Repository: https://github.com/the-alphabet-cartel/ash-thrash
 RESPONSIBILITIES:
 - Read secrets from Docker Secrets (/run/secrets/)
 - Fallback to local secrets directory for development
-- Provide secure access to sensitive credentials
+- Provide secure access to Discord webhook credentials
 - Never log or expose secret values
 
 DOCKER SECRETS LOCATIONS:
@@ -31,12 +31,7 @@ DOCKER SECRETS LOCATIONS:
 - Development (Local): ./secrets/<secret_name>
 
 SUPPORTED SECRETS:
-- claude_api_token: Claude API key for Claude AI access
-- huggingface_token: HuggingFace API token for model downloads
-- discord_alert_token: Discord webhook URL for system alerts
-- discord_bot_token: Discord bot token
-- webhook_token: Webhook signing secret
-- redis_token: Redis password for secure connections
+- ash_thrash_discord_alert_token: Discord webhook URL for test result notifications
 """
 
 import logging
@@ -45,7 +40,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 # Module version
-__version__ = "v5.0-3-5.5-2"
+__version__ = "v5.0-1-1.3-1"
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -60,16 +55,11 @@ DOCKER_SECRETS_PATH = Path("/run/secrets")
 # Local development secrets path (relative to project root)
 LOCAL_SECRETS_PATH = Path("secrets")
 
-# Known secret names and their descriptions
+# Known secret names and their descriptions for Ash-Thrash
 KNOWN_SECRETS = {
-    "claude_api_token": "Claude API key for Claude AI access",
-    "discord_alert_token": "Discord webhook URL for system alerts",
-    "discord_bot_token": "Discord bot token",
-    "huggingface_token": "HuggingFace API token for authenticated model downloads",
-    "postgres_token": "PostgreSQL password for secure connections",
-    "redis_token": "Redis password for secure connections",
-    "webhook_token": "Webhook signing secret",
+    "ash_thrash_discord_alert_token": "Discord webhook URL for test result notifications",
 }
+
 
 # =============================================================================
 # Secrets Manager Class
@@ -91,10 +81,10 @@ class SecretsManager:
         _cache: Cached secret values (read once)
 
     Example:
-        >>> secrets = SecretsManager()
-        >>> hf_token = secrets.get("huggingface")
-        >>> if hf_token:
-        ...     print("HuggingFace token loaded")
+        >>> secrets = create_secrets_manager()
+        >>> webhook_url = secrets.get_discord_alert_token()
+        >>> if webhook_url:
+        ...     print("Discord webhook configured")
     """
 
     def __init__(
@@ -108,13 +98,16 @@ class SecretsManager:
         Args:
             docker_path: Custom Docker secrets path (default: /run/secrets)
             local_path: Custom local secrets path (default: ./secrets)
+
+        Note:
+            Use create_secrets_manager() factory function instead of direct instantiation.
         """
         self.docker_path = docker_path or DOCKER_SECRETS_PATH
         self.local_path = local_path or self._find_local_secrets_path()
         self._cache: Dict[str, Optional[str]] = {}
 
         # Log initialization (without revealing paths that might hint at secrets)
-        logger.debug("SecretsManager initialized")
+        logger.debug(f"SecretsManager {__version__} initialized")
 
     def _find_local_secrets_path(self) -> Path:
         """
@@ -132,7 +125,7 @@ class SecretsManager:
         if LOCAL_SECRETS_PATH.exists():
             return LOCAL_SECRETS_PATH
 
-        # Try relative to this file's location
+        # Try relative to this file's location (project_root/secrets)
         module_path = Path(__file__).parent.parent.parent / "secrets"
         if module_path.exists():
             return module_path
@@ -151,13 +144,13 @@ class SecretsManager:
 
         Lookup order:
         1. Cache (if previously loaded)
-        2. Docker Secrets (/run/secrets/<name>)
-        3. Local secrets file (./secrets/<name>)
-        4. Environment variable (uppercase, prefixed)
+        2. Docker Secrets (/run/secrets/<secret_name>)
+        3. Local secrets file (./secrets/<secret_name>)
+        4. Environment variable (uppercase, prefixed with THRASH_SECRET_)
         5. Default value
 
         Args:
-            secret_name: Name of the secret (e.g., "huggingface")
+            secret_name: Name of the secret (e.g., "ash_thrash_discord_alert_token")
             default: Default value if secret not found
             required: If True, raise error when secret not found
 
@@ -228,8 +221,7 @@ class SecretsManager:
         Convert secret name to environment variable name.
 
         Examples:
-            huggingface -> NLP_SECRET_HUGGINGFACE
-            discord_token -> NLP_SECRET_DISCORD_TOKEN
+            ash_thrash_discord_alert_token -> THRASH_SECRET_ASH_THRASH_DISCORD_ALERT_TOKEN
 
         Args:
             secret_name: Secret name
@@ -237,140 +229,26 @@ class SecretsManager:
         Returns:
             Environment variable name
         """
-        return f"NLP_SECRET_{secret_name.upper()}"
-
-    def get_claude_api_token(self) -> Optional[str]:
-        """
-        Get Claude API token.
-
-        Also checks CLAUDE_API_TOKEN environment variable as fallback
-        (standard Claude environment variable).
-
-        Returns:
-            Claude API token or None
-        """
-        # Try our secrets system first
-        token = self.get("claude_api_token")
-
-        # Fallback to standard Claude env vars
-        if token is None:
-            token = os.environ.get("CLAUDE_API_TOKEN")
-
-        return token
+        return f"THRASH_SECRET_{secret_name.upper()}"
 
     def get_discord_alert_token(self) -> Optional[str]:
         """
-        Get Discord alert token.
+        Get Discord alert webhook token/URL.
 
-        Also checks DISCORD_ALERT_TOKEN environment variable as fallback
-        (standard Discord environment variable).
+        This is the primary secret for Ash-Thrash, used to send
+        test result notifications to Discord.
+
+        Also checks DISCORD_ALERT_TOKEN environment variable as fallback.
 
         Returns:
-            Discord alert token or None
+            Discord webhook URL or None
         """
         # Try our secrets system first
-        token = self.get("discord_alert_token")
+        token = self.get("ash_thrash_discord_alert_token")
 
-        # Fallback to standard Discord env vars
+        # Fallback to generic Discord env var
         if token is None:
             token = os.environ.get("DISCORD_ALERT_TOKEN")
-
-        return token
-
-    def get_discord_bot_token(self) -> Optional[str]:
-        """
-        Get Discord bot token.
-
-        Also checks DISCORD_BOT_TOKEN environment variable as fallback
-        (standard Discord environment variable).
-
-        Returns:
-            Discord bot token or None
-        """
-        # Try our secrets system first
-        token = self.get("discord_bot_token")
-
-        # Fallback to standard Discord env vars
-        if token is None:
-            token = os.environ.get("DISCORD_BOT_TOKEN")
-
-        return token
-
-    def get_huggingface_token(self) -> Optional[str]:
-        """
-        Get HuggingFace API token.
-
-        Also checks HF_TOKEN environment variable as fallback
-        (standard HuggingFace environment variable).
-
-        Returns:
-            HuggingFace token or None
-        """
-        # Try our secrets system first
-        token = self.get("huggingface")
-
-        # Fallback to standard HuggingFace env vars
-        if token is None:
-            token = os.environ.get("HF_TOKEN")
-        if token is None:
-            token = os.environ.get("HUGGING_FACE_HUB_TOKEN")
-
-        return token
-
-    def get_postgres_token(self) -> Optional[str]:
-        """
-        Get Postgres Token.
-
-        Also checks POSTGRES_TOKEN environment variable as fallback
-        (standard Postgres environment variable).
-
-        Returns:
-            Postgres Token or None
-        """
-        # Try our secrets system first
-        token = self.get("postgres_token")
-
-        # Fallback to standard Postgres env vars
-        if token is None:
-            token = os.environ.get("POSTGRES_TOKEN")
-
-        return token
-
-    def get_redis_token(self) -> Optional[str]:
-        """
-        Get Redis Token.
-
-        Also checks REDIS_TOKEN environment variable as fallback
-        (standard Redis environment variable).
-
-        Returns:
-            Redis Token or None
-        """
-        # Try our secrets system first
-        token = self.get("redis_token")
-
-        # Fallback to standard Redis env vars
-        if token is None:
-            token = os.environ.get("REDIS_TOKEN")
-
-        return token
-
-    def get_webhook_token(self) -> Optional[str]:
-        """
-        Get Webhook Token.
-
-        Also checks WEBHOOK_TOKEN environment variable as fallback
-        (standard Webhook environment variable).
-
-        Returns:
-            Webhook Token or None
-        """
-        # Try our secrets system first
-        token = self.get("webhook_token")
-
-        # Fallback to standard Webhook env vars
-        if token is None:
-            token = os.environ.get("WEBHOOK_TOKEN")
 
         return token
 
@@ -396,12 +274,16 @@ class SecretsManager:
         if os.environ.get(self._get_env_var_name(secret_name)):
             return True
 
-        # Check HuggingFace-specific env vars
-        if secret_name == "huggingface":
-            if os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN"):
-                return True
-
         return False
+
+    def has_discord_webhook(self) -> bool:
+        """
+        Check if Discord webhook is configured.
+
+        Returns:
+            True if Discord alert token is available
+        """
+        return self.get_discord_alert_token() is not None
 
     def list_available(self) -> Dict[str, bool]:
         """
@@ -417,7 +299,7 @@ class SecretsManager:
         Get secrets manager status.
 
         Returns:
-            Status dictionary (safe for logging)
+            Status dictionary (safe for logging - no secret values)
         """
         return {
             "docker_secrets_path": str(self.docker_path),
@@ -425,6 +307,7 @@ class SecretsManager:
             "local_secrets_path": str(self.local_path),
             "local_secrets_available": self.local_path.exists(),
             "secrets_available": self.list_available(),
+            "discord_webhook_configured": self.has_discord_webhook(),
             "cached_count": len(self._cache),
         }
 
@@ -432,27 +315,6 @@ class SecretsManager:
         """Clear the secrets cache."""
         self._cache.clear()
         logger.debug("Secrets cache cleared")
-
-    def configure_huggingface(self) -> bool:
-        """
-        Configure HuggingFace library with token if available.
-
-        Sets the HF_TOKEN environment variable for the transformers
-        library to use during model downloads.
-
-        Returns:
-            True if token was configured, False otherwise
-        """
-        token = self.get_huggingface_token()
-
-        if token:
-            # Set environment variable for HuggingFace library
-            os.environ["HF_TOKEN"] = token
-            logger.info("HuggingFace token configured")
-            return True
-        else:
-            logger.debug("No HuggingFace token available (public models only)")
-            return False
 
 
 # =============================================================================
@@ -467,7 +329,7 @@ class SecretNotFoundError(Exception):
 
 
 # =============================================================================
-# Factory Function
+# Factory Function - Clean Architecture v5.2.1 Compliance (Rule #1)
 # =============================================================================
 
 
@@ -478,19 +340,22 @@ def create_secrets_manager(
     """
     Factory function to create a SecretsManager instance.
 
-    Following Clean Architecture v5.1 Rule #1: Factory Functions.
+    This is the ONLY way to create a SecretsManager instance.
+    Direct instantiation should be avoided in production code.
 
     Args:
-        docker_path: Custom Docker secrets path
-        local_path: Custom local secrets path
+        docker_path: Custom Docker secrets path (default: /run/secrets)
+        local_path: Custom local secrets path (default: ./secrets)
 
     Returns:
         Configured SecretsManager instance
 
     Example:
         >>> secrets = create_secrets_manager()
-        >>> token = secrets.get_huggingface_token()
+        >>> webhook = secrets.get_discord_alert_token()
     """
+    logger.debug("🏭 Creating SecretsManager")
+
     return SecretsManager(
         docker_path=docker_path,
         local_path=local_path,

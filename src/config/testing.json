@@ -1,45 +1,37 @@
 {
 	"_metadata": {
-		"file_version": "v5.0",
-		"last_modified": "2025-01-03",
+		"file_version": "v5.0-1-1.6-1",
+		"last_modified": "2026-01-20",
 		"clean_architecture": "Compliant",
-		"description": "Ash-Thrash v5.0 Testing Configuration Overrides",
-		"note": "Optimized for debugging and reproducible test runs",
+		"description": "Ash-Thrash v5.0 Testing Environment Configuration",
 		"repository": "https://github.com/the-alphabet-cartel/ash-thrash",
-		"community": "The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org"
+		"community": "The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org",
+		"note": "These values override default.json for testing/development"
 	},
 
 	"logging": {
-		"description": "Testing logging - human readable for debugging",
 		"level": "DEBUG",
-		"format": "text",
-		"file": "/app/logs/ash-thrash-tests.log",
+		"format": "human",
 		"console": true
-		"defaults": {
-			"level": "DEBUG",
-			"format": "text",
-			"file": "/app/logs/ash-thrash-tests.log",
-			"console": true
-		},
-		"validation": {
-			"level": {
-				"type": "string",
-				"allowed_values": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-				"required": true
-			},
-			"format": {
-				"type": "string",
-				"allowed_values": ["json", "text"],
-				"required": true
-			},
-			"file": {
-				"type": "string",
-				"required": true
-			},
-			"console": {
-				"type": "boolean",
-				"required": false
-			}
-		}
+	},
+
+	"nlp_server": {
+		"timeout": 60,
+		"retry_attempts": 1,
+		"retry_delay_ms": 500
+	},
+
+	"test_execution": {
+		"delay_between_requests_ms": 50,
+		"include_explanations": true,
+		"include_context_analysis": false,
+		"explanation_verbosity": "detailed"
+	},
+
+	"reporting": {
+		"output_formats": ["json"],
+		"discord_webhook_enabled": false,
+		"include_failed_details": true,
+		"include_timing_stats": true
 	}
 }

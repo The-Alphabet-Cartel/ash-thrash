@@ -1,45 +1,59 @@
 # ============================================================================
 # Ash-Thrash v5.0 Requirements
 # ============================================================================
-# FILE VERSION: v5.0
-# LAST MODIFIED: 2026-01-02
+# FILE VERSION: v5.0-1-1.7-1
+# LAST MODIFIED: 2026-01-20
 # Repository: https://github.com/the-alphabet-cartel/ash-thrash
 # Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
 # ============================================================================
 
 # =============================================================================
-# Core Framework
-# =============================================================================
-
-# =============================================================================
-# Utilities
+# Core Dependencies
 # =============================================================================
 
 # Python-dotenv - Environment variable loading
 python-dotenv>=1.0.0,<2.0.0
 
-# Structlog - Structured logging (optional, for JSON logs)
-# structlog>=24.1.0,<25.0.0
-
 # =============================================================================
 # HTTP and Networking
 # =============================================================================
 
-# HTTPX - Async HTTP client (for webhooks)
+# HTTPX - Async HTTP client (for Ash-NLP API calls)
 httpx>=0.26.0,<1.0.0
 
-# AIOHTTP - Async HTTP client (for Discord alerting)
+# AIOHTTP - Async HTTP client (for Discord webhooks)
 aiohttp>=3.9.0,<4.0.0
 
 # =============================================================================
-# Testing (Development Only)
+# Data Validation
+# =============================================================================
+
+# Pydantic - Data validation (used by validators in Phase 2)
+pydantic>=2.0.0,<3.0.0
+
+# =============================================================================
+# Terminal Output
+# =============================================================================
+
+# Rich - Terminal formatting and progress display
+rich>=13.0.0,<14.0.0
+
+# =============================================================================
+# Testing Framework
 # =============================================================================
 
 # Pytest - Testing framework
-pytest>=7.4.0,<8.0.0
+pytest>=7.4.0,<9.0.0
 
 # Pytest-asyncio - Async test support
 pytest-asyncio>=0.23.0,<1.0.0
 
-# HTTPX - For TestClient
-# (already included above)
+# Pytest-cov - Coverage reporting
+pytest-cov>=4.0.0,<6.0.0
+
+# =============================================================================
+# Optional: Report Generation (Phase 3)
+# =============================================================================
+
+# Jinja2 - HTML report templating
+jinja2>=3.1.0,<4.0.0

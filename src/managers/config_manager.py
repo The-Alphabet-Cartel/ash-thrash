@@ -13,30 +13,29 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Configuration Manager for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-1-1.0-1
-LAST MODIFIED: 2026-01-03
-PHASE: Phase 1
+FILE VERSION: v5.0-1-1.1-1
+LAST MODIFIED: 2026-01-20
+PHASE: Phase 1 - Foundation
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
 
 RESPONSIBILITIES:
-- Load JSON configuration files (default.json, production.json, testing.json)
-- Apply environment variable overrides
+- Load JSON configuration files (default.json, testing.json, production.json)
+- Apply environment variable overrides (THRASH_* prefix)
 - Validate configuration values against schemas
 - Provide safe fallbacks for invalid/missing values (Rule #5)
 - Support multiple environments (production, testing, development)
 """
 
 import json
-import os
 import logging
-from typing import Any, Dict, List, Optional, Union
+import os
 from pathlib import Path
-from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
 
 # Module version
-__version__ = "v5.0-4-4.1-3"
+__version__ = "v5.0-1-1.1-1"
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -44,9 +43,9 @@ logger = logging.getLogger(__name__)
 
 class ConfigManager:
     """
-    Configuration Manager for Ash-Thrash Testing Suite
+    Configuration Manager for Ash-Thrash Testing Suite.
 
-    Implements Clean Architecture v5.1 principles:
+    Implements Clean Architecture v5.2.1 principles:
     - Factory function pattern (create_config_manager)
     - JSON configuration with environment variable overrides
     - Resilient validation with safe fallbacks
@@ -73,7 +72,7 @@ class ConfigManager:
         Initialize ConfigManager with configuration directory and environment.
 
         Args:
-            config_dir: Path to configuration directory (default: ./config)
+            config_dir: Path to configuration directory (default: ./src/config)
             environment: Environment name (production, testing, development)
 
         Note:
@@ -81,7 +80,7 @@ class ConfigManager:
         """
         # Set configuration directory
         if config_dir is None:
-            # Default to ./config relative to project root
+            # Default to src/config relative to managers directory
             self.config_dir = Path(__file__).parent.parent / "config"
         else:
             self.config_dir = Path(config_dir)
@@ -100,17 +99,11 @@ class ConfigManager:
         self._resolved_config: Dict[str, Any] = {}
         self._validation_errors: List[str] = []
 
-        # Phase 4: Consensus configuration storage
-        self._consensus_config: Dict[str, Any] = {}
-
         # Load and resolve configuration
         self._load_configuration()
 
-        # Phase 4: Load consensus configuration
-        self._load_consensus_configuration()
-
         logger.info(
-            f"✅ ConfigManager v{__version__} initialized "
+            f"✅ ConfigManager {__version__} initialized "
             f"(environment: {self.environment})"
         )
 
@@ -124,7 +117,7 @@ class ConfigManager:
         3. Apply environment variable overrides
         4. Validate all values
         """
-        logger.info(f"📂 Loading configuration from: {self.config_dir}")
+        logger.debug(f"📂 Loading configuration from: {self.config_dir}")
 
         # Step 1: Load default configuration
         default_path = self.config_dir / self.DEFAULT_CONFIG
@@ -140,7 +133,7 @@ class ConfigManager:
             env_config = self._load_json_file(env_path)
             if env_config:
                 self._merge_config(env_config)
-                logger.info(f"📝 Applied {self.environment} overrides")
+                logger.debug(f"📝 Applied {self.environment} overrides")
         else:
             logger.debug(f"No environment config found: {env_path}")
 
@@ -149,51 +142,6 @@ class ConfigManager:
 
         # Step 4: Resolve and validate configuration
         self._resolve_configuration()
-
-    def _resolve_env_value(self, value: Any, defaults: Dict[str, Any], key: str) -> Any:
-        """
-        Resolve a single value that may be an environment variable reference.
-
-        Args:
-            value: The value to resolve (may be ${ENV_VAR} string)
-            defaults: Dictionary of default values
-            key: The key name for looking up defaults
-
-        Returns:
-            Resolved value (from env var, or default)
-        """
-        if (
-            not isinstance(value, str)
-            or not value.startswith("${")
-            or not value.endswith("}")
-        ):
-            return value
-
-        env_var = value[2:-1]
-        env_value = os.environ.get(env_var)
-
-        # Get default value for type inference
-        default_value = defaults.get(key)
-
-        if env_value is not None:
-            # Convert type based on default
-            if isinstance(default_value, bool):
-                return env_value.lower() in ("true", "1", "yes")
-            elif isinstance(default_value, int):
-                try:
-                    return int(env_value)
-                except ValueError:
-                    return default_value
-            elif isinstance(default_value, float):
-                try:
-                    return float(env_value)
-                except ValueError:
-                    return default_value
-            else:
-                return env_value
-        else:
-            # Use default
-            return default_value
 
     def _load_json_file(self, path: Path) -> Dict[str, Any]:
         """
@@ -286,7 +234,7 @@ class ConfigManager:
                         )
 
         if override_count > 0:
-            logger.info(f"🔧 Applied {override_count} environment variable overrides")
+            logger.debug(f"🔧 Applied {override_count} environment variable overrides")
 
     def _get_expected_type(self, section: str, key: str) -> str:
         """
@@ -458,51 +406,62 @@ class ConfigManager:
         Return emergency fallback configuration if all else fails.
 
         This ensures the system can start even without configuration files.
-        Rule #5: Operational continuity for crisis detection.
+        Rule #5: Operational continuity for testing suite.
 
         Returns:
-            Minimal working configuration
+            Minimal working configuration for Ash-Thrash
         """
         logger.warning("🚨 Using emergency fallback configuration!")
 
         return {
-            "api": {
+            "logging": {
                 "defaults": {
-                    "host": "0.0.0.0",
+                    "level": "INFO",
+                    "format": "human",
+                    "file": "/app/logs/ash-thrash.log",
+                    "console": True,
+                }
+            },
+            "nlp_server": {
+                "defaults": {
+                    "host": "10.20.30.253",
                     "port": 30880,
-                    "workers": 2,
                     "timeout": 30,
+                    "retry_attempts": 3,
+                    "retry_delay_ms": 1000,
                 }
             },
-            "models": {
+            "test_execution": {
                 "defaults": {
-                    "device": "auto",
-                    "cache_dir": "/app/cache/models",
-                    "warmup_enabled": True,
-                }
-            },
-            "model_bart": {
-                "defaults": {
-                    "model_id": "facebook/bart-large-mnli",
-                    "weight": 0.50,
-                    "enabled": True,
-                    "task": "zero-shot-classification",
-                    "role": "primary",
+                    "delay_between_requests_ms": 100,
+                    "include_explanations": True,
+                    "include_context_analysis": False,
                 }
             },
             "thresholds": {
                 "defaults": {
-                    "critical": 0.85,
-                    "high": 0.70,
-                    "medium": 0.50,
-                    "low": 0.30,
+                    "high_target_accuracy": 95.0,
+                    "medium_target_accuracy": 85.0,
+                    "low_target_accuracy": 85.0,
+                    "none_target_accuracy": 95.0,
                 }
             },
-            "logging": {
+            "reporting": {
                 "defaults": {
-                    "level": "INFO",
-                    "format": "text",
-                    "console": True,
+                    "output_directory": "/app/reports",
+                    "output_formats": ["json"],
+                    "discord_webhook_enabled": False,
+                }
+            },
+            "phrases": {
+                "defaults": {
+                    "directory": "/app/src/config/phrases",
+                    "categories": [
+                        "critical_high_priority",
+                        "medium_priority",
+                        "low_priority",
+                        "none_priority",
+                    ],
                 }
             },
         }
@@ -516,7 +475,7 @@ class ConfigManager:
         Get a configuration value.
 
         Args:
-            section: Configuration section (e.g., "api", "models")
+            section: Configuration section (e.g., "logging", "nlp_server")
             key: Configuration key within section
             default: Default value if not found
 
@@ -538,16 +497,31 @@ class ConfigManager:
         Returns:
             Section dictionary or empty dict
         """
-        return self._resolved_config.get(section, {})
+        return self._resolved_config.get(section, {}).copy()
 
     def get_logging_config(self) -> Dict[str, Any]:
-        """
-        Get logging configuration.
-
-        Returns:
-            Logging configuration dictionary
-        """
+        """Get logging configuration section."""
         return self.get_section("logging")
+
+    def get_nlp_server_config(self) -> Dict[str, Any]:
+        """Get NLP server connection configuration."""
+        return self.get_section("nlp_server")
+
+    def get_test_execution_config(self) -> Dict[str, Any]:
+        """Get test execution configuration."""
+        return self.get_section("test_execution")
+
+    def get_thresholds_config(self) -> Dict[str, Any]:
+        """Get accuracy threshold configuration."""
+        return self.get_section("thresholds")
+
+    def get_reporting_config(self) -> Dict[str, Any]:
+        """Get reporting configuration."""
+        return self.get_section("reporting")
+
+    def get_phrases_config(self) -> Dict[str, Any]:
+        """Get phrase loading configuration."""
+        return self.get_section("phrases")
 
     # =========================================================================
     # Utility Methods
@@ -587,22 +561,23 @@ class ConfigManager:
 
 
 # =============================================================================
-# FACTORY FUNCTION - Clean Architecture v5.1 Compliance (Rule #1)
+# FACTORY FUNCTION - Clean Architecture v5.2.1 Compliance (Rule #1)
 # =============================================================================
 
 
 def create_config_manager(
-    config_dir: Optional[Union[str, Path]] = None, environment: Optional[str] = None
+    config_dir: Optional[Union[str, Path]] = None,
+    environment: Optional[str] = None,
 ) -> ConfigManager:
     """
-    Factory function for ConfigManager (Clean Architecture v5.1 Pattern).
+    Factory function for ConfigManager (Clean Architecture v5.2.1 Pattern).
 
     This is the ONLY way to create a ConfigManager instance.
     Direct instantiation should be avoided in production code.
 
     Args:
         config_dir: Path to configuration directory (default: auto-detect)
-        environment: Environment name (default: from NLP_ENVIRONMENT or 'production')
+        environment: Environment name (default: from THRASH_ENVIRONMENT or 'production')
 
     Returns:
         Configured ConfigManager instance
@@ -614,9 +589,9 @@ def create_config_manager(
     """
     # Determine environment from env var if not specified
     if environment is None:
-        environment = os.environ.get("NLP_ENVIRONMENT", "production")
+        environment = os.environ.get("THRASH_ENVIRONMENT", "production")
 
-    logger.info(f"🏭 Creating ConfigManager (environment: {environment})")
+    logger.debug(f"🏭 Creating ConfigManager (environment: {environment})")
 
     return ConfigManager(config_dir=config_dir, environment=environment)
 

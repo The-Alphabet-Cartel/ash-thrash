@@ -1,9 +1,9 @@
 # ============================================================================
-# Ash-Bot v5.0 Docker Compose Configuration
+# Ash-Thrash v5.0 Docker Compose Configuration
 # ============================================================================
-# FILE VERSION: v5.0
-# LAST MODIFIED: 2026-01-02
-# Repository: https://github.com/the-alphabet-cartel/ash-bot
+# FILE VERSION: v5.0-1-1.7-1
+# LAST MODIFIED: 2026-01-20
+# Repository: https://github.com/the-alphabet-cartel/ash-thrash
 # Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
 # ============================================================================
 #
@@ -12,7 +12,7 @@
 #   docker-compose up -d
 #
 #   # View logs
-#   docker-compose logs -f ash-bot
+#   docker-compose logs -f ash-thrash
 #
 #   # Stop services
 #   docker-compose down
@@ -22,16 +22,15 @@
 #
 # SECRETS:
 #   Secrets are stored in ./secrets/ directory:
-#   - ./secrets/claude_api_key - Claude API key
-#   - ./secrets/discord_bot_token - Discord bot token
-#   - ./secrets/discord_alert_webhook - Discord webhook for alerts (optional)
-#   - ./secrets/redis - Redis password
+#   - ./secrets/ash_thrash_discord_alert_token - Discord webhook for test notifications (optional)
 #
 # REQUIREMENTS:
 #   - Docker Engine 24.0+
 #   - Docker Compose v2.20+
+#   - Ash-NLP running on 10.20.30.253:30880
 #
 # ============================================================================
+
 ### Common Variables ###
 x-common: &common
   networks:
@@ -43,7 +42,7 @@ x-env: &env
   PGID: ${PGID:-1000}
   PUID: ${PUID:-1000}
   TZ: ${TZ:-America/Los_Angeles}
-  # Force ANSI colors in Docker logs (Charter v5.2 colorized logging)
+  # Force ANSI colors in Docker logs (Charter v5.2.1 colorized logging)
   FORCE_COLOR: "1"
 
 ### Healthchecks ###
@@ -66,7 +65,7 @@ services:
       dockerfile: Dockerfile
     <<: *common
 
-    # Resource limits (production)
+    # Resource limits
     deploy:
       resources:
         limits:
@@ -81,12 +80,16 @@ services:
 
     # Volume Mounts
     volumes:
-      # Logs
+      # Logs (persistent)
       - ./logs:/app/logs
-      # Testing (Development only)
+      # Reports (persistent)
+      - ./reports:/app/reports
+      # Phrase configuration (for live updates)
+      - ./src/config/phrases:/app/src/config/phrases:ro
+      # Testing (Development only - remove in production)
       - ./tests:/app/tests
 
-    # Port mapping for health checks (Ash ecosystem: 30883)
+    # Port mapping for health checks (Ash ecosystem: 30888)
     ports:
       - "30888:30888"
 
@@ -97,7 +100,7 @@ services:
     # Health check - uses HTTP endpoint from health server
     healthcheck:
       <<: *health
-      test: ["CMD", "curl", "-f", "http://localhost:30883/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:30888/health"]
 
     # Logging configuration
     logging:
@@ -108,13 +111,9 @@ services:
 
     # Labels for organization
     labels:
-      - "org.alphabetcartel.service=ash-thrash"
-      - "org.alphabetcartel.version=5.0.0"
-      - "org.alphabetcartel.description=Ash Crisis Detection Performance Testing"
-
-# =============================================================================
-# Volumes
-# =============================================================================
+      - "net.alphabetcartel.service=ash-thrash"
+      - "net.alphabetcartel.version=5.0.0"
+      - "net.alphabetcartel.description=Ash Crisis Detection Testing Suite"
 
 # =============================================================================
 # Secrets
