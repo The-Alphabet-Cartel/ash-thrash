@@ -13,21 +13,24 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Managers Package for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-1-1.5-1
+FILE VERSION: v5.0-2-2.3-1
 LAST MODIFIED: 2026-01-20
-PHASE: Phase 1 - Foundation
+PHASE: Phase 2 - Test Execution Engine
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
 
 This package contains resource managers for Ash-Thrash:
 
-MANAGERS (Phase 1):
+MANAGERS (Phase 1 - Foundation):
 - ConfigManager:        Configuration loading and validation
 - SecretsManager:       Docker secrets and credential management
 - LoggingConfigManager: Colorized logging with SUCCESS level
 - NLPClientManager:     HTTP client for Ash-NLP API communication
 - PhraseLoaderManager:  Test phrase loading and validation
+
+MANAGERS (Phase 2 - Test Execution):
+- TestRunnerManager:    Test orchestration and execution
 
 USAGE:
     from src.managers import (
@@ -36,6 +39,11 @@ USAGE:
         create_logging_config_manager,
         create_nlp_client_manager,
         create_phrase_loader_manager,
+        create_test_runner_manager,
+    )
+    from src.validators import (
+        create_classification_validator,
+        create_response_validator,
     )
 
     # Initialize managers with dependency injection
@@ -44,13 +52,25 @@ USAGE:
     logging_mgr = create_logging_config_manager(config_manager=config)
     nlp_client = create_nlp_client_manager(config_manager=config, logging_manager=logging_mgr)
     phrase_loader = create_phrase_loader_manager(config_manager=config, logging_manager=logging_mgr)
+    class_validator = create_classification_validator(logging_manager=logging_mgr)
+    resp_validator = create_response_validator(logging_manager=logging_mgr)
     
-    logger = logging_mgr.get_logger("main")
-    logger.info(f"Loaded {len(phrase_loader)} test phrases")
+    # Create test runner
+    runner = create_test_runner_manager(
+        nlp_client=nlp_client,
+        phrase_loader=phrase_loader,
+        classification_validator=class_validator,
+        response_validator=resp_validator,
+        config_manager=config,
+        logging_manager=logging_mgr,
+    )
+    
+    # Run tests
+    summary = await runner.run_all_tests()
 """
 
 # Module version
-__version__ = "v5.0-1-1.5-1"
+__version__ = "v5.0-2-2.3-1"
 
 # =============================================================================
 # Configuration Manager
@@ -119,6 +139,20 @@ from .phrase_loader_manager import (
 )
 
 # =============================================================================
+# Test Runner Manager (Phase 2)
+# =============================================================================
+
+from .test_runner_manager import (
+    TestRunnerManager,
+    create_test_runner_manager,
+    TestResult,
+    TestRunSummary,
+    TestStatus,
+    ErrorType,
+    ProgressCallback,
+)
+
+# =============================================================================
 # Public API
 # =============================================================================
 
@@ -160,4 +194,12 @@ __all__ = [
     "CATEGORY_DEFINITE",
     "CATEGORY_EDGE_CASE",
     "CATEGORY_SPECIALTY",
+    # Test Runner (Phase 2)
+    "TestRunnerManager",
+    "create_test_runner_manager",
+    "TestResult",
+    "TestRunSummary",
+    "TestStatus",
+    "ErrorType",
+    "ProgressCallback",
 ]

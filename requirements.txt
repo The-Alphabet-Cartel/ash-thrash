@@ -1,7 +1,7 @@
 # ============================================================================
 # Ash-Thrash v5.0 Requirements
 # ============================================================================
-# FILE VERSION: v5.0-1-1.7-1
+# FILE VERSION: v5.0-2-2.4-1
 # LAST MODIFIED: 2026-01-20
 # Repository: https://github.com/the-alphabet-cartel/ash-thrash
 # Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
@@ -23,6 +23,16 @@ httpx>=0.26.0,<1.0.0
 
 # AIOHTTP - Async HTTP client (for Discord webhooks)
 aiohttp>=3.9.0,<4.0.0
+
+# =============================================================================
+# Web Framework (Phase 2 - Health Server)
+# =============================================================================
+
+# FastAPI - Modern web framework for APIs
+fastapi>=0.109.0,<1.0.0
+
+# Uvicorn - ASGI server for FastAPI
+uvicorn[standard]>=0.27.0,<1.0.0
 
 # =============================================================================
 # Data Validation

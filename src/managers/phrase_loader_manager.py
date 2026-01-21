@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Phrase Loader Manager for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-1-1.5-1
+FILE VERSION: v5.0-2-2.1-2
 LAST MODIFIED: 2026-01-20
-PHASE: Phase 1 - Foundation
+PHASE: Phase 2 - Test Execution Engine (refactored)
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -78,7 +78,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Set, Union
 
 # Module version
-__version__ = "v5.0-1-1.5-1"
+__version__ = "v5.0-2-2.1-2"
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -140,48 +140,29 @@ class TestPhrase:
     allow_deescalation: bool = False
     source_file: str = ""
     
-    def matches_priority(self, actual_priority: str) -> bool:
+    def get_validation_params(self) -> dict:
         """
-        Check if actual priority matches expected.
-        
-        Args:
-            actual_priority: The priority returned by Ash-NLP
+        Get parameters for ClassificationValidator.validate().
         
         Returns:
-            True if the priority is acceptable
+            Dictionary with validation parameters:
+                - expected_priorities: List[str]
+                - allow_escalation: bool
+                - allow_deescalation: bool
+        
+        Example:
+            >>> from src.validators import create_classification_validator
+            >>> validator = create_classification_validator()
+            >>> result = validator.validate(
+            ...     actual_severity=response.severity,
+            ...     **phrase.get_validation_params()
+            ... )
         """
-        actual = actual_priority.lower()
-        expected = [p.lower() for p in self.expected_priorities]
-        
-        # Direct match
-        if actual in expected:
-            return True
-        
-        # Priority hierarchy for escalation/de-escalation checks
-        priority_order = ["none", "low", "medium", "high", "critical"]
-        
-        try:
-            actual_idx = priority_order.index(actual)
-            expected_indices = [priority_order.index(p) for p in expected if p in priority_order]
-            
-            if not expected_indices:
-                return False
-            
-            min_expected = min(expected_indices)
-            max_expected = max(expected_indices)
-            
-            # Check escalation (actual is higher than expected)
-            if self.allow_escalation and actual_idx > max_expected:
-                return True
-            
-            # Check de-escalation (actual is lower than expected)
-            if self.allow_deescalation and actual_idx < min_expected:
-                return True
-                
-        except ValueError:
-            pass
-        
-        return False
+        return {
+            "expected_priorities": self.expected_priorities,
+            "allow_escalation": self.allow_escalation,
+            "allow_deescalation": self.allow_deescalation,
+        }
 
 
 @dataclass
