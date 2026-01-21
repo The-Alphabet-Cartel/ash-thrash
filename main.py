@@ -14,9 +14,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Main Entry Point for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-2-2.4-1
+FILE VERSION: v5.0-3-3.2-1
 LAST MODIFIED: 2026-01-20
-PHASE: Phase 2 - Test Execution Engine
+PHASE: Phase 3 - Analysis & Reporting
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -30,6 +30,15 @@ USAGE:
 
     # Run tests for specific category
     python main.py --run-tests --category critical_high_priority
+
+    # Run tests and save baseline
+    python main.py --run-tests --save-baseline main
+
+    # Run tests and compare to baseline
+    python main.py --run-tests --compare-baseline main
+
+    # Generate HTML reports
+    python main.py --run-tests --report-format html
 
     # Run with testing environment
     THRASH_ENVIRONMENT=testing python main.py
@@ -53,7 +62,7 @@ from typing import List, Optional
 import uvicorn
 
 # Module version
-__version__ = "v5.0-2-2.4-1"
+__version__ = "v5.0-3-3.2-1"
 
 # =============================================================================
 # Manager Imports
@@ -66,6 +75,8 @@ from src.managers import (
     create_nlp_client_manager,
     create_phrase_loader_manager,
     create_test_runner_manager,
+    create_result_analyzer_manager,
+    create_report_manager,
     ConfigManager,
     SecretsManager,
     LoggingConfigManager,
@@ -73,6 +84,9 @@ from src.managers import (
     PhraseLoaderManager,
     TestRunnerManager,
     TestResult,
+    ResultAnalyzerManager,
+    ReportManager,
+    AnalysisResult,
 )
 
 from src.validators import (
@@ -122,6 +136,8 @@ class AshThrash:
         self.classification_validator: Optional[ClassificationValidator] = None
         self.response_validator: Optional[ResponseValidator] = None
         self.test_runner: Optional[TestRunnerManager] = None
+        self.result_analyzer: Optional[ResultAnalyzerManager] = None
+        self.report_manager: Optional[ReportManager] = None
         self._logger = None
         self._shutdown_event = asyncio.Event()
     
@@ -179,6 +195,21 @@ class AshThrash:
                 classification_validator=self.classification_validator,
                 response_validator=self.response_validator,
                 config_manager=self.config,
+                logging_manager=self.logging_mgr,
+            )
+            
+            # Step 8: Result Analyzer (Phase 3)
+            self._logger.info("Initializing result analyzer...")
+            self.result_analyzer = create_result_analyzer_manager(
+                config_manager=self.config,
+                logging_manager=self.logging_mgr,
+            )
+            
+            # Step 9: Report Manager (Phase 3)
+            self._logger.info("Initializing report manager...")
+            self.report_manager = create_report_manager(
+                config_manager=self.config,
+                secrets_manager=self.secrets,
                 logging_manager=self.logging_mgr,
             )
             
@@ -276,13 +307,21 @@ class AshThrash:
         self,
         categories: Optional[List[str]] = None,
         verbose: bool = False,
+        save_baseline: Optional[str] = None,
+        compare_baseline: Optional[str] = None,
+        report_formats: Optional[List[str]] = None,
+        send_discord: bool = False,
     ) -> int:
         """
-        Run tests and exit.
+        Run tests, analyze results, and generate reports.
         
         Args:
             categories: Optional list of categories to test
             verbose: Whether to show verbose output
+            save_baseline: Name to save results as baseline (e.g., "main")
+            compare_baseline: Name of baseline to compare against
+            report_formats: List of report formats to generate (json, html)
+            send_discord: Whether to send Discord notification
         
         Returns:
             Exit code (0 if all pass, 1 if any fail)
@@ -302,11 +341,19 @@ class AshThrash:
                         f"[{current}/{total}] {status_icon} {result.category}/{result.subcategory}"
                     )
             
+            # Default report formats
+            if report_formats is None:
+                report_formats = ["json"]
+            
             # Run tests
             summary = await self.test_runner.run_all_tests(
                 categories=categories,
                 progress_callback=progress_callback if verbose else None,
             )
+            
+            # Analyze results (Phase 3)
+            self._logger.info("Analyzing results...")
+            analysis = self.result_analyzer.analyze(summary)
             
             # Print results
             self._logger.info("=" * 60)
@@ -318,27 +365,98 @@ class AshThrash:
             self._logger.info(f"  Passed:        {summary.passed_tests}")
             self._logger.info(f"  Failed:        {summary.failed_tests}")
             self._logger.info(f"  Errors:        {summary.error_tests}")
-            self._logger.info(f"  Accuracy:      {summary.overall_accuracy:.1f}%")
+            self._logger.info(f"  Accuracy:      {analysis.overall_accuracy:.1f}%")
             self._logger.info(f"  Avg Response:  {summary.average_response_time_ms:.1f}ms")
-            self._logger.info(f"  P95 Response:  {summary.p95_response_time_ms:.1f}ms")
+            self._logger.info(f"  P95 Response:  {analysis.latency_metrics.p95_ms:.1f}ms")
             
-            if summary.accuracy_by_category:
+            # Threshold status
+            self._logger.info("-" * 60)
+            self._logger.info("Threshold Status:")
+            threshold_icon = "✅" if analysis.all_thresholds_met else "❌"
+            self._logger.info(
+                f"  {threshold_icon} {analysis.thresholds_met_count}/{analysis.thresholds_total_count} thresholds met"
+            )
+            
+            for cat, result in analysis.threshold_results.items():
+                status_icon = "✅" if result.status.value == "met" else "⚠️" if result.status.value == "warning" else "❌"
+                self._logger.info(
+                    f"  {status_icon} {cat}: {result.actual_value:.1f}% (target: {result.target_value:.1f}%)"
+                )
+            
+            # False positive/negative rates
+            self._logger.info("-" * 60)
+            self._logger.info("Detection Quality:")
+            self._logger.info(f"  False Positive Rate: {analysis.false_positive_rate:.1f}%")
+            self._logger.info(f"  False Negative Rate: {analysis.false_negative_rate:.1f}%")
+            
+            # Baseline comparison (Phase 3)
+            comparison = None
+            if compare_baseline:
                 self._logger.info("-" * 60)
-                self._logger.info("Accuracy by Category:")
-                for cat, acc in summary.accuracy_by_category.items():
-                    self._logger.info(f"  {cat}: {acc:.1f}%")
+                self._logger.info(f"Comparing to baseline: {compare_baseline}")
+                baseline = self.report_manager.load_baseline(compare_baseline)
+                if baseline:
+                    comparison = self.report_manager.compare_to_baseline(
+                        analysis, baseline, compare_baseline
+                    )
+                    
+                    delta_icon = "📈" if comparison.overall_accuracy_delta >= 0 else "📉"
+                    self._logger.info(
+                        f"  {delta_icon} Accuracy change: {comparison.overall_accuracy_delta:+.1f}%"
+                    )
+                    
+                    if comparison.regressions:
+                        self._logger.warning(f"  🔻 {len(comparison.regressions)} regression(s) detected!")
+                        for reg in comparison.regressions[:5]:
+                            self._logger.warning(f"    - {reg.description}")
+                    
+                    if comparison.improvements:
+                        self._logger.info(f"  🔺 {len(comparison.improvements)} improvement(s)")
+                else:
+                    self._logger.warning(f"  Baseline '{compare_baseline}' not found")
+            
+            # Generate reports (Phase 3)
+            self._logger.info("=" * 60)
+            self._logger.info("Generating reports...")
+            
+            if "json" in report_formats:
+                json_path = self.report_manager.generate_json_report(analysis, comparison)
+                self._logger.info(f"  📄 JSON: {json_path}")
+            
+            if "html" in report_formats:
+                html_path = self.report_manager.generate_html_report(analysis, comparison)
+                self._logger.info(f"  📄 HTML: {html_path}")
+            
+            # Save baseline (Phase 3)
+            if save_baseline:
+                baseline_path = self.report_manager.save_baseline(analysis, save_baseline)
+                self._logger.info(f"  💾 Baseline '{save_baseline}' saved: {baseline_path}")
+            
+            # Discord notification (Phase 3)
+            if send_discord:
+                self._logger.info("Sending Discord notification...")
+                if await self.report_manager.send_discord_notification(analysis, comparison):
+                    self._logger.success("  📨 Discord notification sent")
             
             self._logger.info("=" * 60)
             
             # Return exit code based on results
+            exit_code = 0
+            
             if summary.failed_tests > 0 or summary.error_tests > 0:
                 self._logger.warning(
                     f"⚠️ {summary.failed_tests} failures, {summary.error_tests} errors"
                 )
-                return 1
-            else:
+                exit_code = 1
+            
+            if comparison and comparison.verdict.value == "fail":
+                self._logger.error(f"🔻 Regression check failed: {comparison.verdict_reason}")
+                exit_code = 1
+            
+            if exit_code == 0:
                 self._logger.success(f"✅ All {summary.passed_tests} tests passed!")
-                return 0
+            
+            return exit_code
             
         except Exception as e:
             self._logger.error(f"Test execution error: {e}")
@@ -410,6 +528,10 @@ Examples:
   python main.py --run-tests              Run all tests and exit
   python main.py --run-tests --verbose    Run tests with verbose output
   python main.py --run-tests --category critical_high_priority
+  python main.py --run-tests --save-baseline main
+  python main.py --run-tests --compare-baseline main
+  python main.py --run-tests --report-format html --report-format json
+  python main.py --run-tests --send-discord
         """,
     )
     
@@ -444,6 +566,30 @@ Examples:
         help="Show verbose output during test execution",
     )
     
+    # Phase 3: Reporting options
+    parser.add_argument(
+        "--save-baseline",
+        metavar="NAME",
+        help="Save results as named baseline (e.g., 'main', 'pre-release')",
+    )
+    parser.add_argument(
+        "--compare-baseline",
+        metavar="NAME",
+        help="Compare results against named baseline for regression detection",
+    )
+    parser.add_argument(
+        "--report-format",
+        action="append",
+        dest="report_formats",
+        choices=["json", "html"],
+        help="Report format to generate (can be specified multiple times, default: json)",
+    )
+    parser.add_argument(
+        "--send-discord",
+        action="store_true",
+        help="Send results to Discord webhook (requires configured webhook)",
+    )
+    
     # Version
     parser.add_argument(
         "--version",
@@ -475,6 +621,10 @@ def main() -> int:
                 app.run_tests(
                     categories=args.categories,
                     verbose=args.verbose,
+                    save_baseline=args.save_baseline,
+                    compare_baseline=args.compare_baseline,
+                    report_formats=args.report_formats,
+                    send_discord=args.send_discord,
                 )
             )
         else:

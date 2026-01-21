@@ -1,6 +1,6 @@
 {
 	"_metadata": {
-		"file_version": "v5.0-1-1.6-1",
+		"file_version": "v5.0-3-3.1-1",
 		"last_modified": "2026-01-20",
 		"clean_architecture": "Compliant",
 		"description": "Ash-Thrash v5.0 Default Configuration",
@@ -253,6 +253,67 @@
 			"port": {
 				"type": "integer",
 				"range": [1, 65535],
+				"required": false
+			}
+		}
+	},
+
+	"baseline": {
+		"description": "Baseline storage and regression detection settings",
+		"storage_directory": "${THRASH_BASELINE_DIR}",
+		"default_baseline_name": "${THRASH_BASELINE_DEFAULT}",
+		"auto_save_baseline": "${THRASH_BASELINE_AUTO_SAVE}",
+		"regression_overall_threshold": "${THRASH_REGRESSION_OVERALL}",
+		"regression_category_threshold": "${THRASH_REGRESSION_CATEGORY}",
+		"regression_false_positive_threshold": "${THRASH_REGRESSION_FP}",
+		"regression_false_negative_threshold": "${THRASH_REGRESSION_FN}",
+		"regression_latency_threshold_pct": "${THRASH_REGRESSION_LATENCY}",
+		"defaults": {
+			"storage_directory": "/app/reports/baselines",
+			"default_baseline_name": "main",
+			"auto_save_baseline": false,
+			"regression_overall_threshold": 2.0,
+			"regression_category_threshold": 5.0,
+			"regression_false_positive_threshold": 3.0,
+			"regression_false_negative_threshold": 2.0,
+			"regression_latency_threshold_pct": 50.0
+		},
+		"validation": {
+			"storage_directory": {
+				"type": "string",
+				"required": true
+			},
+			"default_baseline_name": {
+				"type": "string",
+				"required": false
+			},
+			"auto_save_baseline": {
+				"type": "boolean",
+				"required": false
+			},
+			"regression_overall_threshold": {
+				"type": "float",
+				"range": [0.1, 50.0],
+				"required": false
+			},
+			"regression_category_threshold": {
+				"type": "float",
+				"range": [0.1, 50.0],
+				"required": false
+			},
+			"regression_false_positive_threshold": {
+				"type": "float",
+				"range": [0.1, 50.0],
+				"required": false
+			},
+			"regression_false_negative_threshold": {
+				"type": "float",
+				"range": [0.1, 50.0],
+				"required": false
+			},
+			"regression_latency_threshold_pct": {
+				"type": "float",
+				"range": [1.0, 500.0],
 				"required": false
 			}
 		}

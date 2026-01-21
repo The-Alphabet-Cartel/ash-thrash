@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Managers Package for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-2-2.3-1
+FILE VERSION: v5.0-3-3.2-1
 LAST MODIFIED: 2026-01-20
-PHASE: Phase 2 - Test Execution Engine
+PHASE: Phase 3 - Analysis & Reporting
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -32,6 +32,10 @@ MANAGERS (Phase 1 - Foundation):
 MANAGERS (Phase 2 - Test Execution):
 - TestRunnerManager:    Test orchestration and execution
 
+MANAGERS (Phase 3 - Analysis & Reporting):
+- ResultAnalyzerManager: Metrics calculation and threshold comparison
+- ReportManager:         JSON/HTML reports, baselines, Discord notifications
+
 USAGE:
     from src.managers import (
         create_config_manager,
@@ -40,6 +44,8 @@ USAGE:
         create_nlp_client_manager,
         create_phrase_loader_manager,
         create_test_runner_manager,
+        create_result_analyzer_manager,
+        create_report_manager,
     )
     from src.validators import (
         create_classification_validator,
@@ -67,10 +73,20 @@ USAGE:
     
     # Run tests
     summary = await runner.run_all_tests()
+    
+    # Analyze results (Phase 3)
+    analyzer = create_result_analyzer_manager(config_manager=config, logging_manager=logging_mgr)
+    analysis = analyzer.analyze(summary)
+    print(f"Overall accuracy: {analysis.overall_accuracy:.1f}%")
+    
+    # Generate reports (Phase 3)
+    reporter = create_report_manager(config_manager=config, secrets_manager=secrets, logging_manager=logging_mgr)
+    json_path = reporter.generate_json_report(analysis)
+    html_path = reporter.generate_html_report(analysis)
 """
 
 # Module version
-__version__ = "v5.0-2-2.3-1"
+__version__ = "v5.0-3-3.2-1"
 
 # =============================================================================
 # Configuration Manager
@@ -153,6 +169,36 @@ from .test_runner_manager import (
 )
 
 # =============================================================================
+# Result Analyzer Manager (Phase 3)
+# =============================================================================
+
+from .result_analyzer_manager import (
+    ResultAnalyzerManager,
+    create_result_analyzer_manager,
+    AnalysisResult,
+    CategoryMetrics,
+    SubcategoryMetrics,
+    LatencyMetrics,
+    FailedTestDetail,
+    ThresholdResult,
+    ThresholdStatus,
+    RegressionSeverity,
+)
+
+# =============================================================================
+# Report Manager (Phase 3)
+# =============================================================================
+
+from .report_manager import (
+    ReportManager,
+    create_report_manager,
+    BaselineComparison,
+    RegressionDetail,
+    ImprovementDetail,
+    ComparisonVerdict,
+)
+
+# =============================================================================
 # Public API
 # =============================================================================
 
@@ -202,4 +248,22 @@ __all__ = [
     "TestStatus",
     "ErrorType",
     "ProgressCallback",
+    # Result Analyzer (Phase 3)
+    "ResultAnalyzerManager",
+    "create_result_analyzer_manager",
+    "AnalysisResult",
+    "CategoryMetrics",
+    "SubcategoryMetrics",
+    "LatencyMetrics",
+    "FailedTestDetail",
+    "ThresholdResult",
+    "ThresholdStatus",
+    "RegressionSeverity",
+    # Report Manager (Phase 3)
+    "ReportManager",
+    "create_report_manager",
+    "BaselineComparison",
+    "RegressionDetail",
+    "ImprovementDetail",
+    "ComparisonVerdict",
 ]
