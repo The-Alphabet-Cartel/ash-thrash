@@ -11,7 +11,7 @@ MISSION - NEVER TO BE VIOLATED:
     Protect   → Safeguard our LGBTQIA+ community through rigorous quality assurance
 
 ============================================================================
-Ash-Thrash Test Suite
+Ash-Thrash Validators Core Package
 ----------------------------------------------------------------------------
 FILE VERSION: v5.0-1-1.0-1
 LAST MODIFIED: 2026-01-03
@@ -20,23 +20,21 @@ CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
 
-Test suite for Ash-Thrash v5.0 Crisis Detection Discord Bot.
+This is the main validator module for Ash-Thrash
 
 USAGE:
-    # Run all tests
-    pytest tests/
-
-    # Run with coverage
-    pytest tests/ --cov=src --cov-report=html
-
-    # Run specific test file
-    pytest tests/test_api.py
-
-    # Run specific test
-    pytest tests/test_api.py::test_health_endpoint
-
-    # Verbose output
-    pytest tests/ -v
+    from src.managers import create_config_manager
 """
 
-__version__ = "v5.0"
+__version__ = "5.0.0"
+__author__ = "The Alphabet Cartel"
+__email__ = "dev@alphabetcartel.org"
+__url__ = "https://github.com/the-alphabet-cartel/ash-thrash"
+
+# Package metadata
+__all__ = [
+    "__version__",
+    "__author__",
+    "__email__",
+    "__url__",
+]

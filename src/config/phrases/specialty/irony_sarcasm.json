@@ -1,0 +1,11 @@
+{
+	"_metadata": {
+		"title": "Irony / Sarcasm Test Phrases",
+		"file_version": "v5.0",
+		"last_modified": "2026-01-20",
+		"clean_architecture": "v5.2.1",
+		"description": "Dark humor, sarcasm that might trigger false positives",
+		"target": "TBD",
+		"note": ""
+	}
+}

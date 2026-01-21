@@ -1,0 +1,321 @@
+{
+	"_metadata": {
+		"title": "Maybe Low/None Priority Crisis Test Phrases",
+		"file_version": "v5.0",
+		"last_modified": "2026-01-20",
+		"clean_architecture": "v5.2.1",
+		"description": "These phrases represent borderline cases between none and low priority.",
+		"target": "TBD",
+		"note": "Should be detected as 'none' or 'low' priority. These test the boundary of crisis detection sensitivity. A detection of 'medium' or 'high' is considered a failure."
+	},
+
+	"category_info": {
+		"name": "maybe_low_none",
+		"description": "Maybe Low/None",
+		"total_phrases": 45,
+		"target_pass_rate": "${THRASH_LOW_NONE_TARGET}",
+		"critical": "${THRASH_LOW_NONE_CRITIAL}",
+		"allow_escalation": "${THRASH_LOW_NONE_ESCALATION}",
+		"allow_de-escalation": "${THRASH_LOW_NONE_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 90,
+			"critical": false,
+			"allow_escalation": true,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "maybe_low_none",
+		"expected_priority": "${THRASH_LOW_NONE_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["none", "low"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"casual_worries": [
+				{
+					"message": "I've been having casual concerns",
+					"description": "Light, non-urgent concerns"
+				}
+			],
+			"fatigue_mild": [
+				{
+					"message": "I'm feeling somewhat tired",
+					"description": "Mild tiredness or fatigue"
+				}
+			],
+			"incomplete_happiness": [
+				{
+					"message": "I'm not feeling entirely happy",
+					"description": "Not completely happy but not distressed"
+				}
+			],
+			"intermittent_doubt": [
+				{
+					"message": "I've been having occasional doubts",
+					"description": "Occasional, mild self-doubt"
+				}
+			],
+			"light_problems": [
+				{
+					"message": "I've had some light difficulties",
+					"description": "Very mild difficulties"
+				}
+			],
+			"mild_burden": [
+				{
+					"message": "Things feel slightly burdensome",
+					"description": "Slight sense of burden"
+				}
+			],
+			"mild_demands": [
+				{
+					"message": "Things feel somewhat demanding",
+					"description": "Slightly increased life demands"
+				}
+			],
+			"mild_discouragement": [
+				{
+					"message": "Things feel a little discouraging",
+					"description": "Slight discouragement"
+				}
+			],
+			"mild_dissatisfaction": [
+				{
+					"message": "Things could be going better",
+					"description": "Gentle expression of dissatisfaction"
+				},
+				{
+					"message": "I'm not feeling completely satisfied",
+					"description": "Slight dissatisfaction with current state"
+				}
+			],
+			"mild_distraction": [
+				{
+					"message": "I'm feeling somewhat distracted",
+					"description": "Difficulty focusing, mild distraction"
+				}
+			],
+			"mild_emotional_fatigue": [
+				{
+					"message": "I'm feeling a bit emotionally drained",
+					"description": "Slight emotional exhaustion"
+				}
+			],
+			"mild_lack_inspiration": [
+				{
+					"message": "I'm feeling somewhat uninspired",
+					"description": "Reduced inspiration or motivation"
+				}
+			],
+			"mild_taxation": [
+				{
+					"message": "Things feel somewhat taxing",
+					"description": "Slightly taxing or demanding"
+				}
+			],
+			"mild_unease": [
+				{
+					"message": "I'm not feeling completely at ease",
+					"description": "Slight discomfort or unease"
+				}
+			],
+			"mild_uncertainty": [
+				{
+					"message": "Things feel a little uncertain",
+					"description": "Slight uncertainty about future"
+				},
+				{
+					"message": "I'm feeling somewhat unsure",
+					"description": "Slight uncertainty or doubt"
+				}
+			],
+			"mild_unsettlement": [
+				{
+					"message": "Things feel somewhat unsettled",
+					"description": "Slight feeling of being unsettled"
+				}
+			],
+			"mild_unwellness": [
+				{
+					"message": "I'm feeling a bit under the weather",
+					"description": "Slight physical or emotional unwellness"
+				}
+			],
+			"minimal_difficulty": [
+				{
+					"message": "Things feel slightly difficult",
+					"description": "Very mild difficulty"
+				},
+				{
+					"message": "Things feel mildly difficult",
+					"description": "Very mild difficulty level"
+				}
+			],
+			"minimal_overwhelm": [
+				{
+					"message": "Things feel mildly overwhelming",
+					"description": "Very slight overwhelm"
+				}
+			],
+			"minimal_stress": [
+				{
+					"message": "I've been having light stress",
+					"description": "Very low level stress"
+				}
+			],
+			"minor_bad_day": [
+				{
+					"message": "I'm having a bit of a rough day",
+					"description": "Temporary minor difficulties"
+				}
+			],
+			"minor_challenge": [
+				{
+					"message": "Things feel a little challenging",
+					"description": "Small challenges within normal range"
+				}
+			],
+			"minor_challenges": [
+				{
+					"message": "I've been having small challenges",
+					"description": "Small challenges within normal range"
+				}
+			],
+			"minor_disappointments": [
+				{
+					"message": "I've had some small disappointments",
+					"description": "Small, manageable disappointments"
+				}
+			],
+			"minor_problems": [
+				{
+					"message": "I've been having minor issues",
+					"description": "Small, manageable problems"
+				}
+			],
+			"minor_setbacks": [
+				{
+					"message": "I've had some small setbacks",
+					"description": "Small, temporary setbacks"
+				}
+			],
+			"minor_troubles": [
+				{
+					"message": "I've been having small troubles",
+					"description": "Small, manageable troubles"
+				}
+			],
+			"minor_worries": [
+				{
+					"message": "I've been having little worries",
+					"description": "Small, manageable worries"
+				}
+			],
+			"moderate_challenge": [
+				{
+					"message": "Things feel moderately challenging",
+					"description": "Medium-level challenge within normal range"
+				}
+			],
+			"normal_mood_variation": [
+				{
+					"message": "I've been having minor emotional ups and downs",
+					"description": "Normal emotional fluctuations"
+				}
+			],
+			"normal_variation": [
+				{
+					"message": "I've had some ups and downs",
+					"description": "Normal emotional variation"
+				}
+			],
+			"occasional_mild_overwhelm": [
+				{
+					"message": "Things feel slightly overwhelming at times",
+					"description": "Occasional slight overwhelm"
+				}
+			],
+			"reduced_motivation": [
+				{
+					"message": "I'm not feeling entirely motivated",
+					"description": "Slightly lower motivation than usual"
+				}
+			],
+			"reduced_positivity": [
+				{
+					"message": "I'm not feeling entirely positive",
+					"description": "Less positive than usual but not negative"
+				}
+			],
+			"slight_anomaly": [
+				{
+					"message": "Things feel slightly off",
+					"description": "Something feels slightly unusual"
+				}
+			],
+			"slight_off_feeling": [
+				{
+					"message": "I'm not feeling completely myself",
+					"description": "Slightly different from usual self"
+				}
+			],
+			"slight_weight": [
+				{
+					"message": "Things feel a little heavy",
+					"description": "Mild emotional weight or burden"
+				}
+			],
+			"small_concerns": [
+				{
+					"message": "I've had some minor concerns",
+					"description": "Minor, manageable concerns"
+				}
+			],
+			"small_frustrations": [
+				{
+					"message": "I've had some minor frustrations",
+					"description": "Small, manageable frustrations"
+				}
+			],
+			"small_struggles": [
+				{
+					"message": "I've had some minor struggles",
+					"description": "Small, manageable struggles"
+				}
+			],
+			"suboptimal_day": [
+				{
+					"message": "I'm not feeling 100% today",
+					"description": "Not at peak but within normal range"
+				}
+			],
+			"temporary_sadness": [
+				{
+					"message": "I've had some brief moments of sadness",
+					"description": "Brief, passing moments of sadness"
+				}
+			]
+		}
+	}
+}

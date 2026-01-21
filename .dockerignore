@@ -73,9 +73,6 @@ venv.bak/
 # Testing
 # =============================================================================
 testing/
-#tests/
-#test_*.py
-#*_test.py
 .pytest_cache/
 .coverage
 htmlcov/
