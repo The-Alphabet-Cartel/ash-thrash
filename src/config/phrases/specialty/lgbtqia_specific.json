@@ -1,11 +1,153 @@
 {
 	"_metadata": {
-		"title": "Irony / Sarcasm Test Phrases",
-		"file_version": "v5.0",
-		"last_modified": "2026-01-20",
+		"title": "LGBTQIA+ Specific Test Phrases",
+		"file_version": "v5.0-4-4.8-1",
+		"last_modified": "2026-01-21",
 		"clean_architecture": "v5.2.1",
-		"description": "Identity-related distress, coming out struggles, discrimination",
-		"target": "TBD",
-		"note": ""
+		"description": "Identity-related distress, coming out struggles, discrimination experiences specific to the LGBTQIA+ community. Critical for ensuring Ash-NLP correctly identifies community-specific crisis indicators.",
+		"target": "90% catch rate",
+		"note": "These phrases test detection of LGBTQIA+ specific distress patterns. Expected priorities range from medium to high depending on severity."
+	},
+
+	"category_info": {
+		"name": "specialty_lgbtqia",
+		"description": "LGBTQIA+ Specific Test Cases",
+		"total_phrases": 20,
+		"target_pass_rate": "${THRASH_LGBTQIA_TARGET}",
+		"critical": "${THRASH_LGBTQIA_CRITICAL}",
+		"allow_escalation": "${THRASH_LGBTQIA_ESCALATION}",
+		"allow_de-escalation": "${THRASH_LGBTQIA_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 90,
+			"critical": true,
+			"allow_escalation": true,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "specialty_lgbtqia",
+		"expected_priority": "${THRASH_LGBTQIA_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["medium", "high"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"coming_out_fear": [
+				{
+					"message": "I don't know if I can come out to my parents, I'm terrified of what they'll do",
+					"description": "Coming out fear with parental concern"
+				},
+				{
+					"message": "I'm scared my family will reject me if they find out I'm gay",
+					"description": "Family rejection fear"
+				},
+				{
+					"message": "I can't live this double life anymore but I'm afraid to come out",
+					"description": "Closeted distress"
+				}
+			],
+			"family_rejection": [
+				{
+					"message": "My family said they'd disown me if I was gay",
+					"description": "Conditional family rejection threat"
+				},
+				{
+					"message": "My parents told me I'm no longer their child after I came out",
+					"description": "Actual family rejection"
+				},
+				{
+					"message": "I lost my entire family when they found out I was trans",
+					"description": "Complete family loss"
+				}
+			],
+			"social_exclusion": [
+				{
+					"message": "Everyone at school found out and now they won't talk to me",
+					"description": "Social ostracism after outing"
+				},
+				{
+					"message": "I got outed at work and now everyone treats me differently",
+					"description": "Workplace discrimination after outing"
+				},
+				{
+					"message": "I lost all my friends when I came out",
+					"description": "Friend loss due to identity"
+				}
+			],
+			"dysphoria": [
+				{
+					"message": "I hate looking in the mirror, I don't recognize who I see",
+					"description": "Body dysphoria and disconnect"
+				},
+				{
+					"message": "My body feels like a prison I can't escape from",
+					"description": "Severe body dysphoria"
+				},
+				{
+					"message": "I can't stand being in my own skin",
+					"description": "Intense dysphoria expression"
+				}
+			],
+			"identity_struggle": [
+				{
+					"message": "I don't know who I am anymore and it's tearing me apart",
+					"description": "Identity confusion distress"
+				},
+				{
+					"message": "I feel like I'll never be accepted for who I really am",
+					"description": "Acceptance hopelessness"
+				}
+			],
+			"discrimination_impact": [
+				{
+					"message": "The constant discrimination is wearing me down",
+					"description": "Discrimination fatigue"
+				},
+				{
+					"message": "I'm tired of being hated just for existing",
+					"description": "Existence-based discrimination exhaustion"
+				},
+				{
+					"message": "I don't feel safe anywhere because of who I am",
+					"description": "Safety concerns due to identity"
+				}
+			],
+			"community_isolation": [
+				{
+					"message": "I feel so alone, like I don't fit in anywhere, not even in LGBTQ spaces",
+					"description": "Double isolation - mainstream and community"
+				},
+				{
+					"message": "I don't have anyone who understands what I'm going through as a queer person",
+					"description": "Lack of understanding support"
+				}
+			],
+			"conversion_trauma": [
+				{
+					"message": "My parents are sending me to conversion therapy and I don't know what to do",
+					"description": "Conversion therapy threat - crisis"
+				}
+			]
+		}
 	}
 }

@@ -1,8 +1,8 @@
 {
 	"_metadata": {
 		"title": "Medium Priority Crisis Test Phrases",
-		"file_version": "v5.0",
-		"last_modified": "2026-01-20",
+		"file_version": "v5.0-4-4.3-1",
+		"last_modified": "2026-01-21",
 		"clean_architecture": "v5.2.1",
 		"description": "These phrases represent significant distress that requires attention and support but may not indicate immediate crisis.",
 		"target": "85% catch rate",
@@ -12,16 +12,16 @@
 	"category_info": {
 		"name": "definite_medium",
 		"description": "Medium Priority Crisis",
-		"total_phrases": 50,
+		"total_phrases": 100,
 		"target_pass_rate": "${THRASH_MEDIUM_TARGET}",
-		"critical": "${THRASH_MEDIUM_CRITIAL}",
+		"critical": "${THRASH_MEDIUM_CRITICAL}",
 		"allow_escalation": "${THRASH_MEDIUM_ESCALATION}",
 		"allow_de-escalation": "${THRASH_MEDIUM_DEESCALATION}",
 		"defaults": {
 			"target_pass_rate": 85,
 			"critical": false,
-			"allow_escalation": false,
-			"allow_de-escalation": false
+			"allow_escalation": true,
+			"allow_de-escalation": true
 		},
 		"validation": {
 			"target_pass_rate": {
@@ -52,112 +52,64 @@
 			}
 		},
 		"subcategories": {
-			"anxiety_attacks": [
-				{
-					"message": "I'm having severe anxiety attacks",
-					"description": "Severe anxiety attack episodes"
-				}
-			],
-			"anxiety_severe": [
-				{
-					"message": "I'm struggling with severe anxiety",
-					"description": "Severe anxiety disorder symptoms"
-				}
-			],
-			"brokenness_feeling": [
-				{
-					"message": "I feel like I'm completely broken",
-					"description": "Sense of being fundamentally broken"
-				}
-			],
-			"burden_feelings": [
-				{
-					"message": "I feel like a burden to everyone",
-					"description": "Feeling burdensome to others"
-				}
-			],
-			"cognitive_impairment": [
-				{
-					"message": "I can't concentrate on anything anymore",
-					"description": "Significant concentration difficulties"
-				}
-			],
-			"complicated_grief": [
-				{
-					"message": "I'm struggling with intense grief",
-					"description": "Intense grief reactions"
-				}
-			],
-			"control_loss": [
-				{
-					"message": "I feel like I'm losing control",
-					"description": "Loss of personal control"
-				}
-			],
-			"crushing_feeling": [
-				{
-					"message": "I feel like I'm being crushed",
-					"description": "Metaphor of being crushed by problems"
-				}
-			],
-			"dark_hole_metaphor": [
-				{
-					"message": "I feel like I'm in a dark hole",
-					"description": "Dark hole metaphor for depression"
-				}
-			],
-			"dark_thoughts": [
-				{
-					"message": "I can't stop having dark thoughts",
-					"description": "Persistent dark or negative thoughts"
-				}
-			],
-			"death_thoughts": [
-				{
-					"message": "I'm having intrusive thoughts about death",
-					"description": "Involuntary death-related thoughts"
-				}
-			],
-			"defeat_feeling": [
-				{
-					"message": "I feel completely defeated",
-					"description": "Sense of complete defeat"
-				}
-			],
-			"depression_coping_failure": [
-				{
-					"message": "I'm extremely depressed and can't cope",
-					"description": "Depression with coping failure"
-				}
-			],
 			"depression_severe": [
 				{
 					"message": "I'm struggling with serious depression",
 					"description": "Acknowledged severe depression"
+				},
+				{
+					"message": "My depression has gotten really bad lately",
+					"description": "Depression worsening"
+				},
+				{
+					"message": "I can barely get out of bed because of depression",
+					"description": "Functional impairment from depression"
+				},
+				{
+					"message": "The depression is consuming my entire life",
+					"description": "All-encompassing depression"
+				},
+				{
+					"message": "I've been severely depressed for months",
+					"description": "Chronic severe depression"
+				},
+				{
+					"message": "Depression has taken everything from me",
+					"description": "Depression loss"
+				},
+				{
+					"message": "I'm extremely depressed and can't cope",
+					"description": "Depression with coping failure"
+				},
+				{
+					"message": "The depression is worse than it's ever been",
+					"description": "Peak depression severity"
 				}
 			],
-			"disintegration_feeling": [
+			"emotional_overwhelm": [
 				{
-					"message": "I feel like I'm falling apart",
-					"description": "Sense of personal disintegration"
-				}
-			],
-			"dissociation": [
+					"message": "I feel like I'm drowning emotionally",
+					"description": "Drowning metaphor for emotional state"
+				},
 				{
-					"message": "I'm having dissociative episodes",
-					"description": "Episodes of dissociation"
-				}
-			],
-			"downward_spiral": [
+					"message": "I'm completely overwhelmed by my emotions",
+					"description": "Emotional flooding"
+				},
 				{
-					"message": "I feel like I'm spiraling downward",
-					"description": "Sense of deteriorating spiral"
-				}
-			],
-			"emotional_breakdown": [
+					"message": "My emotions are completely out of control",
+					"description": "Emotional dyscontrol"
+				},
 				{
-					"message": "I'm having intense emotional breakdowns",
-					"description": "Intense emotional breakdown episodes"
+					"message": "I feel like I'm going to explode from all these feelings",
+					"description": "Emotional pressure"
+				},
+				{
+					"message": "The emotional pain is crushing me",
+					"description": "Crushing emotional pain"
+				},
+				{
+					"message": "I can't handle all these emotions anymore",
+					"description": "Emotional capacity exceeded"
 				}
 			],
 			"emotional_dysregulation": [
@@ -168,186 +120,420 @@
 				{
 					"message": "I can't handle my emotions anymore",
 					"description": "Loss of emotional control"
-				}
-			],
-			"emotional_emptiness": [
+				},
 				{
-					"message": "I feel completely empty inside",
-					"description": "Profound emotional emptiness"
-				}
-			],
-			"emotional_numbness": [
+					"message": "My emotions are all over the place",
+					"description": "Emotional instability"
+				},
 				{
-					"message": "I feel numb and disconnected",
-					"description": "Emotional numbness and disconnection"
-				}
-			],
-			"emotional_overwhelm": [
+					"message": "I've been having uncontrollable crying episodes",
+					"description": "Crying episodes"
+				},
 				{
-					"message": "I feel like I'm drowning emotionally",
-					"description": "Drowning metaphor for emotional state"
-				}
-			],
-			"emotional_pain": [
+					"message": "I can't regulate my emotions at all",
+					"description": "Regulation failure"
+				},
 				{
-					"message": "I'm experiencing severe emotional pain",
-					"description": "Intense emotional suffering"
-				}
-			],
-			"emotional_suffocation": [
-				{
-					"message": "I feel like I'm suffocating emotionally",
-					"description": "Suffocating emotional experience"
-				}
-			],
-			"existential_crisis": [
-				{
-					"message": "Everything feels pointless and meaningless",
-					"description": "Loss of meaning and purpose"
-				}
-			],
-			"functional_impairment": [
-				{
-					"message": "I can't function normally anymore",
-					"description": "Significant functional decline"
+					"message": "My moods swing wildly and I can't control them",
+					"description": "Uncontrollable mood swings"
 				}
 			],
 			"hopelessness": [
 				{
 					"message": "I feel completely hopeless about everything",
 					"description": "Pervasive hopelessness"
-				}
-			],
-			"identity_dissolution": [
+				},
 				{
-					"message": "I feel like I'm disappearing",
-					"description": "Sense of identity dissolution"
-				}
-			],
-			"identity_loss": [
+					"message": "I don't see any hope for my future",
+					"description": "Future hopelessness"
+				},
 				{
-					"message": "I feel like I'm losing myself",
-					"description": "Loss of sense of self"
-				}
-			],
-			"intense_despair": [
+					"message": "Hope seems like a distant memory",
+					"description": "Hope as lost concept"
+				},
 				{
-					"message": "I'm struggling with intense despair",
-					"description": "Deep despair and hopelessness"
-				}
-			],
-			"intense_fear": [
+					"message": "I've lost all sense of hope",
+					"description": "Hope depletion"
+				},
 				{
-					"message": "I'm struggling with intense fear",
-					"description": "Overwhelming fear experiences"
-				}
-			],
-			"mental_breakdown": [
+					"message": "There doesn't seem to be any hope left",
+					"description": "Hope exhaustion"
+				},
 				{
-					"message": "I feel like I'm breaking down",
-					"description": "Sense of mental breakdown"
-				}
-			],
-			"mental_health_crisis": [
-				{
-					"message": "I'm having severe mental health issues",
-					"description": "Acknowledged severe mental health problems"
-				}
-			],
-			"mental_imprisonment": [
-				{
-					"message": "I feel trapped in my own head",
-					"description": "Feeling trapped by own thoughts"
-				}
-			],
-			"mental_state_concern": [
-				{
-					"message": "I feel like I'm losing my mind",
-					"description": "Fear of losing mental stability"
-				}
-			],
-			"mood_instability": [
-				{
-					"message": "I'm having severe mood swings",
-					"description": "Severe emotional mood swings"
-				}
-			],
-			"overwhelming_sadness": [
-				{
-					"message": "I feel like I'm drowning in sadness",
-					"description": "Overwhelming sadness using drowning metaphor"
-				}
-			],
-			"overwhelming_stress": [
-				{
-					"message": "I'm completely overwhelmed by everything",
-					"description": "Complete overwhelm by life circumstances"
-				}
-			],
-			"panic_disorder": [
-				{
-					"message": "I'm having severe panic attacks every day",
-					"description": "Frequent severe panic attacks"
-				}
-			],
-			"reality_distortion": [
-				{
-					"message": "I'm having trouble with reality",
-					"description": "Difficulty distinguishing reality"
-				}
-			],
-			"sanity_concern": [
-				{
-					"message": "I feel like I'm going crazy",
-					"description": "Fear of losing sanity"
+					"message": "I feel hopeless about ever feeling better",
+					"description": "Recovery hopelessness"
 				}
 			],
 			"self_harm_thoughts": [
 				{
 					"message": "I'm having thoughts of self-harm",
 					"description": "Self-harm ideation without immediate intent"
+				},
+				{
+					"message": "I keep thinking about hurting myself",
+					"description": "Persistent self-harm thoughts"
+				},
+				{
+					"message": "The urge to self-harm is getting stronger",
+					"description": "Escalating self-harm urges"
+				},
+				{
+					"message": "I can't stop thinking about cutting",
+					"description": "Intrusive cutting thoughts"
+				},
+				{
+					"message": "I've been fantasizing about hurting myself",
+					"description": "Self-harm fantasies"
+				},
+				{
+					"message": "The self-harm thoughts won't go away",
+					"description": "Persistent intrusive thoughts"
 				}
 			],
-			"severe_guilt": [
+			"mental_breakdown": [
 				{
-					"message": "I'm struggling with severe guilt",
-					"description": "Overwhelming guilt feelings"
+					"message": "I feel like I'm breaking down",
+					"description": "Sense of mental breakdown"
+				},
+				{
+					"message": "I'm on the verge of a complete breakdown",
+					"description": "Impending breakdown"
+				},
+				{
+					"message": "I feel like I'm having a mental breakdown",
+					"description": "Active breakdown experience"
+				},
+				{
+					"message": "I think I'm falling apart mentally",
+					"description": "Mental disintegration"
+				},
+				{
+					"message": "My mind is breaking under the pressure",
+					"description": "Pressure-induced breakdown"
+				},
+				{
+					"message": "I'm having severe mental health issues",
+					"description": "Acknowledged severe mental health problems"
 				}
 			],
-			"severe_loneliness": [
+			"dissociation": [
 				{
-					"message": "I'm struggling with severe loneliness",
-					"description": "Intense loneliness and isolation"
-				}
-			],
-			"severe_shame": [
+					"message": "I'm having dissociative episodes",
+					"description": "Episodes of dissociation"
+				},
 				{
-					"message": "I'm struggling with severe shame",
-					"description": "Overwhelming shame experiences"
-				}
-			],
-			"sleep_trauma": [
+					"message": "I feel disconnected from my body",
+					"description": "Depersonalization"
+				},
 				{
-					"message": "I can't sleep because of nightmares",
-					"description": "Nightmare-induced sleep disruption"
-				}
-			],
-			"social_isolation": [
+					"message": "Nothing feels real anymore",
+					"description": "Derealization"
+				},
 				{
-					"message": "I feel completely isolated from everyone",
-					"description": "Complete social disconnection"
-				}
-			],
-			"thought_racing": [
+					"message": "I keep losing time and don't know where I am",
+					"description": "Time loss and disorientation"
+				},
 				{
-					"message": "I'm having racing thoughts I can't control",
-					"description": "Uncontrollable racing thoughts"
+					"message": "I feel like I'm watching myself from outside",
+					"description": "Out-of-body feeling"
+				},
+				{
+					"message": "I feel completely detached from reality",
+					"description": "Reality detachment"
 				}
 			],
 			"trauma_symptoms": [
 				{
 					"message": "I'm having flashbacks from trauma",
 					"description": "Active trauma flashback experiences"
+				},
+				{
+					"message": "The trauma memories keep overwhelming me",
+					"description": "Intrusive trauma memories"
+				},
+				{
+					"message": "I can't stop reliving what happened to me",
+					"description": "Trauma re-experiencing"
+				},
+				{
+					"message": "The nightmares about the trauma are getting worse",
+					"description": "Trauma nightmares"
+				},
+				{
+					"message": "I'm triggered constantly and can't function",
+					"description": "Severe triggering"
+				},
+				{
+					"message": "The trauma is affecting every part of my life",
+					"description": "Pervasive trauma impact"
+				}
+			],
+			"anxiety_severe": [
+				{
+					"message": "I'm struggling with severe anxiety",
+					"description": "Severe anxiety disorder symptoms"
+				},
+				{
+					"message": "I'm having severe anxiety attacks",
+					"description": "Severe anxiety attack episodes"
+				},
+				{
+					"message": "My anxiety is so bad I can't leave the house",
+					"description": "Agoraphobic anxiety"
+				},
+				{
+					"message": "The anxiety is paralyzing me",
+					"description": "Paralytic anxiety"
+				},
+				{
+					"message": "I'm in constant state of severe anxiety",
+					"description": "Persistent severe anxiety"
+				},
+				{
+					"message": "I'm having severe panic attacks every day",
+					"description": "Frequent severe panic attacks"
+				}
+			],
+			"dark_thoughts": [
+				{
+					"message": "I can't stop having dark thoughts",
+					"description": "Persistent dark or negative thoughts"
+				},
+				{
+					"message": "My mind keeps going to very dark places",
+					"description": "Dark ideation"
+				},
+				{
+					"message": "I'm having intrusive thoughts about death",
+					"description": "Involuntary death-related thoughts"
+				},
+				{
+					"message": "The dark thoughts are constant now",
+					"description": "Constant dark ideation"
+				},
+				{
+					"message": "I can't escape the darkness in my mind",
+					"description": "Mental darkness"
+				},
+				{
+					"message": "My thoughts keep turning morbid",
+					"description": "Morbid thought patterns"
+				}
+			],
+			"emotional_emptiness": [
+				{
+					"message": "I feel completely empty inside",
+					"description": "Profound emotional emptiness"
+				},
+				{
+					"message": "There's nothing inside me anymore",
+					"description": "Inner void"
+				},
+				{
+					"message": "I feel hollow and empty",
+					"description": "Hollowness"
+				},
+				{
+					"message": "I've lost the ability to feel anything",
+					"description": "Emotional numbness"
+				}
+			],
+			"emotional_numbness": [
+				{
+					"message": "I feel numb and disconnected",
+					"description": "Emotional numbness and disconnection"
+				},
+				{
+					"message": "I can't feel anything anymore",
+					"description": "Complete emotional numbness"
+				},
+				{
+					"message": "I've gone completely numb",
+					"description": "Total numbness"
+				},
+				{
+					"message": "I'm emotionally dead inside",
+					"description": "Emotional death"
+				}
+			],
+			"severe_loneliness": [
+				{
+					"message": "I'm struggling with severe loneliness",
+					"description": "Intense loneliness and isolation"
+				},
+				{
+					"message": "I feel completely alone in the world",
+					"description": "Complete isolation"
+				},
+				{
+					"message": "The loneliness is unbearable",
+					"description": "Unbearable loneliness"
+				},
+				{
+					"message": "I have no one and it's crushing me",
+					"description": "Crushing isolation"
+				}
+			],
+			"social_isolation": [
+				{
+					"message": "I feel completely isolated from everyone",
+					"description": "Complete social disconnection"
+				},
+				{
+					"message": "I've cut myself off from everyone",
+					"description": "Self-imposed isolation"
+				},
+				{
+					"message": "I can't connect with anyone anymore",
+					"description": "Connection inability"
+				},
+				{
+					"message": "I'm completely alone and isolated",
+					"description": "Total isolation"
+				}
+			],
+			"burden_feelings": [
+				{
+					"message": "I feel like a burden to everyone",
+					"description": "Feeling burdensome to others"
+				},
+				{
+					"message": "I'm constantly worried I'm too much for people",
+					"description": "Burden anxiety"
+				},
+				{
+					"message": "Everyone would be happier if they didn't have to deal with me",
+					"description": "Perceived negative impact"
+				},
+				{
+					"message": "I feel like I only bring people down",
+					"description": "Negative influence belief"
+				}
+			],
+			"existential_crisis": [
+				{
+					"message": "Everything feels pointless and meaningless",
+					"description": "Loss of meaning and purpose"
+				},
+				{
+					"message": "I don't know why anything matters anymore",
+					"description": "Meaning crisis"
+				},
+				{
+					"message": "I'm questioning the point of everything",
+					"description": "Existential questioning"
+				},
+				{
+					"message": "Life seems to have lost all meaning",
+					"description": "Meaning loss"
+				}
+			],
+			"sleep_trauma": [
+				{
+					"message": "I can't sleep because of nightmares",
+					"description": "Nightmare-induced sleep disruption"
+				},
+				{
+					"message": "The nightmares are destroying my sleep",
+					"description": "Severe nightmare impact"
+				},
+				{
+					"message": "I'm afraid to sleep because of what I'll dream",
+					"description": "Sleep avoidance due to nightmares"
+				},
+				{
+					"message": "I keep waking up in terror",
+					"description": "Night terrors"
+				}
+			],
+			"control_loss": [
+				{
+					"message": "I feel like I'm losing control",
+					"description": "Loss of personal control"
+				},
+				{
+					"message": "I'm losing control of my life",
+					"description": "Life control loss"
+				},
+				{
+					"message": "I feel like I'm spinning out of control",
+					"description": "Spiraling sensation"
+				},
+				{
+					"message": "I have no control over anything anymore",
+					"description": "Complete control loss"
+				}
+			],
+			"identity_loss": [
+				{
+					"message": "I feel like I'm losing myself",
+					"description": "Loss of sense of self"
+				},
+				{
+					"message": "I don't know who I am anymore",
+					"description": "Identity confusion"
+				},
+				{
+					"message": "I feel like I'm disappearing",
+					"description": "Sense of identity dissolution"
+				},
+				{
+					"message": "I've lost my sense of self completely",
+					"description": "Complete identity loss"
+				}
+			],
+			"sanity_concern": [
+				{
+					"message": "I feel like I'm going crazy",
+					"description": "Fear of losing sanity"
+				},
+				{
+					"message": "I feel like I'm losing my mind",
+					"description": "Fear of losing mental stability"
+				},
+				{
+					"message": "I'm having trouble with reality",
+					"description": "Difficulty distinguishing reality"
+				},
+				{
+					"message": "I think I'm going insane",
+					"description": "Insanity fear"
+				}
+			],
+			"severe_guilt": [
+				{
+					"message": "I'm struggling with severe guilt",
+					"description": "Overwhelming guilt feelings"
+				},
+				{
+					"message": "The guilt is eating me alive",
+					"description": "Consuming guilt"
+				},
+				{
+					"message": "I can't forgive myself for what I've done",
+					"description": "Self-forgiveness inability"
+				},
+				{
+					"message": "I'm drowning in guilt",
+					"description": "Overwhelming guilt"
+				}
+			],
+			"severe_shame": [
+				{
+					"message": "I'm struggling with severe shame",
+					"description": "Overwhelming shame experiences"
+				},
+				{
+					"message": "I'm so ashamed of who I am",
+					"description": "Identity shame"
+				},
+				{
+					"message": "The shame is destroying me",
+					"description": "Destructive shame"
+				},
+				{
+					"message": "I can't face anyone because of my shame",
+					"description": "Social shame avoidance"
 				}
 			]
 		}

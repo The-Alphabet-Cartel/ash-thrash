@@ -1,11 +1,129 @@
 {
 	"_metadata": {
 		"title": "Cultural / Slang Test Phrases",
-		"file_version": "v5.0",
-		"last_modified": "2026-01-20",
+		"file_version": "v5.0-4-4.10-1",
+		"last_modified": "2026-01-21",
 		"clean_architecture": "v5.2.1",
-		"description": "Internet slang, cultural expressions",
-		"target": "TBD",
-		"note": ""
+		"description": "Internet slang and cultural expressions that might trigger false positives or contain crisis-adjacent language in non-crisis context.",
+		"target": "90% catch rate",
+		"note": "Most phrases should be detected as 'none' or 'low' priority. Tests the system's understanding of modern internet/cultural language."
+	},
+
+	"category_info": {
+		"name": "specialty_slang",
+		"description": "Cultural/Slang Test Cases",
+		"total_phrases": 15,
+		"target_pass_rate": "${THRASH_SLANG_TARGET}",
+		"critical": "${THRASH_SLANG_CRITICAL}",
+		"allow_escalation": "${THRASH_SLANG_ESCALATION}",
+		"allow_de-escalation": "${THRASH_SLANG_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 90,
+			"critical": false,
+			"allow_escalation": true,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "specialty_slang",
+		"expected_priority": "${THRASH_SLANG_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["none", "low"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"internet_death_slang": [
+				{
+					"message": "I'm dead 💀 that was so funny",
+					"description": "Internet slang for finding something very funny"
+				},
+				{
+					"message": "IM DECEASED this meme sent me",
+					"description": "Internet slang for extreme amusement"
+				},
+				{
+					"message": "That joke absolutely killed me lmaooo",
+					"description": "Slang for finding something hilarious"
+				}
+			],
+			"stan_culture": [
+				{
+					"message": "I would literally die for this celebrity",
+					"description": "Fan hyperbole expression"
+				},
+				{
+					"message": "This song is everything, I can't live without it",
+					"description": "Fan enthusiasm hyperbole"
+				}
+			],
+			"mood_slang": [
+				{
+					"message": "Big mood tbh",
+					"description": "Internet slang for relating to something"
+				},
+				{
+					"message": "Same energy as wanting to disappear into the void",
+					"description": "Relatable content expression"
+				},
+				{
+					"message": "That's such a vibe honestly",
+					"description": "Positive/neutral slang expression"
+				}
+			],
+			"gen_z_expressions": [
+				{
+					"message": "No cap this is lowkey making me want to scream into the void",
+					"description": "Gen Z frustration expression"
+				},
+				{
+					"message": "It's giving existential crisis but make it fashion",
+					"description": "Trendy expression of mild distress"
+				},
+				{
+					"message": "That's so slay actually",
+					"description": "Positive slang expression"
+				}
+			],
+			"aave_expressions": [
+				{
+					"message": "I'm so done with today, chile",
+					"description": "AAVE expression of mild frustration"
+				},
+				{
+					"message": "Not me having a whole moment rn",
+					"description": "AAVE-influenced expression of emotional state"
+				}
+			],
+			"reaction_slang": [
+				{
+					"message": "I literally cannot even right now",
+					"description": "Common reaction expression"
+				},
+				{
+					"message": "Bestie I am SHOOK",
+					"description": "Slang for being surprised/impressed"
+				}
+			]
+		}
 	}
 }

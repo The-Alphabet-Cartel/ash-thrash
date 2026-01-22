@@ -1,8 +1,8 @@
 {
 	"_metadata": {
 		"title": "Critical / High Priority Crisis Test Phrases",
-		"file_version": "v5.0",
-		"last_modified": "2026-01-20",
+		"file_version": "v5.0-4-4.2-1",
+		"last_modified": "2026-01-21",
 		"clean_architecture": "v5.2.1",
 		"description": "These phrases represent immediate crisis situations requiring urgent intervention.",
 		"target": "95% Catch Rate",
@@ -12,9 +12,9 @@
 	"category_info": {
 		"name": "definite_high",
 		"description": "High Priority Crisis",
-		"total_phrases": 50,
+		"total_phrases": 125,
 		"target_pass_rate": "${THRASH_HIGH_TARGET}",
-		"critical": "${THRASH_HIGH_CRITIAL}",
+		"critical": "${THRASH_HIGH_CRITICAL}",
 		"allow_escalation": "${THRASH_HIGH_ESCALATION}",
 		"allow_de-escalation": "${THRASH_HIGH_DEESCALATION}",
 		"defaults": {
@@ -52,80 +52,6 @@
 			}
 		},
 		"subcategories": {
-			"burden_thoughts": [
-				{
-					"message": "Nobody would miss me if I was gone",
-					"description": "Burden thoughts indicating suicidal ideation"
-				},
-				{
-					"message": "Everyone would be happier without me",
-					"description": "Burden thoughts affecting others"
-				}
-			],
-			"complete_surrender": [
-				{
-					"message": "I'm ready to give up on everything",
-					"description": "Total surrender and giving up"
-				}
-			],
-			"crisis_breaking_point": [
-				{
-					"message": "I can't go on like this any longer",
-					"description": "Reaching breaking point"
-				}
-			],
-			"death_ideation": [
-				{
-					"message": "I'm better off dead than living like this",
-					"description": "Death preference over current life"
-				},
-				{
-					"message": "I'm ready to end the pain forever",
-					"description": "Suicide as escape from pain"
-				},
-				{
-					"message": "I want to disappear forever",
-					"description": "Death wish expressed as disappearing"
-				},
-				{
-					"message": "I don't want to wake up tomorrow",
-					"description": "Wish to not continue living"
-				}
-			],
-			"existence_cessation": [
-				{
-					"message": "I wish I could just stop existing",
-					"description": "Wish for non-existence"
-				}
-			],
-			"existence_regret": [
-				{
-					"message": "I wish I was never born",
-					"description": "Regret about existence itself"
-				}
-			],
-			"hopelessness_extreme": [
-				{
-					"message": "I have nothing left to live for",
-					"description": "Complete loss of meaning and hope"
-				},
-				{
-					"message": "Life isn't worth living anymore",
-					"description": "Life devaluation and hopelessness"
-				}
-			],
-			"life_as_nightmare": [
-				{
-					"message": "I want to end this nightmare permanently",
-					"description": "Life perceived as unbearable nightmare"
-				}
-			],
-			"meaninglessness_extreme": [
-				{
-					"message": "I don't see any point in living",
-					"description": "Complete loss of life meaning"
-				}
-			],
 			"method_specific": [
 				{
 					"message": "I'm going to take all these pills",
@@ -198,68 +124,54 @@
 				{
 					"message": "I'm going to overdose on these medications",
 					"description": "Specific medication overdose"
-				}
-			],
-			"no_reasons_to_live": [
-				{
-					"message": "I can't find any reason to stay alive",
-					"description": "Complete absence of protective factors"
-				}
-			],
-			"pain_escape_death": [
-				{
-					"message": "I can't handle the pain anymore, I need to die",
-					"description": "Death as escape from unbearable pain"
-				}
-			],
-			"self_harm_escalation": [
-				{
-					"message": "I'm going to hurt myself badly this time",
-					"description": "Escalation of self-harm intent"
-				}
-			],
-			"self_harm_intent": [
-				{
-					"message": "I can't take this anymore, I'm going to hurt myself",
-					"description": "Self-harm threat with immediate intent"
 				},
 				{
-					"message": "I'm going to cut myself tonight",
-					"description": "Specific self-harm plan with timeline"
-				}
-			],
-			"self_hatred_extreme": [
-				{
-					"message": "I hate myself so much I want to die",
-					"description": "Extreme self-hatred leading to death wish"
-				}
-			],
-			"severe_self_harm": [
-				{
-					"message": "I'm going to harm myself severely",
-					"description": "Intent for severe self-injury"
-				}
-			],
-			"suicidal_ideation": [
-				{
-					"message": "I want to end my life right now",
-					"description": "Direct suicidal statement with immediacy"
-				}
-			],
-			"suicidal_intent_direct": [
-				{
-					"message": "I'm ready to commit suicide",
-					"description": "Direct suicide commitment statement"
+					"message": "I've been researching how much insulin would kill me",
+					"description": "Researching lethal dose"
 				},
 				{
-					"message": "I'm going to take my own life",
-					"description": "Direct statement of suicidal intent"
-				}
-			],
-			"suicidal_intent_immediate": [
+					"message": "I know exactly which pills to take and how many",
+					"description": "Specific overdose knowledge"
+				},
 				{
-					"message": "I'm going to end it all tonight",
-					"description": "Immediate suicide intent with timeline"
+					"message": "I've got a gun and I know how to use it on myself",
+					"description": "Firearm access with intent"
+				},
+				{
+					"message": "I found the perfect spot to jump from",
+					"description": "Location scouting for suicide"
+				},
+				{
+					"message": "I've been hoarding my medication for this",
+					"description": "Stockpiling means"
+				},
+				{
+					"message": "I know which bridge has no barriers",
+					"description": "Location-specific planning"
+				},
+				{
+					"message": "I've figured out how to tie the knot properly",
+					"description": "Method-specific preparation"
+				},
+				{
+					"message": "I bought the rope today",
+					"description": "Acquiring means"
+				},
+				{
+					"message": "I've been saving up my antidepressants",
+					"description": "Hoarding medication"
+				},
+				{
+					"message": "I found my dad's gun",
+					"description": "Access to lethal means"
+				},
+				{
+					"message": "I know where the tallest parking garage is",
+					"description": "Location planning"
+				},
+				{
+					"message": "I've been researching which methods are most painless",
+					"description": "Method research"
 				}
 			],
 			"suicidal_planning": [
@@ -278,24 +190,490 @@
 				{
 					"message": "I'm planning my own death",
 					"description": "Active death planning"
+				},
+				{
+					"message": "I've picked a date to end it all",
+					"description": "Timeline established"
+				},
+				{
+					"message": "I've written letters to everyone explaining why",
+					"description": "Farewell letters prepared"
+				},
+				{
+					"message": "I've been giving away my things because I won't need them",
+					"description": "Distributing possessions"
+				},
+				{
+					"message": "I've already decided how and when I'm going to do it",
+					"description": "Complete plan formed"
+				},
+				{
+					"message": "I've been putting my affairs in order",
+					"description": "Final arrangements"
+				},
+				{
+					"message": "I've made a detailed plan for ending my life",
+					"description": "Detailed suicide plan"
+				},
+				{
+					"message": "I've chosen the day and the method",
+					"description": "Date and method selected"
+				},
+				{
+					"message": "Everything is ready, I just need to do it",
+					"description": "Preparations complete"
 				}
 			],
-			"survival_doubt": [
+			"suicidal_intent_direct": [
 				{
-					"message": "I can't survive another day",
-					"description": "Doubt about ability to continue living"
+					"message": "I'm ready to commit suicide",
+					"description": "Direct suicide commitment statement"
+				},
+				{
+					"message": "I'm going to take my own life",
+					"description": "Direct statement of suicidal intent"
+				},
+				{
+					"message": "I've decided to kill myself",
+					"description": "Decision made"
+				},
+				{
+					"message": "I'm going to do it, I've made up my mind",
+					"description": "Resolved intent"
+				},
+				{
+					"message": "There's nothing you can say to stop me",
+					"description": "Determined intent"
+				},
+				{
+					"message": "I'm finally going through with it",
+					"description": "Moving from ideation to action"
+				},
+				{
+					"message": "This is goodbye, I'm ending it",
+					"description": "Farewell with intent"
+				},
+				{
+					"message": "I want you to know I love you before I go",
+					"description": "Final message"
+				},
+				{
+					"message": "I've said my goodbyes",
+					"description": "Farewell completed"
+				},
+				{
+					"message": "I'm sorry but I have to do this",
+					"description": "Apologetic final statement"
 				}
 			],
-			"unbearable_suffering": [
+			"suicidal_intent_immediate": [
 				{
-					"message": "I can't bear this suffering anymore",
-					"description": "Unbearable emotional pain"
+					"message": "I'm going to end it all tonight",
+					"description": "Immediate suicide intent with timeline"
+				},
+				{
+					"message": "I want to end my life right now",
+					"description": "Direct suicidal statement with immediacy"
+				},
+				{
+					"message": "I'm about to kill myself",
+					"description": "Imminent action"
+				},
+				{
+					"message": "This is it, I'm doing it now",
+					"description": "Immediate action statement"
+				},
+				{
+					"message": "In the next hour I won't be here anymore",
+					"description": "Near-term timeline"
+				},
+				{
+					"message": "By the time you read this I'll be gone",
+					"description": "Delayed message indicating action"
+				},
+				{
+					"message": "I'm standing on the edge right now",
+					"description": "Active crisis position"
+				},
+				{
+					"message": "I have the pills in my hand",
+					"description": "Means in hand"
+				}
+			],
+			"death_ideation": [
+				{
+					"message": "I'm better off dead than living like this",
+					"description": "Death preference over current life"
+				},
+				{
+					"message": "I'm ready to end the pain forever",
+					"description": "Suicide as escape from pain"
+				},
+				{
+					"message": "I want to disappear forever",
+					"description": "Death wish expressed as disappearing"
+				},
+				{
+					"message": "I don't want to wake up tomorrow",
+					"description": "Wish to not continue living"
+				},
+				{
+					"message": "I pray every night that I don't wake up",
+					"description": "Passive death wish"
+				},
+				{
+					"message": "I wish I could just fall asleep and never wake up",
+					"description": "Peaceful death ideation"
+				},
+				{
+					"message": "I think about death all the time",
+					"description": "Persistent death thoughts"
+				},
+				{
+					"message": "Death seems like the only relief",
+					"description": "Death as solution"
+				},
+				{
+					"message": "I dream about being dead",
+					"description": "Death fantasies"
+				},
+				{
+					"message": "I just want the pain to stop permanently",
+					"description": "Permanent escape desire"
+				},
+				{
+					"message": "I keep thinking about what it would be like to be dead",
+					"description": "Death contemplation"
+				},
+				{
+					"message": "Death would be such a relief right now",
+					"description": "Death as relief"
+				}
+			],
+			"burden_thoughts": [
+				{
+					"message": "Nobody would miss me if I was gone",
+					"description": "Burden thoughts indicating suicidal ideation"
+				},
+				{
+					"message": "Everyone would be happier without me",
+					"description": "Burden thoughts affecting others"
+				},
+				{
+					"message": "I'm just a burden to everyone around me",
+					"description": "Self as burden"
+				},
+				{
+					"message": "My family would be better off if I was dead",
+					"description": "Family burden thoughts"
+				},
+				{
+					"message": "I'm just making everyone's life harder",
+					"description": "Negative impact belief"
+				},
+				{
+					"message": "The world would be better without me in it",
+					"description": "Global burden thoughts"
+				},
+				{
+					"message": "I'm just a drain on everyone",
+					"description": "Resource burden"
+				},
+				{
+					"message": "Everyone I love would have an easier life without me",
+					"description": "Loved ones burden"
+				}
+			],
+			"self_harm_intent": [
+				{
+					"message": "I can't take this anymore, I'm going to hurt myself",
+					"description": "Self-harm threat with immediate intent"
+				},
+				{
+					"message": "I'm going to cut myself tonight",
+					"description": "Specific self-harm plan with timeline"
+				},
+				{
+					"message": "I need to feel the pain on the outside",
+					"description": "Self-harm coping mechanism"
+				},
+				{
+					"message": "I'm going to make myself bleed",
+					"description": "Cutting intent"
+				},
+				{
+					"message": "I deserve to be hurt and I'm going to do it myself",
+					"description": "Self-punishment intent"
+				},
+				{
+					"message": "I need to cut to feel anything at all",
+					"description": "Self-harm for feeling"
+				},
+				{
+					"message": "The only way I can cope is by hurting myself",
+					"description": "Self-harm as coping"
+				},
+				{
+					"message": "I'm going to burn myself again",
+					"description": "Repeat self-harm behavior"
+				}
+			],
+			"self_harm_escalation": [
+				{
+					"message": "I'm going to hurt myself badly this time",
+					"description": "Escalation of self-harm intent"
+				},
+				{
+					"message": "The cuts aren't deep enough anymore",
+					"description": "Need for increased severity"
+				},
+				{
+					"message": "I'm going to do more damage this time",
+					"description": "Escalation intent"
+				},
+				{
+					"message": "I need to hurt myself worse than before",
+					"description": "Severity escalation"
+				},
+				{
+					"message": "The usual self-harm isn't working anymore",
+					"description": "Tolerance building"
+				},
+				{
+					"message": "I'm going to really injure myself this time",
+					"description": "Serious injury intent"
+				}
+			],
+			"hopelessness_extreme": [
+				{
+					"message": "I have nothing left to live for",
+					"description": "Complete loss of meaning and hope"
+				},
+				{
+					"message": "Life isn't worth living anymore",
+					"description": "Life devaluation and hopelessness"
+				},
+				{
+					"message": "There's no hope for me, there never was",
+					"description": "Complete hopelessness"
+				},
+				{
+					"message": "Nothing will ever get better for me",
+					"description": "Permanent hopelessness"
+				},
+				{
+					"message": "I've lost all hope of things improving",
+					"description": "Hope exhaustion"
+				},
+				{
+					"message": "My situation is completely hopeless",
+					"description": "Situational hopelessness"
+				},
+				{
+					"message": "There's no point in trying anymore, nothing will change",
+					"description": "Futility belief"
+				},
+				{
+					"message": "I've given up all hope",
+					"description": "Hope abandoned"
+				}
+			],
+			"pain_escape_death": [
+				{
+					"message": "I can't handle the pain anymore, I need to die",
+					"description": "Death as escape from unbearable pain"
+				},
+				{
+					"message": "The only way to stop this pain is to end my life",
+					"description": "Death as pain solution"
+				},
+				{
+					"message": "I can't escape this suffering any other way",
+					"description": "Death as only escape"
+				},
+				{
+					"message": "The pain is too much, death is the only relief",
+					"description": "Pain-driven death wish"
+				},
+				{
+					"message": "I need to end this unbearable suffering",
+					"description": "Suffering termination desire"
+				},
+				{
+					"message": "Death is the only way out of this agony",
+					"description": "Death as escape route"
+				}
+			],
+			"existence_cessation": [
+				{
+					"message": "I wish I could just stop existing",
+					"description": "Wish for non-existence"
+				},
+				{
+					"message": "I want to cease to exist",
+					"description": "Existence termination wish"
+				},
+				{
+					"message": "I wish I could just vanish from this world",
+					"description": "Disappearance wish"
+				},
+				{
+					"message": "I want to erase myself from existence",
+					"description": "Self-erasure desire"
+				},
+				{
+					"message": "I wish I had never existed at all",
+					"description": "Retroactive non-existence wish"
+				}
+			],
+			"existence_regret": [
+				{
+					"message": "I wish I was never born",
+					"description": "Regret about existence itself"
+				},
+				{
+					"message": "Being born was a mistake",
+					"description": "Birth regret"
+				},
+				{
+					"message": "I regret ever being brought into this world",
+					"description": "Existence regret"
+				},
+				{
+					"message": "My parents should never have had me",
+					"description": "Parental conception regret"
+				}
+			],
+			"no_reasons_to_live": [
+				{
+					"message": "I can't find any reason to stay alive",
+					"description": "Complete absence of protective factors"
+				},
+				{
+					"message": "There's nothing keeping me here anymore",
+					"description": "Loss of anchors"
+				},
+				{
+					"message": "I have no reason to keep living",
+					"description": "No reasons remaining"
+				},
+				{
+					"message": "Everything that made life worth living is gone",
+					"description": "Loss of meaning"
 				}
 			],
 			"worthlessness_extreme": [
 				{
 					"message": "I don't deserve to live anymore",
 					"description": "Extreme worthlessness with death ideation"
+				},
+				{
+					"message": "I'm worthless and the world would be better without me",
+					"description": "Worthlessness plus burden"
+				},
+				{
+					"message": "I'm such a waste of space, I should just die",
+					"description": "Worthlessness driving death wish"
+				}
+			],
+			"self_hatred_extreme": [
+				{
+					"message": "I hate myself so much I want to die",
+					"description": "Extreme self-hatred leading to death wish"
+				},
+				{
+					"message": "I despise myself and don't deserve to live",
+					"description": "Self-loathing with death ideation"
+				},
+				{
+					"message": "I'm disgusting and should just end it",
+					"description": "Self-disgust driving suicide thoughts"
+				}
+			],
+			"complete_surrender": [
+				{
+					"message": "I'm ready to give up on everything",
+					"description": "Total surrender and giving up"
+				},
+				{
+					"message": "I surrender, I can't fight anymore",
+					"description": "Complete surrender"
+				},
+				{
+					"message": "I give up on life entirely",
+					"description": "Life abandonment"
+				}
+			],
+			"unbearable_suffering": [
+				{
+					"message": "I can't bear this suffering anymore",
+					"description": "Unbearable emotional pain"
+				},
+				{
+					"message": "The suffering is too much to endure",
+					"description": "Suffering intolerance"
+				},
+				{
+					"message": "I can't take this agony any longer",
+					"description": "Agony threshold reached"
+				}
+			],
+			"crisis_breaking_point": [
+				{
+					"message": "I can't go on like this any longer",
+					"description": "Reaching breaking point"
+				},
+				{
+					"message": "I've reached my absolute limit",
+					"description": "Limit reached"
+				},
+				{
+					"message": "I can't survive another day of this",
+					"description": "Daily survival doubt"
+				}
+			],
+			"meaninglessness_extreme": [
+				{
+					"message": "I don't see any point in living",
+					"description": "Complete loss of life meaning"
+				},
+				{
+					"message": "Life has no meaning for me anymore",
+					"description": "Meaning loss"
+				},
+				{
+					"message": "Everything is pointless, including my existence",
+					"description": "Existential meaninglessness"
+				}
+			],
+			"life_as_nightmare": [
+				{
+					"message": "I want to end this nightmare permanently",
+					"description": "Life perceived as unbearable nightmare"
+				},
+				{
+					"message": "Life is a living hell I need to escape",
+					"description": "Life as torment"
+				}
+			],
+			"survival_doubt": [
+				{
+					"message": "I can't survive another day",
+					"description": "Doubt about ability to continue living"
+				},
+				{
+					"message": "I don't think I'll make it through this",
+					"description": "Survival uncertainty"
+				}
+			],
+			"severe_self_harm": [
+				{
+					"message": "I'm going to harm myself severely",
+					"description": "Intent for severe self-injury"
+				},
+				{
+					"message": "I'm going to hurt myself badly enough to need the hospital",
+					"description": "Severe injury intent"
 				}
 			]
 		}

@@ -1,11 +1,111 @@
 {
 	"_metadata": {
 		"title": "Multi-Language Hinting Test Phrases",
-		"file_version": "v5.0",
-		"last_modified": "2026-01-20",
+		"file_version": "v5.0-4-4.11-1",
+		"last_modified": "2026-01-21",
 		"clean_architecture": "v5.2.1",
-		"description": "Code-switching, expressions from other languages",
-		"target": "TBD",
-		"note": ""
+		"description": "Code-switching and expressions from other languages that might contain crisis-adjacent terms. Tests the system's ability to handle multilingual content.",
+		"target": "85% catch rate",
+		"note": "Phrases may need manual review as language context affects meaning. Expected priorities vary based on actual content meaning."
+	},
+
+	"category_info": {
+		"name": "specialty_multilang",
+		"description": "Multi-Language Test Cases",
+		"total_phrases": 10,
+		"target_pass_rate": "${THRASH_MULTILANG_TARGET}",
+		"critical": "${THRASH_MULTILANG_CRITICAL}",
+		"allow_escalation": "${THRASH_MULTILANG_ESCALATION}",
+		"allow_de-escalation": "${THRASH_MULTILANG_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 85,
+			"critical": false,
+			"allow_escalation": true,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "specialty_multilang",
+		"expected_priority": "${THRASH_MULTILANG_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["none", "low", "medium"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"spanish_codeswitching": [
+				{
+					"message": "Estoy tan cansada, I just can't deal with this anymore today",
+					"description": "Spanish-English code-switch expressing tiredness - low priority"
+				},
+				{
+					"message": "No puedo más with all this stress at work",
+					"description": "Spanish phrase meaning 'I can't take anymore' in work context - low priority"
+				}
+			],
+			"french_expressions": [
+				{
+					"message": "C'est la vie, sometimes things just don't work out",
+					"description": "French expression meaning 'that's life' - none priority"
+				},
+				{
+					"message": "Je suis fatiguée de tout this constant drama",
+					"description": "French-English expressing tiredness of drama - low priority"
+				}
+			],
+			"german_expressions": [
+				{
+					"message": "I have such Weltschmerz today, everything feels heavy",
+					"description": "German term for world-weariness - low/medium priority"
+				}
+			],
+			"japanese_expressions": [
+				{
+					"message": "Feeling very 仕方がない about this situation",
+					"description": "Japanese term meaning 'it can't be helped' - none priority"
+				}
+			],
+			"portuguese_expressions": [
+				{
+					"message": "Tenho tanta saudade, I miss everyone so much",
+					"description": "Portuguese expression of longing/missing - low priority"
+				}
+			],
+			"tagalog_codeswitching": [
+				{
+					"message": "Nakakastress naman this deadline, I'm so overwhelmed",
+					"description": "Tagalog-English expressing stress about deadline - low priority"
+				}
+			],
+			"mixed_cultural": [
+				{
+					"message": "It's all very mañana mañana with my motivation lately",
+					"description": "Spanish expression about procrastination - none/low priority"
+				},
+				{
+					"message": "Having a total ennui moment today, nothing interests me",
+					"description": "French term for listless boredom - low priority"
+				}
+			]
+		}
 	}
 }
