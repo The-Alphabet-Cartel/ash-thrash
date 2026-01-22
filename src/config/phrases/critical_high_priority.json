@@ -1,8 +1,8 @@
 {
 	"_metadata": {
 		"title": "Critical / High Priority Crisis Test Phrases",
-		"file_version": "v5.0-4-4.2-1",
-		"last_modified": "2026-01-21",
+		"file_version": "v5.0-4-4.2-2",
+		"last_modified": "2026-01-22",
 		"clean_architecture": "v5.2.1",
 		"description": "These phrases represent immediate crisis situations requiring urgent intervention.",
 		"target": "95% Catch Rate",
@@ -21,7 +21,7 @@
 			"target_pass_rate": 95,
 			"critical": true,
 			"allow_escalation": true,
-			"allow_de-escalation": true
+			"allow_de-escalation": false
 		},
 		"validation": {
 			"target_pass_rate": {

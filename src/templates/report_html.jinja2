@@ -13,8 +13,8 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 HTML Report Template for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-3-3.3-1
-LAST MODIFIED: 2026-01-20
+FILE VERSION: v5.0-4-4.0-1
+LAST MODIFIED: 2026-01-22
 PHASE: Phase 3 - Analysis & Reporting
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -665,7 +665,7 @@ Template Variables:
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Message</th>
                             <th>Category</th>
                             <th>Expected</th>
                             <th>Actual</th>
@@ -676,7 +676,7 @@ Template Variables:
                     <tbody>
                         {% for test in analysis.failed_test_details[:100] %}
                         <tr>
-                            <td><code style="font-size: 0.85rem;">{{ test.phrase_id }}</code></td>
+                            <td style="max-width: 400px; word-wrap: break-word;"><em>"{{ test.message }}"</em></td>
                             <td>{{ test.category }}<br><small style="color: var(--color-text-muted);">{{ test.subcategory }}</small></td>
                             <td>{{ test.expected_priorities | join(', ') }}</td>
                             <td class="text-fail"><strong>{{ test.actual_severity }}</strong></td>

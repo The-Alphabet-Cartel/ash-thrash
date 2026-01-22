@@ -1,8 +1,8 @@
 {
 	"_metadata": {
 		"title": "Songs & Quotes Test Phrases",
-		"file_version": "v5.0-4-4.9-1",
-		"last_modified": "2026-01-21",
+		"file_version": "v5.0-4-4.9-2",
+		"last_modified": "2026-01-22",
 		"clean_architecture": "v5.2.1",
 		"description": "Quoted content from songs, movies, or literature that sounds concerning out of context. Tests the system's ability to recognize quoted material.",
 		"target": "85% catch rate",
@@ -20,7 +20,7 @@
 		"defaults": {
 			"target_pass_rate": 85,
 			"critical": false,
-			"allow_escalation": true,
+			"allow_escalation": false,
 			"allow_de-escalation": true
 		},
 		"validation": {
@@ -44,7 +44,7 @@
 		"name": "specialty_quotes",
 		"expected_priority": "${THRASH_QUOTES_PRIORITY}",
 		"defaults": {
-			"expected_priority": ["none", "low"]
+			"expected_priority": ["safe", "none", "low"]
 		},
 		"validation": {
 			"expected_priority": {

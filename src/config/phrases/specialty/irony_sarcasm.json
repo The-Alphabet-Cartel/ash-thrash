@@ -1,8 +1,8 @@
 {
 	"_metadata": {
 		"title": "Irony / Sarcasm Test Phrases",
-		"file_version": "v5.0-4-4.6-1",
-		"last_modified": "2026-01-21",
+		"file_version": "v5.0-4-4.6-2",
+		"last_modified": "2026-01-22",
 		"clean_architecture": "v5.2.1",
 		"description": "Dark humor, sarcasm that might trigger false positives. Tests the system's ability to detect ironic or sarcastic usage of crisis-adjacent language.",
 		"target": "90% catch rate",
@@ -20,7 +20,7 @@
 		"defaults": {
 			"target_pass_rate": 90,
 			"critical": false,
-			"allow_escalation": true,
+			"allow_escalation": false,
 			"allow_de-escalation": true
 		},
 		"validation": {
@@ -44,7 +44,7 @@
 		"name": "specialty_irony",
 		"expected_priority": "${THRASH_IRONY_PRIORITY}",
 		"defaults": {
-			"expected_priority": ["none", "low"]
+			"expected_priority": ["safe", "none", "low"]
 		},
 		"validation": {
 			"expected_priority": {

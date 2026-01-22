@@ -1,12 +1,12 @@
 {
 	"_metadata": {
 		"title": "Gaming Context Test Phrases",
-		"file_version": "v5.0-4-4.7-1",
-		"last_modified": "2026-01-21",
+		"file_version": "v5.0-4-4.7-2",
+		"last_modified": "2026-01-22",
 		"clean_architecture": "v5.2.1",
 		"description": "Gaming language that might trigger false positives. Common gaming expressions that use crisis-adjacent language.",
 		"target": "95% catch rate",
-		"note": "All phrases should be detected as 'none' priority. False positives here indicate context detection failure."
+		"note": "All phrases should be detected as 'none' or 'safe' priority. False positives here indicate context detection failure."
 	},
 
 	"category_info": {
@@ -20,8 +20,8 @@
 		"defaults": {
 			"target_pass_rate": 95,
 			"critical": false,
-			"allow_escalation": true,
-			"allow_de-escalation": false
+			"allow_escalation": false,
+			"allow_de-escalation": true
 		},
 		"validation": {
 			"target_pass_rate": {
@@ -44,7 +44,7 @@
 		"name": "specialty_gaming",
 		"expected_priority": "${THRASH_GAMING_PRIORITY}",
 		"defaults": {
-			"expected_priority": ["none"]
+			"expected_priority": ["none", "safe"]
 		},
 		"validation": {
 			"expected_priority": {

@@ -1,8 +1,8 @@
 {
 	"_metadata": {
 		"title": "Cultural / Slang Test Phrases",
-		"file_version": "v5.0-4-4.10-1",
-		"last_modified": "2026-01-21",
+		"file_version": "v5.0-4-4.10-2",
+		"last_modified": "2026-01-22",
 		"clean_architecture": "v5.2.1",
 		"description": "Internet slang and cultural expressions that might trigger false positives or contain crisis-adjacent language in non-crisis context.",
 		"target": "90% catch rate",
@@ -20,7 +20,7 @@
 		"defaults": {
 			"target_pass_rate": 90,
 			"critical": false,
-			"allow_escalation": true,
+			"allow_escalation": false,
 			"allow_de-escalation": true
 		},
 		"validation": {
@@ -44,7 +44,7 @@
 		"name": "specialty_slang",
 		"expected_priority": "${THRASH_SLANG_PRIORITY}",
 		"defaults": {
-			"expected_priority": ["none", "low"]
+			"expected_priority": ["safe", "none", "low"]
 		},
 		"validation": {
 			"expected_priority": {

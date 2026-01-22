@@ -724,7 +724,10 @@ def create_nlp_client_manager(
     secrets = create_secrets_manager()
     bypass_key = secrets.get("ash_internal_bypass_key")
     
-    logger.debug(
+    # Use appropriate logger for factory function messages
+    log = logger_instance or logger
+    
+    log.debug(
         f"🏭 Creating NLPClientManager (host: {host}, port: {port}, bypass_key={'configured' if bypass_key else 'none'})"
     )
     
@@ -741,7 +744,7 @@ def create_nlp_client_manager(
     client._bypass_key = bypass_key
     
     if bypass_key:
-        logger.info("🔑 NLP rate limit bypass key loaded")
+        log.info("🔑 NLP rate limit bypass key loaded")
     
     return client
 

@@ -1,8 +1,8 @@
 # ============================================================================
 # Ash-Thrash v5.0 Production Dockerfile
 # ============================================================================
-# FILE VERSION: v5.0-1-1.7-1
-# LAST MODIFIED: 2026-01-20
+# FILE VERSION: v5.0-4-1.1-1
+# LAST MODIFIED: 2026-01-22
 # Repository: https://github.com/the-alphabet-cartel/ash-thrash
 # Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
 # ============================================================================
@@ -59,6 +59,10 @@ RUN python3.11 -m pip install -r /tmp/requirements.txt
 # =============================================================================
 FROM python:3.11-slim-bookworm AS runtime
 
+# Default user/group IDs (can be overridden at runtime via PUID/PGID)
+ARG DEFAULT_UID=1000
+ARG DEFAULT_GID=1000
+
 # Labels
 LABEL org.opencontainers.image.title="Ash-Thrash" \
       org.opencontainers.image.description="Crisis Detection Testing Suite for The Alphabet Cartel" \
@@ -76,22 +80,28 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     # Force ANSI colors in Docker logs (Charter v5.2.1 colorized logging)
     FORCE_COLOR=1 \
     # Default environment
-    THRASH_ENVIRONMENT=production
+    THRASH_ENVIRONMENT=production \
+    # Application settings
+    THRASH_LOG_LEVEL=INFO \
+    TZ=America/Los_Angeles \
+    # Default PUID/PGID (LinuxServer.io style)
+    PUID=${DEFAULT_UID} \
+    PGID=${DEFAULT_GID}
 
-# Install runtime dependencies
+# Install runtime dependencies including gosu for privilege dropping
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     tini \
+    gosu \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    && apt-get clean \
+    && gosu nobody true  # Verify gosu works
 
 # Create non-root user
-RUN groupadd --gid 1000 thrash \
-    && useradd --uid 1000 --gid thrash --shell /bin/bash --create-home thrash
-
-# Create application directories
-RUN mkdir -p /app/logs /app/reports /app/src/config/phrases \
-    && chown -R thrash:thrash /app
+RUN groupadd --gid ${PGID} thrash \
+    && useradd --uid ${PUID} --gid thrash --shell /bin/bash --create-home thrash \
+    && mkdir -p /app/logs /app/reports /app/src/config/phrases \
+    && chown -R ${PUID}:${PGID} /app
 
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
@@ -100,10 +110,19 @@ COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
 
 # Copy application code
-COPY --chown=thrash:thrash . /app/
+COPY . /app/
 
-# Switch to non-root user
-USER thrash
+# Copy and set up entrypoint script (LinuxServer.io style PUID/PGID handling)
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Set ownership of app directory to default user
+# (entrypoint will fix this at runtime based on PUID/PGID)
+RUN chown -R thrash:thrash /app
+
+# NOTE: We do NOT switch to USER thrash here!
+# The entrypoint script handles user switching at runtime after fixing permissions.
+# This allows PUID/PGID to work correctly with mounted volumes.
 
 # Expose health check port
 EXPOSE 30888
@@ -112,8 +131,8 @@ EXPOSE 30888
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:30888/health || exit 1
 
-# Use tini as init system
-ENTRYPOINT ["/usr/bin/tini", "--"]
+# Use tini as init system, then our entrypoint for PUID/PGID handling
+ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 
-# Default command
+# Default command (passed to entrypoint.sh)
 CMD ["python3.11", "main.py"]

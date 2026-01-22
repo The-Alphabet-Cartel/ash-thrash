@@ -111,12 +111,13 @@ DEFAULT_API_PORT = 30888
 # Application Class
 # =============================================================================
 
+
 class AshThrash:
     """
     Main application class for Ash-Thrash testing suite.
-    
+
     Manages lifecycle of all managers and coordinates test execution.
-    
+
     Attributes:
         config: ConfigManager instance
         secrets: SecretsManager instance
@@ -125,7 +126,7 @@ class AshThrash:
         phrase_loader: PhraseLoaderManager instance
         test_runner: TestRunnerManager instance
     """
-    
+
     def __init__(self):
         """Initialize the application (managers created in startup)."""
         self.config: Optional[ConfigManager] = None
@@ -140,44 +141,42 @@ class AshThrash:
         self.report_manager: Optional[ReportManager] = None
         self._logger = None
         self._shutdown_event = asyncio.Event()
-    
+
     async def startup(self) -> bool:
         """
         Initialize all managers and verify system readiness.
-        
+
         Returns:
             True if startup successful, False otherwise
         """
         try:
             # Step 1: Configuration Manager
             self.config = create_config_manager()
-            
+
             # Step 2: Secrets Manager
             self.secrets = create_secrets_manager()
-            
+
             # Step 3: Logging Manager (depends on config)
-            self.logging_mgr = create_logging_config_manager(
-                config_manager=self.config
-            )
+            self.logging_mgr = create_logging_config_manager(config_manager=self.config)
             self._logger = self.logging_mgr.get_logger("main")
-            
+
             # Print startup banner
             self._print_banner()
-            
+
             # Step 4: NLP Client Manager (depends on config, logging)
             self._logger.info("Initializing NLP Client...")
             self.nlp_client = create_nlp_client_manager(
                 config_manager=self.config,
                 logging_manager=self.logging_mgr,
             )
-            
+
             # Step 5: Phrase Loader Manager (depends on config, logging)
             self._logger.info("Loading test phrases...")
             self.phrase_loader = create_phrase_loader_manager(
                 config_manager=self.config,
                 logging_manager=self.logging_mgr,
             )
-            
+
             # Step 6: Validators (Phase 2)
             self._logger.info("Initializing validators...")
             self.classification_validator = create_classification_validator(
@@ -186,7 +185,7 @@ class AshThrash:
             self.response_validator = create_response_validator(
                 logging_manager=self.logging_mgr
             )
-            
+
             # Step 7: Test Runner (Phase 2)
             self._logger.info("Initializing test runner...")
             self.test_runner = create_test_runner_manager(
@@ -197,14 +196,14 @@ class AshThrash:
                 config_manager=self.config,
                 logging_manager=self.logging_mgr,
             )
-            
+
             # Step 8: Result Analyzer (Phase 3)
             self._logger.info("Initializing result analyzer...")
             self.result_analyzer = create_result_analyzer_manager(
                 config_manager=self.config,
                 logging_manager=self.logging_mgr,
             )
-            
+
             # Step 9: Report Manager (Phase 3)
             self._logger.info("Initializing report manager...")
             self.report_manager = create_report_manager(
@@ -212,14 +211,16 @@ class AshThrash:
                 secrets_manager=self.secrets,
                 logging_manager=self.logging_mgr,
             )
-            
+
             # Verify Ash-NLP connectivity
             self._logger.info("Checking Ash-NLP connectivity...")
             if await self.nlp_client.is_available():
                 self._logger.success("Ash-NLP server is available")
             else:
-                self._logger.warning("⚠️ Ash-NLP server is not available - tests will fail")
-            
+                self._logger.warning(
+                    "⚠️ Ash-NLP server is not available - tests will fail"
+                )
+
             # Update API app state
             app_state.config_manager = self.config
             app_state.logging_manager = self.logging_mgr
@@ -227,46 +228,48 @@ class AshThrash:
             app_state.phrase_loader = self.phrase_loader
             app_state.test_runner = self.test_runner
             app_state.is_ready = True
-            
+
             # Print summary
             self._print_startup_summary()
-            
+
             return True
-            
+
         except Exception as e:
             if self._logger:
                 self._logger.critical(f"Startup failed: {e}")
             else:
                 print(f"🚨 CRITICAL: Startup failed: {e}", file=sys.stderr)
             return False
-    
+
     async def shutdown(self) -> None:
         """Clean shutdown of all managers."""
         if self._logger:
             self._logger.info("Shutting down Ash-Thrash...")
-        
+
         # Close NLP client connection
         if self.nlp_client:
             await self.nlp_client.close()
-        
+
         if self._logger:
             self._logger.success("Shutdown complete")
-    
-    async def run_server(self, host: str = DEFAULT_API_HOST, port: int = DEFAULT_API_PORT) -> int:
+
+    async def run_server(
+        self, host: str = DEFAULT_API_HOST, port: int = DEFAULT_API_PORT
+    ) -> int:
         """
         Run the API server.
-        
+
         Args:
             host: Server host (default: 0.0.0.0)
             port: Server port (default: 30888)
-        
+
         Returns:
             Exit code (0 for success, non-zero for failure)
         """
         # Startup
         if not await self.startup():
             return 1
-        
+
         try:
             # Create FastAPI app with injected managers
             app = create_app(
@@ -276,11 +279,11 @@ class AshThrash:
                 phrase_loader=self.phrase_loader,
                 test_runner=self.test_runner,
             )
-            
+
             self._logger.info(f"Starting API server on {host}:{port}")
             self._logger.info(f"Health endpoint: http://{host}:{port}/health")
             self._logger.info(f"API docs: http://{host}:{port}/docs")
-            
+
             # Configure uvicorn
             config = uvicorn.Config(
                 app,
@@ -290,19 +293,19 @@ class AshThrash:
                 access_log=False,  # We handle logging ourselves
             )
             server = uvicorn.Server(config)
-            
+
             # Run server
             await server.serve()
-            
+
             return 0
-            
+
         except Exception as e:
             self._logger.error(f"Server error: {e}")
             return 1
-            
+
         finally:
             await self.shutdown()
-    
+
     async def run_tests(
         self,
         categories: Optional[List[str]] = None,
@@ -314,7 +317,7 @@ class AshThrash:
     ) -> int:
         """
         Run tests, analyze results, and generate reports.
-        
+
         Args:
             categories: Optional list of categories to test
             verbose: Whether to show verbose output
@@ -322,39 +325,41 @@ class AshThrash:
             compare_baseline: Name of baseline to compare against
             report_formats: List of report formats to generate (json, html)
             send_discord: Whether to send Discord notification
-        
+
         Returns:
             Exit code (0 if all pass, 1 if any fail)
         """
         # Startup
         if not await self.startup():
             return 1
-        
+
         try:
             self._logger.info("Starting test run...")
-            
+
             # Progress callback for verbose output
             def progress_callback(current: int, total: int, result: TestResult):
                 if verbose:
-                    status_icon = "✅" if result.passed else "❌" if result.failed else "⚠️"
+                    status_icon = (
+                        "✅" if result.passed else "❌" if result.failed else "⚠️"
+                    )
                     self._logger.info(
                         f"[{current}/{total}] {status_icon} {result.category}/{result.subcategory}"
                     )
-            
+
             # Default report formats
             if report_formats is None:
                 report_formats = ["json"]
-            
+
             # Run tests
             summary = await self.test_runner.run_all_tests(
                 categories=categories,
                 progress_callback=progress_callback if verbose else None,
             )
-            
+
             # Analyze results (Phase 3)
             self._logger.info("Analyzing results...")
             analysis = self.result_analyzer.analyze(summary)
-            
+
             # Print results
             self._logger.info("=" * 60)
             self._logger.info("Test Run Results")
@@ -366,9 +371,13 @@ class AshThrash:
             self._logger.info(f"  Failed:        {summary.failed_tests}")
             self._logger.info(f"  Errors:        {summary.error_tests}")
             self._logger.info(f"  Accuracy:      {analysis.overall_accuracy:.1f}%")
-            self._logger.info(f"  Avg Response:  {summary.average_response_time_ms:.1f}ms")
-            self._logger.info(f"  P95 Response:  {analysis.latency_metrics.p95_ms:.1f}ms")
-            
+            self._logger.info(
+                f"  Avg Response:  {summary.average_response_time_ms:.1f}ms"
+            )
+            self._logger.info(
+                f"  P95 Response:  {analysis.latency_metrics.p95_ms:.1f}ms"
+            )
+
             # Threshold status
             self._logger.info("-" * 60)
             self._logger.info("Threshold Status:")
@@ -376,19 +385,29 @@ class AshThrash:
             self._logger.info(
                 f"  {threshold_icon} {analysis.thresholds_met_count}/{analysis.thresholds_total_count} thresholds met"
             )
-            
+
             for cat, result in analysis.threshold_results.items():
-                status_icon = "✅" if result.status.value == "met" else "⚠️" if result.status.value == "warning" else "❌"
+                status_icon = (
+                    "✅"
+                    if result.status.value == "met"
+                    else "⚠️"
+                    if result.status.value == "warning"
+                    else "❌"
+                )
                 self._logger.info(
                     f"  {status_icon} {cat}: {result.actual_value:.1f}% (target: {result.target_value:.1f}%)"
                 )
-            
+
             # False positive/negative rates
             self._logger.info("-" * 60)
             self._logger.info("Detection Quality:")
-            self._logger.info(f"  False Positive Rate: {analysis.false_positive_rate:.1f}%")
-            self._logger.info(f"  False Negative Rate: {analysis.false_negative_rate:.1f}%")
-            
+            self._logger.info(
+                f"  False Positive Rate: {analysis.false_positive_rate:.1f}%"
+            )
+            self._logger.info(
+                f"  False Negative Rate: {analysis.false_negative_rate:.1f}%"
+            )
+
             # Baseline comparison (Phase 3)
             comparison = None
             if compare_baseline:
@@ -399,72 +418,90 @@ class AshThrash:
                     comparison = self.report_manager.compare_to_baseline(
                         analysis, baseline, compare_baseline
                     )
-                    
-                    delta_icon = "📈" if comparison.overall_accuracy_delta >= 0 else "📉"
+
+                    delta_icon = (
+                        "📈" if comparison.overall_accuracy_delta >= 0 else "📉"
+                    )
                     self._logger.info(
                         f"  {delta_icon} Accuracy change: {comparison.overall_accuracy_delta:+.1f}%"
                     )
-                    
+
                     if comparison.regressions:
-                        self._logger.warning(f"  🔻 {len(comparison.regressions)} regression(s) detected!")
+                        self._logger.warning(
+                            f"  🔻 {len(comparison.regressions)} regression(s) detected!"
+                        )
                         for reg in comparison.regressions[:5]:
                             self._logger.warning(f"    - {reg.description}")
-                    
+
                     if comparison.improvements:
-                        self._logger.info(f"  🔺 {len(comparison.improvements)} improvement(s)")
+                        self._logger.info(
+                            f"  🔺 {len(comparison.improvements)} improvement(s)"
+                        )
                 else:
                     self._logger.warning(f"  Baseline '{compare_baseline}' not found")
-            
+
             # Generate reports (Phase 3)
             self._logger.info("=" * 60)
             self._logger.info("Generating reports...")
-            
+
             if "json" in report_formats:
-                json_path = self.report_manager.generate_json_report(analysis, comparison)
+                json_path = self.report_manager.generate_json_report(
+                    analysis, comparison
+                )
                 self._logger.info(f"  📄 JSON: {json_path}")
-            
+
             if "html" in report_formats:
-                html_path = self.report_manager.generate_html_report(analysis, comparison)
+                html_path = self.report_manager.generate_html_report(
+                    analysis, comparison
+                )
                 self._logger.info(f"  📄 HTML: {html_path}")
-            
+
             # Save baseline (Phase 3)
             if save_baseline:
-                baseline_path = self.report_manager.save_baseline(analysis, save_baseline)
-                self._logger.info(f"  💾 Baseline '{save_baseline}' saved: {baseline_path}")
-            
+                baseline_path = self.report_manager.save_baseline(
+                    analysis, save_baseline
+                )
+                self._logger.info(
+                    f"  💾 Baseline '{save_baseline}' saved: {baseline_path}"
+                )
+
             # Discord notification (Phase 3)
             if send_discord:
                 self._logger.info("Sending Discord notification...")
-                if await self.report_manager.send_discord_notification(analysis, comparison):
+                if await self.report_manager.send_discord_notification(
+                    analysis, comparison
+                ):
                     self._logger.success("  📨 Discord notification sent")
-            
+
             self._logger.info("=" * 60)
-            
+
             # Return exit code based on results
             exit_code = 0
-            
+
             if summary.failed_tests > 0 or summary.error_tests > 0:
                 self._logger.warning(
                     f"⚠️ {summary.failed_tests} failures, {summary.error_tests} errors"
                 )
                 exit_code = 1
-            
+
             if comparison and comparison.verdict.value == "fail":
-                self._logger.error(f"🔻 Regression check failed: {comparison.verdict_reason}")
+                self._logger.error(
+                    f"🔻 Regression check failed: {comparison.verdict_reason}"
+                )
                 exit_code = 1
-            
+
             if exit_code == 0:
                 self._logger.success(f"✅ All {summary.passed_tests} tests passed!")
-            
+
             return exit_code
-            
+
         except Exception as e:
             self._logger.error(f"Test execution error: {e}")
             return 1
-            
+
         finally:
             await self.shutdown()
-    
+
     def _print_banner(self) -> None:
         """Print the startup banner."""
         banner = """
@@ -477,7 +514,7 @@ class AshThrash:
 ║    ██║  ██║███████║██║  ██║         ██║   ██║  ██║██║  ██║██║  ██║███████║██║  ██║    ║
 ║    ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝         ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ║
 ║                                                                                       ║
-║                         Crisis Detection Testing Suite v5.0                          ║
+║                         Crisis Detection Testing Suite v5.0                           ║
 ║                                                                                       ║
 ║                   The Alphabet Cartel - https://discord.gg/alphabetcartel             ║
 ║                                                                                       ║
@@ -485,14 +522,14 @@ class AshThrash:
 """
         # Print banner without logging (direct to console)
         print(banner)
-        
+
         self._logger.info(f"Ash-Thrash {__version__} starting...")
         self._logger.info(f"Environment: {self.config.get_environment()}")
-    
+
     def _print_startup_summary(self) -> None:
         """Print startup summary."""
         stats = self.phrase_loader.get_statistics()
-        
+
         self._logger.info("=" * 60)
         self._logger.info("Startup Summary")
         self._logger.info("=" * 60)
@@ -501,13 +538,15 @@ class AshThrash:
         self._logger.info(f"  NLP Server:     {self.nlp_client.base_url}")
         self._logger.info(f"  Total Phrases:  {stats.total_phrases}")
         self._logger.info(f"  Files Loaded:   {stats.files_loaded}")
-        
+
         if stats.by_category_type:
             self._logger.info("  By Type:")
             for cat_type, count in stats.by_category_type.items():
                 self._logger.info(f"    - {cat_type}: {count}")
-        
-        webhook_status = "Configured" if self.secrets.has_discord_webhook() else "Not configured"
+
+        webhook_status = (
+            "Configured" if self.secrets.has_discord_webhook() else "Not configured"
+        )
         self._logger.info(f"  Discord Webhook: {webhook_status}")
         self._logger.info("=" * 60)
         self._logger.success("Ash-Thrash initialized successfully")
@@ -516,6 +555,7 @@ class AshThrash:
 # =============================================================================
 # CLI Argument Parser
 # =============================================================================
+
 
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
@@ -534,7 +574,7 @@ Examples:
   python main.py --run-tests --send-discord
         """,
     )
-    
+
     # Server options
     parser.add_argument(
         "--host",
@@ -547,7 +587,7 @@ Examples:
         default=int(os.environ.get("THRASH_API_PORT", DEFAULT_API_PORT)),
         help=f"API server port (default: {DEFAULT_API_PORT})",
     )
-    
+
     # Test execution options
     parser.add_argument(
         "--run-tests",
@@ -561,11 +601,12 @@ Examples:
         help="Category to test (can be specified multiple times)",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Show verbose output during test execution",
     )
-    
+
     # Phase 3: Reporting options
     parser.add_argument(
         "--save-baseline",
@@ -589,14 +630,14 @@ Examples:
         action="store_true",
         help="Send results to Discord webhook (requires configured webhook)",
     )
-    
+
     # Version
     parser.add_argument(
         "--version",
         action="version",
         version=f"Ash-Thrash {__version__}",
     )
-    
+
     return parser.parse_args()
 
 
@@ -604,16 +645,17 @@ Examples:
 # Entry Point
 # =============================================================================
 
+
 def main() -> int:
     """
     Main entry point.
-    
+
     Returns:
         Exit code
     """
     args = parse_args()
     app = AshThrash()
-    
+
     try:
         if args.run_tests:
             # Run tests and exit

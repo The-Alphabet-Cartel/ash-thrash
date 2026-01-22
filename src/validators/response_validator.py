@@ -13,8 +13,8 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Response Validator for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-2-2.2-1
-LAST MODIFIED: 2026-01-20
+FILE VERSION: v5.0-4-4.0-3
+LAST MODIFIED: 2026-01-22
 PHASE: Phase 2 - Test Execution Engine
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -58,7 +58,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set
 
 # Module version
-__version__ = "v5.0-2-2.2-1"
+__version__ = "v5.0-4-4.0-3"
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -68,11 +68,11 @@ logger = logging.getLogger(__name__)
 # Constants
 # =============================================================================
 
-# Valid severity values
-VALID_SEVERITIES: Set[str] = {"none", "low", "medium", "high", "critical"}
+# Valid severity values (includes 'safe' returned by Ash-NLP)
+VALID_SEVERITIES: Set[str] = {"safe", "none", "low", "medium", "high", "critical"}
 
-# Valid recommended actions
-VALID_ACTIONS: Set[str] = {"monitor", "check_in", "immediate_outreach"}
+# Valid recommended actions (includes all values returned by Ash-NLP)
+VALID_ACTIONS: Set[str] = {"none", "passive_monitoring", "standard_monitoring", "monitor", "check_in", "priority_response", "immediate_outreach"}
 
 # Required top-level fields with expected types
 REQUIRED_FIELDS: Dict[str, type] = {

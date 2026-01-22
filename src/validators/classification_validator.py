@@ -13,8 +13,8 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Classification Validator for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-2-2.1-1
-LAST MODIFIED: 2026-01-20
+FILE VERSION: v5.0-4-4.0-2
+LAST MODIFIED: 2026-01-22
 PHASE: Phase 2 - Test Execution Engine
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
@@ -58,7 +58,7 @@ from enum import IntEnum
 from typing import Any, Dict, List, Optional
 
 # Module version
-__version__ = "v5.0-2-2.1-1"
+__version__ = "v5.0-4-4.0-2"
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -73,8 +73,10 @@ class PriorityLevel(IntEnum):
     Priority/severity levels in hierarchical order.
     
     Higher values indicate more severe crisis levels.
+    SAFE is below NONE - explicitly indicates no crisis concern.
     """
-    NONE = 0
+    SAFE = -1     # Explicitly safe (returned by Ash-NLP)
+    NONE = 0      # No crisis detected
     LOW = 1
     MEDIUM = 2
     HIGH = 3
@@ -83,6 +85,7 @@ class PriorityLevel(IntEnum):
 
 # String to enum mapping
 PRIORITY_MAP: Dict[str, PriorityLevel] = {
+    "safe": PriorityLevel.SAFE,
     "none": PriorityLevel.NONE,
     "low": PriorityLevel.LOW,
     "medium": PriorityLevel.MEDIUM,
@@ -92,6 +95,9 @@ PRIORITY_MAP: Dict[str, PriorityLevel] = {
 
 # Valid priority strings
 VALID_PRIORITIES = list(PRIORITY_MAP.keys())
+
+# Reverse mapping: level -> string (for error messages)
+LEVEL_TO_STRING: Dict[int, str] = {int(v): k for k, v in PRIORITY_MAP.items()}
 
 
 # =============================================================================
@@ -338,7 +344,7 @@ class ClassificationValidator:
         
         # Check escalation (actual is higher than all expected)
         if allow_escalation and int(actual_level) > max_expected:
-            max_priority = VALID_PRIORITIES[max_expected]
+            max_priority = LEVEL_TO_STRING.get(max_expected, str(max_expected))
             self._logger.debug(
                 f"✅ Escalation accepted: '{actual_severity}' > '{max_priority}'"
             )
@@ -359,7 +365,7 @@ class ClassificationValidator:
         
         # Check de-escalation (actual is lower than any expected)
         if allow_deescalation and int(actual_level) < min_expected:
-            min_priority = VALID_PRIORITIES[min_expected]
+            min_priority = LEVEL_TO_STRING.get(min_expected, str(min_expected))
             self._logger.debug(
                 f"✅ De-escalation accepted: '{actual_severity}' < '{min_priority}'"
             )
@@ -381,14 +387,14 @@ class ClassificationValidator:
         # Determine failure reason
         if int(actual_level) > max_expected:
             # Escalation not allowed
-            max_priority = VALID_PRIORITIES[max_expected]
+            max_priority = LEVEL_TO_STRING.get(max_expected, str(max_expected))
             failure_reason = (
                 f"Escalation not allowed: expected at most '{max_priority}', "
                 f"got '{actual_severity}'"
             )
         elif int(actual_level) < min_expected:
             # De-escalation not allowed
-            min_priority = VALID_PRIORITIES[min_expected]
+            min_priority = LEVEL_TO_STRING.get(min_expected, str(min_expected))
             failure_reason = (
                 f"De-escalation not allowed: expected at least '{min_priority}', "
                 f"got '{actual_severity}'"
