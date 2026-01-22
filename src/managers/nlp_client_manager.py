@@ -271,6 +271,9 @@ class NLPClientManager:
         # Use provided logger or module logger
         self._logger = logger_instance or logger
         
+        # Internal bypass key (for skipping NLP rate limiting)
+        self._bypass_key: Optional[str] = None
+        
         # HTTP client (created lazily for async context)
         self._client: Optional[httpx.AsyncClient] = None
         
@@ -291,13 +294,19 @@ class NLPClientManager:
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create the async HTTP client."""
         if self._client is None or self._client.is_closed:
+            headers = {
+                "Content-Type": "application/json",
+                "User-Agent": f"Ash-Thrash/{__version__}",
+            }
+            
+            # Add bypass key if available (skip NLP rate limiting)
+            if self._bypass_key:
+                headers["X-Ash-Internal-Key"] = self._bypass_key
+            
             self._client = httpx.AsyncClient(
                 base_url=self.base_url,
                 timeout=httpx.Timeout(self.timeout),
-                headers={
-                    "Content-Type": "application/json",
-                    "User-Agent": f"Ash-Thrash/{__version__}",
-                },
+                headers=headers,
             )
         return self._client
     
@@ -710,11 +719,16 @@ def create_nlp_client_manager(
     if logging_manager:
         logger_instance = logging_manager.get_logger("nlp_client")
     
+    # Load bypass key from secrets (for skipping NLP rate limiting)
+    from src.managers import create_secrets_manager
+    secrets = create_secrets_manager()
+    bypass_key = secrets.get("ash_internal_bypass_key")
+    
     logger.debug(
-        f"🏭 Creating NLPClientManager (host: {host}, port: {port})"
+        f"🏭 Creating NLPClientManager (host: {host}, port: {port}, bypass_key={'configured' if bypass_key else 'none'})"
     )
     
-    return NLPClientManager(
+    client = NLPClientManager(
         host=host,
         port=port,
         timeout=timeout,
@@ -722,6 +736,14 @@ def create_nlp_client_manager(
         retry_delay_ms=retry_delay_ms,
         logger_instance=logger_instance,
     )
+    
+    # Set bypass key after creation
+    client._bypass_key = bypass_key
+    
+    if bypass_key:
+        logger.info("🔑 NLP rate limit bypass key loaded")
+    
+    return client
 
 
 # =============================================================================

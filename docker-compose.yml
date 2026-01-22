@@ -95,6 +95,7 @@ services:
 
     # Docker Secrets
     secrets:
+      - ash_internal_bypass_key
       - ash_thrash_discord_alert_token
 
     # Health check - uses HTTP endpoint from health server
@@ -119,6 +120,8 @@ services:
 # Secrets
 # =============================================================================
 secrets:
+  ash_internal_bypass_key:
+    file: ./secrets/ash_internal_bypass_key
   ash_thrash_discord_alert_token:
     file: ./secrets/ash_thrash_discord_alert_token
 
