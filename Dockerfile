@@ -1,7 +1,7 @@
 # ============================================================================
 # Ash-Thrash v5.0 Production Dockerfile
 # ============================================================================
-# FILE VERSION: v5.0-4-1.1-1
+# FILE VERSION: v5.0-4-2.0-1
 # LAST MODIFIED: 2026-01-22
 # Repository: https://github.com/the-alphabet-cartel/ash-thrash
 # Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
@@ -20,8 +20,8 @@
 #
 # CLEAN ARCHITECTURE COMPLIANCE:
 #   - Uses python3.11 -m pip (Rule #10)
-#   - Non-root user for security
-#   - Health check endpoint configured
+#   - Pure Python entrypoint for PUID/PGID (Rule #13)
+#   - tini for PID 1 signal handling
 #
 # ============================================================================
 
@@ -88,20 +88,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PUID=${DEFAULT_UID} \
     PGID=${DEFAULT_GID}
 
-# Install runtime dependencies including gosu for privilege dropping
+# Install runtime dependencies
+# Note: tini for PID 1 signal handling (Rule #13 - no gosu, pure Python privilege drop)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     tini \
-    gosu \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean \
-    && gosu nobody true  # Verify gosu works
+    && apt-get clean
 
-# Create non-root user
-RUN groupadd --gid ${PGID} thrash \
-    && useradd --uid ${PUID} --gid thrash --shell /bin/bash --create-home thrash \
+# Create non-root user (will be modified at runtime by entrypoint if PUID/PGID differ)
+RUN groupadd --gid ${DEFAULT_GID} thrash \
+    && useradd --uid ${DEFAULT_UID} --gid thrash --shell /bin/bash --create-home thrash \
     && mkdir -p /app/logs /app/reports /app/src/config/phrases \
-    && chown -R ${PUID}:${PGID} /app
+    && chown -R ${DEFAULT_UID}:${DEFAULT_GID} /app
 
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
@@ -112,9 +111,9 @@ WORKDIR /app
 # Copy application code
 COPY . /app/
 
-# Copy and set up entrypoint script (LinuxServer.io style PUID/PGID handling)
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Copy and set up entrypoint script (Rule #13: Pure Python PUID/PGID handling)
+COPY docker-entrypoint.py /app/docker-entrypoint.py
+RUN chmod +x /app/docker-entrypoint.py
 
 # Set ownership of app directory to default user
 # (entrypoint will fix this at runtime based on PUID/PGID)
@@ -131,8 +130,9 @@ EXPOSE 30888
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:30888/health || exit 1
 
-# Use tini as init system, then our entrypoint for PUID/PGID handling
-ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
+# Use tini as init system for proper signal handling
+# Then our Python entrypoint for PUID/PGID handling (Rule #13)
+ENTRYPOINT ["/usr/bin/tini", "--", "python", "/app/docker-entrypoint.py"]
 
-# Default command (passed to entrypoint.sh)
+# Default command (passed to docker-entrypoint.py)
 CMD ["python3.11", "main.py"]
