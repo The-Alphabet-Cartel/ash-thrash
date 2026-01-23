@@ -1,0 +1,507 @@
+{
+	"_metadata": {
+		"title": "No Priority Crisis Test Phrases",
+		"file_version": "v5.0-4-4.5-2",
+		"last_modified": "2026-01-22",
+		"clean_architecture": "v5.2.1",
+		"description": "These phrases represent positive, neutral, or non-crisis content that should NOT trigger crisis detection. Critical for preventing false positive alerts.",
+		"target": "95% catch rate",
+		"note": "All phrases should be detected as 'none' or 'safe' priority (no crisis)."
+	},
+
+	"category_info": {
+		"name": "definite_none",
+		"description": "No Priority Crisis (Prevent False Positives)",
+		"total_phrases": 100,
+		"target_pass_rate": "${THRASH_NONE_TARGET}",
+		"critical": "${THRASH_NONE_CRITICAL}",
+		"allow_escalation": "${THRASH_NONE_ESCALATION}",
+		"allow_de-escalation": "${THRASH_NONE_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 95,
+			"critical": false,
+			"allow_escalation": false,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "definite_none",
+		"expected_priority": "${THRASH_NONE_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["none", "safe"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"daily_positive": [
+				{
+					"message": "I just had the best coffee ever",
+					"description": "Positive daily experience"
+				},
+				{
+					"message": "Today was a really good day",
+					"description": "Good day acknowledgment"
+				},
+				{
+					"message": "I'm having such a great morning",
+					"description": "Morning positivity"
+				},
+				{
+					"message": "This lunch is absolutely delicious",
+					"description": "Food enjoyment"
+				}
+			],
+			"social_positive": [
+				{
+					"message": "I love spending time with my friends",
+					"description": "Positive social interaction"
+				},
+				{
+					"message": "Had an amazing time with family today",
+					"description": "Family enjoyment"
+				},
+				{
+					"message": "My friends are the best",
+					"description": "Friend appreciation"
+				},
+				{
+					"message": "I really enjoyed hanging out with everyone",
+					"description": "Social enjoyment"
+				}
+			],
+			"achievement_positive": [
+				{
+					"message": "I'm really proud of my accomplishments",
+					"description": "Positive self-regard for achievements"
+				},
+				{
+					"message": "I finally finished that project I've been working on",
+					"description": "Project completion"
+				},
+				{
+					"message": "I got the promotion I've been working toward",
+					"description": "Career achievement"
+				},
+				{
+					"message": "I passed my exam!",
+					"description": "Academic achievement"
+				}
+			],
+			"hobby_positive": [
+				{
+					"message": "I enjoy playing video games",
+					"description": "Positive hobby engagement"
+				},
+				{
+					"message": "I spent the weekend working on my garden",
+					"description": "Hobby activity"
+				},
+				{
+					"message": "I love reading in my free time",
+					"description": "Reading enjoyment"
+				},
+				{
+					"message": "I picked up a new hobby and I'm really enjoying it",
+					"description": "New hobby enthusiasm"
+				}
+			],
+			"gratitude_expression": [
+				{
+					"message": "I'm grateful for my family",
+					"description": "Gratitude expression for family"
+				},
+				{
+					"message": "I'm thankful for all the good things in my life",
+					"description": "General gratitude"
+				},
+				{
+					"message": "I appreciate all the support I've received",
+					"description": "Support appreciation"
+				},
+				{
+					"message": "I feel blessed to have such good friends",
+					"description": "Friendship gratitude"
+				}
+			],
+			"future_excitement": [
+				{
+					"message": "I'm excited about my vacation next week",
+					"description": "Positive anticipation of future event"
+				},
+				{
+					"message": "I can't wait for the concert next month",
+					"description": "Event anticipation"
+				},
+				{
+					"message": "I'm really looking forward to the weekend",
+					"description": "Weekend anticipation"
+				},
+				{
+					"message": "I have so many exciting plans coming up",
+					"description": "Future plans excitement"
+				}
+			],
+			"entertainment_positive": [
+				{
+					"message": "That movie was absolutely amazing",
+					"description": "Positive entertainment experience"
+				},
+				{
+					"message": "I just watched the best show ever",
+					"description": "TV show enjoyment"
+				},
+				{
+					"message": "This book is so good I can't put it down",
+					"description": "Book engagement"
+				},
+				{
+					"message": "The concert last night was incredible",
+					"description": "Concert enjoyment"
+				}
+			],
+			"exercise_positive": [
+				{
+					"message": "I had a great workout today",
+					"description": "Positive exercise experience"
+				},
+				{
+					"message": "Running in the morning really energizes me",
+					"description": "Exercise energy"
+				},
+				{
+					"message": "I feel so good after exercising",
+					"description": "Post-exercise positivity"
+				},
+				{
+					"message": "I love how I feel after yoga",
+					"description": "Yoga benefits"
+				}
+			],
+			"nature_positive": [
+				{
+					"message": "I enjoy spending time in nature",
+					"description": "Positive nature experience"
+				},
+				{
+					"message": "The sunset today was beautiful",
+					"description": "Nature appreciation"
+				},
+				{
+					"message": "I love hiking in the mountains",
+					"description": "Outdoor activity enjoyment"
+				},
+				{
+					"message": "Being outside always makes me feel better",
+					"description": "Nature benefit"
+				}
+			],
+			"pet_love": [
+				{
+					"message": "I love my pet so much",
+					"description": "Positive pet relationship"
+				},
+				{
+					"message": "My dog always makes me smile",
+					"description": "Pet joy"
+				},
+				{
+					"message": "Coming home to my cat is the best part of my day",
+					"description": "Pet companionship"
+				},
+				{
+					"message": "My pets bring me so much joy",
+					"description": "Pet happiness"
+				}
+			],
+			"learning_positive": [
+				{
+					"message": "I love learning new things",
+					"description": "Positive attitude toward learning"
+				},
+				{
+					"message": "I started learning a new language and it's fun",
+					"description": "Language learning enjoyment"
+				},
+				{
+					"message": "I enjoy taking online courses",
+					"description": "Educational engagement"
+				},
+				{
+					"message": "Learning something new is so satisfying",
+					"description": "Learning satisfaction"
+				}
+			],
+			"creativity_positive": [
+				{
+					"message": "I enjoy creative activities",
+					"description": "Positive creative engagement"
+				},
+				{
+					"message": "I spent the day painting and it was wonderful",
+					"description": "Art creation"
+				},
+				{
+					"message": "I love expressing myself through music",
+					"description": "Musical expression"
+				},
+				{
+					"message": "Writing brings me so much joy",
+					"description": "Writing enjoyment"
+				}
+			],
+			"food_positive": [
+				{
+					"message": "I enjoy cooking delicious meals",
+					"description": "Positive cooking experience"
+				},
+				{
+					"message": "I tried a new restaurant and the food was amazing",
+					"description": "Restaurant enjoyment"
+				},
+				{
+					"message": "Baking is so therapeutic for me",
+					"description": "Baking enjoyment"
+				},
+				{
+					"message": "I made the best dinner tonight",
+					"description": "Cooking success"
+				}
+			],
+			"travel_positive": [
+				{
+					"message": "I enjoy traveling to new places",
+					"description": "Positive travel experience"
+				},
+				{
+					"message": "I just got back from an amazing trip",
+					"description": "Trip enjoyment"
+				},
+				{
+					"message": "I love exploring new cities",
+					"description": "Exploration enjoyment"
+				},
+				{
+					"message": "Traveling always broadens my perspective",
+					"description": "Travel benefit"
+				}
+			],
+			"weather_neutral": [
+				{
+					"message": "The weather is beautiful today",
+					"description": "Neutral weather observation"
+				},
+				{
+					"message": "It's a lovely sunny day",
+					"description": "Weather appreciation"
+				},
+				{
+					"message": "I love this time of year",
+					"description": "Seasonal appreciation"
+				},
+				{
+					"message": "Perfect weather for a walk",
+					"description": "Weather-activity match"
+				}
+			],
+			"music_positive": [
+				{
+					"message": "I love listening to music",
+					"description": "Positive activity enjoyment"
+				},
+				{
+					"message": "I discovered a new band I really like",
+					"description": "Music discovery"
+				},
+				{
+					"message": "This song is so good",
+					"description": "Song appreciation"
+				},
+				{
+					"message": "Music always puts me in a good mood",
+					"description": "Music mood benefit"
+				}
+			],
+			"self_care_positive": [
+				{
+					"message": "I had a relaxing spa day",
+					"description": "Self-care enjoyment"
+				},
+				{
+					"message": "Taking time for myself feels so good",
+					"description": "Self-care benefit"
+				},
+				{
+					"message": "I'm getting better at taking care of myself",
+					"description": "Self-care growth"
+				},
+				{
+					"message": "I prioritized rest this weekend",
+					"description": "Rest prioritization"
+				}
+			],
+			"community_positive": [
+				{
+					"message": "I enjoy community events",
+					"description": "Positive community participation"
+				},
+				{
+					"message": "Volunteering makes me feel good",
+					"description": "Volunteer satisfaction"
+				},
+				{
+					"message": "I love being part of this community",
+					"description": "Community belonging"
+				},
+				{
+					"message": "The neighborhood block party was fun",
+					"description": "Community event enjoyment"
+				}
+			],
+			"progress_positive": [
+				{
+					"message": "I'm happy with my progress",
+					"description": "Satisfaction with personal progress"
+				},
+				{
+					"message": "I'm proud of how far I've come",
+					"description": "Progress pride"
+				},
+				{
+					"message": "I'm getting better at this every day",
+					"description": "Skill improvement"
+				},
+				{
+					"message": "I can see my growth and it feels good",
+					"description": "Growth recognition"
+				}
+			],
+			"relationship_positive": [
+				{
+					"message": "My relationship is going really well",
+					"description": "Positive relationship status"
+				},
+				{
+					"message": "I feel so connected to my partner",
+					"description": "Partner connection"
+				},
+				{
+					"message": "My family has been so supportive",
+					"description": "Family support"
+				},
+				{
+					"message": "I have such wonderful people in my life",
+					"description": "People appreciation"
+				}
+			],
+			"work_positive": [
+				{
+					"message": "I love my job",
+					"description": "Job satisfaction"
+				},
+				{
+					"message": "Work has been going really well lately",
+					"description": "Work positivity"
+				},
+				{
+					"message": "I'm excited about the project I'm working on",
+					"description": "Project enthusiasm"
+				},
+				{
+					"message": "My team is great to work with",
+					"description": "Team appreciation"
+				}
+			],
+			"health_positive": [
+				{
+					"message": "I'm grateful for good health",
+					"description": "Gratitude for health"
+				},
+				{
+					"message": "I've been feeling really healthy lately",
+					"description": "Health positivity"
+				},
+				{
+					"message": "My health has improved so much",
+					"description": "Health improvement"
+				},
+				{
+					"message": "I'm taking good care of my body",
+					"description": "Body care"
+				}
+			],
+			"optimism_expression": [
+				{
+					"message": "I'm excited about future possibilities",
+					"description": "Optimistic future outlook"
+				},
+				{
+					"message": "I believe things will work out",
+					"description": "Positive belief"
+				},
+				{
+					"message": "I'm hopeful about what's coming",
+					"description": "Hope expression"
+				},
+				{
+					"message": "Tomorrow is a new day full of possibilities",
+					"description": "Tomorrow optimism"
+				}
+			],
+			"peace_appreciation": [
+				{
+					"message": "I enjoy peaceful moments",
+					"description": "Appreciation for peaceful times"
+				},
+				{
+					"message": "I feel calm and content",
+					"description": "Contentment expression"
+				},
+				{
+					"message": "Life feels balanced right now",
+					"description": "Life balance"
+				},
+				{
+					"message": "I'm at peace with where I am",
+					"description": "Peace expression"
+				}
+			],
+			"simple_joy": [
+				{
+					"message": "The little things make me happy",
+					"description": "Simple pleasure appreciation"
+				},
+				{
+					"message": "I found joy in something small today",
+					"description": "Small joy discovery"
+				},
+				{
+					"message": "Simple pleasures are the best",
+					"description": "Simple pleasure value"
+				},
+				{
+					"message": "I smiled today and it felt good",
+					"description": "Simple happiness"
+				}
+			]
+		}
+	}
+}

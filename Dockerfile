@@ -1,121 +1,138 @@
-# Ash-Thrash Testing Suite Dockerfile
+# ============================================================================
+# Ash-Thrash v5.0 Production Dockerfile
+# ============================================================================
+# FILE VERSION: v5.0-4-2.0-1
+# LAST MODIFIED: 2026-01-22
 # Repository: https://github.com/the-alphabet-cartel/ash-thrash
-# Discord: https://discord.gg/alphabetcartel
-# Website: http://alphabetcartel.org
+# Community: The Alphabet Cartel - https://discord.gg/alphabetcartel
+# ============================================================================
+#
+# USAGE:
+#   # Build the image
+#   docker build -t ghcr.io/the-alphabet-cartel/ash-thrash:latest .
+#
+#   # Run with docker-compose (recommended)
+#   docker-compose up -d
+#
+# MULTI-STAGE BUILD:
+#   Stage 1 (builder): Install dependencies
+#   Stage 2 (runtime): Minimal production image
+#
+# CLEAN ARCHITECTURE COMPLIANCE:
+#   - Uses python3.11 -m pip (Rule #10)
+#   - Pure Python entrypoint for PUID/PGID (Rule #13)
+#   - tini for PID 1 signal handling
+#
+# ============================================================================
 
-FROM python:3.11-slim
+# =============================================================================
+# Stage 1: Builder
+# =============================================================================
+FROM python:3.11-slim-bookworm AS builder
 
-LABEL maintainer="The Alphabet Cartel"
-LABEL description="Ash-Thrash Testing Suite"
-LABEL repository="https://github.com/The-Alphabet-Cartel/ash-thrash"
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Set working directory
-WORKDIR /app
-
-# Copy requirements first for better caching
-COPY requirements.txt .
-
-# Create non-root user with /app as home directory (no separate home dir)
-RUN groupadd -g 1001 thrash && \
-    useradd -g 1001 -u 1001 -d /app -M thrash
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Create virtual environment
+RUN python3.11 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy application code
-COPY --chown=thrash:thrash . .
+# Upgrade pip (Rule #10: version-specific command)
+RUN python3.11 -m pip install --upgrade pip setuptools wheel
 
-# Create directories for results and logs
-RUN mkdir -p ./results ./logs ./reports && \
-    chown -R thrash:thrash /app  && \
-    chmod 755 /app
+# Copy requirements and install dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN python3.11 -m pip install -r /tmp/requirements.txt
 
-# Create non-root user for security
-USER thrash
+
+# =============================================================================
+# Stage 2: Runtime
+# =============================================================================
+FROM python:3.11-slim-bookworm AS runtime
+
+# Default user/group IDs (can be overridden at runtime via PUID/PGID)
+ARG DEFAULT_UID=1000
+ARG DEFAULT_GID=1000
+
+# Labels
+LABEL org.opencontainers.image.title="Ash-Thrash" \
+      org.opencontainers.image.description="Crisis Detection Testing Suite for The Alphabet Cartel" \
+      org.opencontainers.image.version="5.0.0" \
+      org.opencontainers.image.vendor="The Alphabet Cartel" \
+      org.opencontainers.image.url="https://github.com/the-alphabet-cartel/ash-thrash" \
+      org.opencontainers.image.source="https://github.com/the-alphabet-cartel/ash-thrash" \
+      org.opencontainers.image.licenses="MIT"
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PATH="/opt/venv/bin:$PATH" \
+    # Force ANSI colors in Docker logs (Charter v5.2.1 colorized logging)
+    FORCE_COLOR=1 \
+    # Default environment
+    THRASH_ENVIRONMENT=production \
+    # Application settings
+    THRASH_LOG_LEVEL=INFO \
+    TZ=America/Los_Angeles \
+    # Default PUID/PGID (LinuxServer.io style)
+    PUID=${DEFAULT_UID} \
+    PGID=${DEFAULT_GID}
+
+# Install runtime dependencies
+# Note: tini for PID 1 signal handling (Rule #13 - no gosu, pure Python privilege drop)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    tini \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user (will be modified at runtime by entrypoint if PUID/PGID differ)
+RUN groupadd --gid ${DEFAULT_GID} thrash \
+    && useradd --uid ${DEFAULT_UID} --gid thrash --shell /bin/bash --create-home thrash \
+    && mkdir -p /app/logs /app/reports /app/src/config/phrases \
+    && chown -R ${DEFAULT_UID}:${DEFAULT_GID} /app
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
 
 # Set working directory
 WORKDIR /app
 
-# Environmental Variables
-ENV PYTHONUNBUFFERED="1"
-ENV PYTHONDONTWRITEBYTECODE="1"
-ENV PYTHONPATH="/app"
+# Copy application code
+COPY . /app/
 
-ENV TZ="America/Los_Angeles"
+# Copy and set up entrypoint script (Rule #13: Pure Python PUID/PGID handling)
+COPY docker-entrypoint.py /app/docker-entrypoint.py
+RUN chmod +x /app/docker-entrypoint.py
 
-# API Settings
-ENV THRASH_API_HOST="0.0.0.0"
+# Set ownership of app directory to default user
+# (entrypoint will fix this at runtime based on PUID/PGID)
+RUN chown -R thrash:thrash /app
 
-# Security & Authentication  
-ENV THRASH_API_RATE_LIMIT="100"
-ENV THRASH_ENABLE_API_AUTHENTICATION="false"
+# NOTE: We do NOT switch to USER thrash here!
+# The entrypoint script handles user switching at runtime after fixing permissions.
+# This allows PUID/PGID to work correctly with mounted volumes.
 
-# Test Execution Settings
-ENV THRASH_MAX_CONCURRENT_TESTS="3"
-
-# Quick Test Settings
-ENV THRASH_QUICK_TEST_SAMPLE_SIZE="50"
-
-# Test Results Storage
-ENV THRASH_RESULTS_RETENTION_DAYS="30"
-ENV THRASH_AUTO_CLEANUP_RESULTS="true"
-
-# Discord Webhook for Test Results (optional)
-ENV THRASH_DISCORD_WEBHOOK_URL=""
-ENV THRASH_DISCORD_WEBHOOK_USERNAME="Ash-Thrash"
-ENV THRASH_DISCORD_NOTIFICATIONS_ENABLED="true"
-
-# Notification Settings
-ENV THRASH_NOTIFY_ON_COMPREHENSIVE_TESTS="true"
-ENV THRASH_NOTIFY_ON_QUICK_TESTS="false"
-ENV THRASH_NOTIFY_ON_CATEGORY_TESTS="false"
-ENV THRASH_NOTIFY_ON_FAILURES_ONLY="false"
-
-# Logging Configuration
-ENV THRASH_LOG_FILE="ash-thrash.log"
-ENV THRASH_ENABLE_DEBUG_LOGGING="false"
-
-# Performance Settings
-ENV THRASH_REQUEST_TIMEOUT="30"
-ENV THRASH_CONNECTION_POOL_SIZE="10"
-
-# When to generate tuning suggestions
-ENV THRASH_GENERATE_SUGGESTIONS="true"
-ENV THRASH_SUGGESTION_THRESHOLD="10.0"
-ENV THRASH_CRITICAL_THRESHOLD="20.0"
-
-# Test Execution
-ENV THRASH_RETRY_FAILED_TESTS="true"
-ENV THRASH_MAX_RETRIES="3"
-ENV THRASH_RETRY_DELAY_SECONDS="5"
-
-# API Response Caching
-ENV THRASH_ENABLE_RESULT_CACHING="true"
-ENV THRASH_CACHE_TTL_SECONDS="300"
-
-# Health Check Settings
-ENV THRASH_HEALTH_CHECK_INTERVAL="30"
-ENV THRASH_NLP_HEALTH_CHECK_TIMEOUT="5"
-
-# Development Mode
-ENV THRASH_DEVELOPMENT_MODE="false"
-ENV THRASH_ENABLE_API_DOCS="true"
-
-# Test Data Validation
-ENV THRASH_VALIDATE_DATA_ON_STARTUP="true"
-ENV THRASH_STRICT_VALIDATION="true"
+# Expose health check port
+EXPOSE 30888
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8884/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:30888/health || exit 1
 
-# Expose API port
-EXPOSE 8884
+# Use tini as init system for proper signal handling
+# Then our Python entrypoint for PUID/PGID handling (Rule #13)
+ENTRYPOINT ["/usr/bin/tini", "--", "python", "/app/docker-entrypoint.py"]
 
-# Default command - runs the API server
-CMD ["python", "src/ash_thrash_api.py"]
+# Default command (passed to docker-entrypoint.py)
+CMD ["python3.11", "main.py"]

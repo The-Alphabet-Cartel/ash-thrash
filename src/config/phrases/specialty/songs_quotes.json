@@ -1,0 +1,127 @@
+{
+	"_metadata": {
+		"title": "Songs & Quotes Test Phrases",
+		"file_version": "v5.0-4-4.9-2",
+		"last_modified": "2026-01-22",
+		"clean_architecture": "v5.2.1",
+		"description": "Quoted content from songs, movies, or literature that sounds concerning out of context. Tests the system's ability to recognize quoted material.",
+		"target": "85% catch rate",
+		"note": "Most phrases should be detected as 'none' or 'low' priority. These are recognizable quotes/references, not genuine distress."
+	},
+
+	"category_info": {
+		"name": "specialty_quotes",
+		"description": "Songs & Quotes Test Cases",
+		"total_phrases": 15,
+		"target_pass_rate": "${THRASH_QUOTES_TARGET}",
+		"critical": "${THRASH_QUOTES_CRITICAL}",
+		"allow_escalation": "${THRASH_QUOTES_ESCALATION}",
+		"allow_de-escalation": "${THRASH_QUOTES_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 85,
+			"critical": false,
+			"allow_escalation": false,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "specialty_quotes",
+		"expected_priority": "${THRASH_QUOTES_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["safe", "none", "low"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"classic_songs": [
+				{
+					"message": "Hello darkness my old friend, I've come to talk with you again",
+					"description": "Simon & Garfunkel - Sound of Silence reference"
+				},
+				{
+					"message": "I'm only happy when it rains",
+					"description": "Garbage song reference"
+				},
+				{
+					"message": "All around me are familiar faces, worn out places",
+					"description": "Mad World reference"
+				}
+			],
+			"modern_songs": [
+				{
+					"message": "Wake me up when September ends",
+					"description": "Green Day song reference"
+				},
+				{
+					"message": "I've become so numb, I can't feel you there",
+					"description": "Linkin Park - Numb reference"
+				},
+				{
+					"message": "In the end it doesn't even matter",
+					"description": "Linkin Park - In The End reference"
+				}
+			],
+			"movie_quotes": [
+				{
+					"message": "After all, tomorrow is another day",
+					"description": "Gone With The Wind reference"
+				},
+				{
+					"message": "I see dead people",
+					"description": "The Sixth Sense movie quote"
+				},
+				{
+					"message": "Life is like a box of chocolates",
+					"description": "Forrest Gump reference"
+				}
+			],
+			"literature_quotes": [
+				{
+					"message": "It was the best of times, it was the worst of times",
+					"description": "Tale of Two Cities reference"
+				},
+				{
+					"message": "To be or not to be, that is the question",
+					"description": "Hamlet reference"
+				},
+				{
+					"message": "All hope abandon, ye who enter here",
+					"description": "Dante's Inferno reference"
+				}
+			],
+			"meme_quotes": [
+				{
+					"message": "This is fine (everything's on fire)",
+					"description": "This Is Fine meme reference"
+				},
+				{
+					"message": "I'm in this picture and I don't like it",
+					"description": "Common meme caption"
+				},
+				{
+					"message": "Existence is pain",
+					"description": "Mr. Meeseeks/Rick and Morty reference"
+				}
+			]
+		}
+	}
+}

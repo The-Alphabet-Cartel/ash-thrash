@@ -1,0 +1,27 @@
+{
+	"_metadata": {
+		"file_version": "v5.0-1-1.6-1",
+		"last_modified": "2026-01-20",
+		"clean_architecture": "Compliant",
+		"description": "Ash-Thrash v5.0 Production Environment Configuration",
+		"repository": "https://github.com/the-alphabet-cartel/ash-thrash",
+		"community": "The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org",
+		"note": "These values override default.json for production"
+	},
+
+	"logging": {
+		"level": "INFO",
+		"format": "human"
+	},
+
+	"test_execution": {
+		"delay_between_requests_ms": 100,
+		"include_explanations": true,
+		"explanation_verbosity": "standard"
+	},
+
+	"reporting": {
+		"output_formats": ["json", "html"],
+		"discord_webhook_enabled": true
+	}
+}

@@ -1,0 +1,207 @@
+{
+	"_metadata": {
+		"title": "Maybe Low/None Priority Crisis Test Phrases",
+		"file_version": "v5.0-4-4.1-2",
+		"last_modified": "2026-01-22",
+		"clean_architecture": "v5.2.1",
+		"description": "These phrases represent borderline cases between none and low priority.",
+		"target": "90% catch rate",
+		"note": "Should be detected as 'none' or 'low' priority. These test the boundary of crisis detection sensitivity. A detection of 'medium' or 'high' is considered a failure."
+	},
+
+	"category_info": {
+		"name": "maybe_low_none",
+		"description": "Maybe Low/None",
+		"total_phrases": 25,
+		"target_pass_rate": "${THRASH_LOW_NONE_TARGET}",
+		"critical": "${THRASH_LOW_NONE_CRITICAL}",
+		"allow_escalation": "${THRASH_LOW_NONE_ESCALATION}",
+		"allow_de-escalation": "${THRASH_LOW_NONE_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 90,
+			"critical": false,
+			"allow_escalation": false,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "maybe_low_none",
+		"expected_priority": "${THRASH_LOW_NONE_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["safe", "none", "low"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"fatigue_mild": [
+				{
+					"message": "I'm feeling somewhat tired",
+					"description": "Mild tiredness or fatigue"
+				}
+			],
+			"incomplete_happiness": [
+				{
+					"message": "I'm not feeling entirely happy",
+					"description": "Not completely happy but not distressed"
+				}
+			],
+			"mild_burden": [
+				{
+					"message": "Things feel slightly burdensome",
+					"description": "Slight sense of burden"
+				}
+			],
+			"mild_discouragement": [
+				{
+					"message": "Things feel a little discouraging",
+					"description": "Slight discouragement"
+				}
+			],
+			"mild_dissatisfaction": [
+				{
+					"message": "Things could be going better",
+					"description": "Gentle expression of dissatisfaction"
+				}
+			],
+			"mild_emotional_fatigue": [
+				{
+					"message": "I'm feeling a bit emotionally drained",
+					"description": "Slight emotional exhaustion"
+				}
+			],
+			"mild_unease": [
+				{
+					"message": "I'm not feeling completely at ease",
+					"description": "Slight discomfort or unease"
+				}
+			],
+			"mild_uncertainty": [
+				{
+					"message": "Things feel a little uncertain",
+					"description": "Slight uncertainty about future"
+				}
+			],
+			"mild_unwellness": [
+				{
+					"message": "I'm feeling a bit under the weather",
+					"description": "Slight physical or emotional unwellness"
+				}
+			],
+			"minimal_difficulty": [
+				{
+					"message": "Things feel slightly difficult",
+					"description": "Very mild difficulty"
+				}
+			],
+			"minimal_overwhelm": [
+				{
+					"message": "Things feel mildly overwhelming",
+					"description": "Very slight overwhelm"
+				}
+			],
+			"minor_bad_day": [
+				{
+					"message": "I'm having a bit of a rough day",
+					"description": "Temporary minor difficulties"
+				}
+			],
+			"minor_challenge": [
+				{
+					"message": "Things feel a little challenging",
+					"description": "Small challenges within normal range"
+				}
+			],
+			"minor_disappointments": [
+				{
+					"message": "I've had some small disappointments",
+					"description": "Small, manageable disappointments"
+				}
+			],
+			"minor_problems": [
+				{
+					"message": "I've been having minor issues",
+					"description": "Small, manageable problems"
+				}
+			],
+			"minor_setbacks": [
+				{
+					"message": "I've had some small setbacks",
+					"description": "Small, temporary setbacks"
+				}
+			],
+			"minor_worries": [
+				{
+					"message": "I've been having little worries",
+					"description": "Small, manageable worries"
+				}
+			],
+			"normal_variation": [
+				{
+					"message": "I've had some ups and downs",
+					"description": "Normal emotional variation"
+				}
+			],
+			"reduced_motivation": [
+				{
+					"message": "I'm not feeling entirely motivated",
+					"description": "Slightly lower motivation than usual"
+				}
+			],
+			"reduced_positivity": [
+				{
+					"message": "I'm not feeling entirely positive",
+					"description": "Less positive than usual but not negative"
+				}
+			],
+			"slight_anomaly": [
+				{
+					"message": "Things feel slightly off",
+					"description": "Something feels slightly unusual"
+				}
+			],
+			"slight_off_feeling": [
+				{
+					"message": "I'm not feeling completely myself",
+					"description": "Slightly different from usual self"
+				}
+			],
+			"slight_weight": [
+				{
+					"message": "Things feel a little heavy",
+					"description": "Mild emotional weight or burden"
+				}
+			],
+			"small_frustrations": [
+				{
+					"message": "I've had some minor frustrations",
+					"description": "Small, manageable frustrations"
+				}
+			],
+			"suboptimal_day": [
+				{
+					"message": "I'm not feeling 100% today",
+					"description": "Not at peak but within normal range"
+				}
+			]
+		}
+	}
+}

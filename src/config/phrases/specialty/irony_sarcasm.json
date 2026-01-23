@@ -1,0 +1,197 @@
+{
+	"_metadata": {
+		"title": "Irony / Sarcasm Test Phrases",
+		"file_version": "v5.0-4-4.6-2",
+		"last_modified": "2026-01-22",
+		"clean_architecture": "v5.2.1",
+		"description": "Dark humor, sarcasm that might trigger false positives. Tests the system's ability to detect ironic or sarcastic usage of crisis-adjacent language.",
+		"target": "90% catch rate",
+		"note": "Most phrases should be detected as 'none' or 'low' priority with irony markers. False positives here indicate over-sensitivity."
+	},
+
+	"category_info": {
+		"name": "specialty_irony",
+		"description": "Irony/Sarcasm Test Cases",
+		"total_phrases": 25,
+		"target_pass_rate": "${THRASH_IRONY_TARGET}",
+		"critical": "${THRASH_IRONY_CRITICAL}",
+		"allow_escalation": "${THRASH_IRONY_ESCALATION}",
+		"allow_de-escalation": "${THRASH_IRONY_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 90,
+			"critical": false,
+			"allow_escalation": false,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "specialty_irony",
+		"expected_priority": "${THRASH_IRONY_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["safe", "none", "low"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"monday_sarcasm": [
+				{
+					"message": "Oh great, another Monday, I definitely want to live through this",
+					"description": "Sarcastic Monday complaint"
+				},
+				{
+					"message": "Mondays make me want to cease to exist (jk just need coffee)",
+					"description": "Hyperbolic Monday complaint with qualifier"
+				}
+			],
+			"work_sarcasm": [
+				{
+					"message": "This meeting is so boring I could die",
+					"description": "Hyperbolic boredom expression"
+				},
+				{
+					"message": "Sure, everything is TOTALLY fine at work 🙄",
+					"description": "Obvious sarcasm with emoji"
+				},
+				{
+					"message": "Oh I'm just LOVING this 12-hour shift",
+					"description": "Sarcastic work complaint"
+				}
+			],
+			"living_the_dream": [
+				{
+					"message": "Living the dream over here 🙃",
+					"description": "Bitter sarcasm about life circumstances"
+				},
+				{
+					"message": "Can't wait to wake up and do this again tomorrow /s",
+					"description": "Sarcastic with explicit marker"
+				},
+				{
+					"message": "Wow I'm having SO much fun right now",
+					"description": "Obvious sarcasm about current situation"
+				}
+			],
+			"dark_humor": [
+				{
+					"message": "My brain said nope today and honestly? Valid choice",
+					"description": "Self-deprecating humor about mental state"
+				},
+				{
+					"message": "My mental health is ✨thriving✨ (it is not thriving)",
+					"description": "Ironic mental health statement with clarification"
+				},
+				{
+					"message": "Just casually falling apart over here, no big deal",
+					"description": "Self-aware humor about struggles"
+				}
+			],
+			"traffic_hyperbole": [
+				{
+					"message": "If I have to sit in traffic one more minute I will literally perish",
+					"description": "Traffic frustration hyperbole"
+				},
+				{
+					"message": "This commute is slowly killing me (figuratively)",
+					"description": "Commute complaint with qualifier"
+				}
+			],
+			"food_death": [
+				{
+					"message": "This pizza is so good I could die happy",
+					"description": "Food satisfaction hyperbole"
+				},
+				{
+					"message": "I'm dying over how good this dessert is",
+					"description": "Food enjoyment expression"
+				},
+				{
+					"message": "Kill me now... with more of this amazing food",
+					"description": "Food hyperbole with context"
+				}
+			],
+			"weather_drama": [
+				{
+					"message": "It's so hot I'm literally melting into a puddle of despair",
+					"description": "Weather complaint hyperbole"
+				},
+				{
+					"message": "This weather makes me want to never leave my bed again",
+					"description": "Weather-induced hyperbolic statement"
+				}
+			],
+			"social_exhaustion": [
+				{
+					"message": "I survived another family gathering, barely",
+					"description": "Family event humor"
+				},
+				{
+					"message": "That party almost killed me (from second-hand embarrassment)",
+					"description": "Social event hyperbole with context"
+				}
+			],
+			"academic_stress": [
+				{
+					"message": "This homework is making me want to yeet myself into the sun",
+					"description": "Academic frustration with absurd hyperbole"
+				},
+				{
+					"message": "Finals week has me contemplating my existence (existential crisis sponsored by calculus)",
+					"description": "Academic stress humor"
+				}
+			],
+			"tech_frustration": [
+				{
+					"message": "If this code doesn't work I'm going to throw myself into the void",
+					"description": "Programming frustration hyperbole"
+				},
+				{
+					"message": "My computer crashed again and I am DECEASED",
+					"description": "Tech frustration with internet slang"
+				}
+			],
+			"millennial_humor": [
+				{
+					"message": "I'm not having a breakdown, it's just millennial vibes",
+					"description": "Generational humor about struggles"
+				},
+				{
+					"message": "Another day of existing? In this economy?",
+					"description": "Economic existential humor"
+				},
+				{
+					"message": "Therapy is expensive so I just look at memes about wanting to disappear",
+					"description": "Self-aware mental health humor"
+				}
+			],
+			"exercise_drama": [
+				{
+					"message": "This workout is killing me but like, in a good way",
+					"description": "Exercise hyperbole with qualifier"
+				},
+				{
+					"message": "Leg day has me wishing for sweet release",
+					"description": "Gym humor"
+				}
+			]
+		}
+	}
+}

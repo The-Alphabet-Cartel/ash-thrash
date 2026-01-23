@@ -1,0 +1,507 @@
+{
+	"_metadata": {
+		"title": "Low Priority Crisis Test Phrases",
+		"file_version": "v5.0-4-4.4-1",
+		"last_modified": "2026-01-21",
+		"clean_architecture": "v5.2.1",
+		"description": "These phrases represent mild distress or emotional difficulty that benefits from gentle support but doesn't indicate crisis.",
+		"target": "85% catch rate",
+		"note": "All phrases should be detected as 'low' priority."
+	},
+
+	"category_info": {
+		"name": "definite_low",
+		"description": "Low Priority Crisis",
+		"total_phrases": 100,
+		"target_pass_rate": "${THRASH_LOW_TARGET}",
+		"critical": "${THRASH_LOW_CRITICAL}",
+		"allow_escalation": "${THRASH_LOW_ESCALATION}",
+		"allow_de-escalation": "${THRASH_LOW_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 85,
+			"critical": false,
+			"allow_escalation": true,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "definite_low",
+		"expected_priority": "${THRASH_LOW_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["low"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"mild_anxiety": [
+				{
+					"message": "I've been having some anxiety lately",
+					"description": "Recent onset of mild anxiety"
+				},
+				{
+					"message": "I'm feeling a little anxious about things",
+					"description": "Light anxiety"
+				},
+				{
+					"message": "I get nervous sometimes about social situations",
+					"description": "Occasional social nervousness"
+				},
+				{
+					"message": "I've been worrying more than usual",
+					"description": "Increased worry"
+				}
+			],
+			"mild_depression": [
+				{
+					"message": "I'm dealing with mild depression",
+					"description": "Acknowledged mild depressive symptoms"
+				},
+				{
+					"message": "I've been feeling a bit blue lately",
+					"description": "Low mood"
+				},
+				{
+					"message": "My mood has been low recently",
+					"description": "Recent low mood"
+				},
+				{
+					"message": "I'm going through a depressive phase",
+					"description": "Depressive episode acknowledgment"
+				}
+			],
+			"mild_sadness": [
+				{
+					"message": "I'm feeling pretty down today",
+					"description": "Temporary low mood"
+				},
+				{
+					"message": "I've been feeling sad lately",
+					"description": "Recent sadness"
+				},
+				{
+					"message": "I feel sad and don't know why",
+					"description": "Sadness without clear cause"
+				},
+				{
+					"message": "I've had some tearful days recently",
+					"description": "Occasional crying"
+				}
+			],
+			"social_anxiety": [
+				{
+					"message": "I feel anxious about social situations",
+					"description": "Social anxiety concerns"
+				},
+				{
+					"message": "I'm having trouble with social anxiety",
+					"description": "Anxiety in social interactions"
+				},
+				{
+					"message": "Social events make me really nervous",
+					"description": "Event-related anxiety"
+				},
+				{
+					"message": "I get anxious when I have to talk to people",
+					"description": "Conversation anxiety"
+				}
+			],
+			"imposter_syndrome": [
+				{
+					"message": "I'm struggling with imposter syndrome",
+					"description": "Feeling like a fraud or impostor"
+				},
+				{
+					"message": "I feel like a fraud at work",
+					"description": "Work-related imposter feelings"
+				},
+				{
+					"message": "I don't feel like I deserve my success",
+					"description": "Success guilt"
+				},
+				{
+					"message": "I'm waiting for everyone to realize I'm not good enough",
+					"description": "Exposure anxiety"
+				}
+			],
+			"low_self_esteem": [
+				{
+					"message": "I'm struggling with low self-esteem",
+					"description": "Poor self-regard and self-worth"
+				},
+				{
+					"message": "I don't think very highly of myself",
+					"description": "Low self-regard"
+				},
+				{
+					"message": "I have trouble believing in myself",
+					"description": "Self-belief issues"
+				},
+				{
+					"message": "My self-esteem has been really low",
+					"description": "Low self-esteem acknowledgment"
+				}
+			],
+			"relationship_stress": [
+				{
+					"message": "I'm stressed about my relationships",
+					"description": "Relationship-related stress"
+				},
+				{
+					"message": "Things have been rough with my partner",
+					"description": "Partner relationship stress"
+				},
+				{
+					"message": "I'm having issues with my family",
+					"description": "Family relationship stress"
+				},
+				{
+					"message": "My friendships feel strained lately",
+					"description": "Friendship stress"
+				}
+			],
+			"work_stress": [
+				{
+					"message": "I feel a bit overwhelmed with work",
+					"description": "Work-related overwhelm"
+				},
+				{
+					"message": "Work has been really stressful lately",
+					"description": "Work stress"
+				},
+				{
+					"message": "I'm having trouble keeping up at work",
+					"description": "Work performance stress"
+				},
+				{
+					"message": "The pressure at work is getting to me",
+					"description": "Work pressure"
+				}
+			],
+			"sleep_issues": [
+				{
+					"message": "I'm having trouble sleeping",
+					"description": "Sleep difficulties"
+				},
+				{
+					"message": "I haven't been sleeping well lately",
+					"description": "Recent sleep problems"
+				},
+				{
+					"message": "I keep waking up in the middle of the night",
+					"description": "Sleep disruption"
+				},
+				{
+					"message": "I can't seem to get enough rest",
+					"description": "Rest deficiency"
+				}
+			],
+			"identity_questions": [
+				{
+					"message": "I'm struggling with my identity",
+					"description": "Identity exploration and questioning"
+				},
+				{
+					"message": "I'm trying to figure out who I am",
+					"description": "Self-discovery"
+				},
+				{
+					"message": "I feel uncertain about my identity",
+					"description": "Identity uncertainty"
+				},
+				{
+					"message": "I'm questioning a lot about myself",
+					"description": "Self-questioning"
+				}
+			],
+			"comparison_concerns": [
+				{
+					"message": "I feel like I'm falling behind",
+					"description": "Feeling behind peers or expectations"
+				},
+				{
+					"message": "I'm struggling with comparison to others",
+					"description": "Negative social comparison patterns"
+				},
+				{
+					"message": "Everyone seems to be doing better than me",
+					"description": "Unfavorable comparison"
+				},
+				{
+					"message": "I keep comparing myself to others on social media",
+					"description": "Social media comparison"
+				}
+			],
+			"fatigue": [
+				{
+					"message": "I feel tired all the time",
+					"description": "Persistent tiredness or fatigue"
+				},
+				{
+					"message": "I have no energy lately",
+					"description": "Low energy"
+				},
+				{
+					"message": "I'm exhausted even after sleeping",
+					"description": "Unrestorative sleep"
+				},
+				{
+					"message": "Everything feels like so much effort",
+					"description": "Effort fatigue"
+				}
+			],
+			"motivation_issues": [
+				{
+					"message": "I'm having trouble with motivation",
+					"description": "Lack of motivation and drive"
+				},
+				{
+					"message": "I can't seem to get motivated",
+					"description": "Motivation deficit"
+				},
+				{
+					"message": "I've lost interest in things I used to enjoy",
+					"description": "Anhedonia-light"
+				},
+				{
+					"message": "I don't feel like doing anything",
+					"description": "Activity avoidance"
+				}
+			],
+			"future_anxiety": [
+				{
+					"message": "I'm worried about my future",
+					"description": "Concerns about future prospects"
+				},
+				{
+					"message": "I don't know what I'm doing with my life",
+					"description": "Life direction uncertainty"
+				},
+				{
+					"message": "The future feels really uncertain",
+					"description": "Future uncertainty"
+				},
+				{
+					"message": "I'm anxious about what comes next",
+					"description": "Next-step anxiety"
+				}
+			],
+			"inadequacy_feelings": [
+				{
+					"message": "I feel like I'm not good enough",
+					"description": "Feelings of inadequacy"
+				},
+				{
+					"message": "I feel like I'm not smart enough",
+					"description": "Doubts about intelligence or capability"
+				},
+				{
+					"message": "I feel like I'm not talented enough",
+					"description": "Doubts about personal abilities or talents"
+				},
+				{
+					"message": "I don't feel like I measure up",
+					"description": "Not measuring up"
+				}
+			],
+			"belonging_issues": [
+				{
+					"message": "I feel like I don't belong",
+					"description": "Feeling out of place or not belonging"
+				},
+				{
+					"message": "I never seem to fit in anywhere",
+					"description": "Fitting in struggles"
+				},
+				{
+					"message": "I feel like an outsider everywhere I go",
+					"description": "Outsider feeling"
+				},
+				{
+					"message": "I don't feel like I have a place",
+					"description": "Placelessness"
+				}
+			],
+			"occasional_loneliness": [
+				{
+					"message": "I feel lonely sometimes",
+					"description": "Periodic loneliness"
+				},
+				{
+					"message": "I wish I had more close friends",
+					"description": "Friendship desire"
+				},
+				{
+					"message": "I feel disconnected from my friends",
+					"description": "Feeling distant from friends"
+				},
+				{
+					"message": "I don't have enough people to talk to",
+					"description": "Social network concerns"
+				}
+			],
+			"perfectionism": [
+				{
+					"message": "I'm struggling with perfectionism",
+					"description": "Perfectionist tendencies causing stress"
+				},
+				{
+					"message": "I'm too hard on myself",
+					"description": "Self-criticism"
+				},
+				{
+					"message": "I can never seem to meet my own standards",
+					"description": "Self-standard failure"
+				},
+				{
+					"message": "I beat myself up over every mistake",
+					"description": "Mistake rumination"
+				}
+			],
+			"self_doubt": [
+				{
+					"message": "I'm having self-doubt issues",
+					"description": "Self-doubt and uncertainty"
+				},
+				{
+					"message": "I keep second-guessing myself",
+					"description": "Second-guessing"
+				},
+				{
+					"message": "I don't trust my own judgment",
+					"description": "Judgment distrust"
+				},
+				{
+					"message": "I'm constantly questioning my decisions",
+					"description": "Decision doubt"
+				}
+			],
+			"body_image_issues": [
+				{
+					"message": "I'm having trouble with body image",
+					"description": "Concerns about physical appearance"
+				},
+				{
+					"message": "I'm worried about my appearance",
+					"description": "Anxiety about physical appearance"
+				},
+				{
+					"message": "I don't like what I see in the mirror",
+					"description": "Mirror dissatisfaction"
+				},
+				{
+					"message": "I'm uncomfortable in my own body",
+					"description": "Body discomfort"
+				}
+			],
+			"procrastination": [
+				{
+					"message": "I'm having trouble with procrastination",
+					"description": "Difficulties with task completion and motivation"
+				},
+				{
+					"message": "I keep putting things off",
+					"description": "Avoidance behavior"
+				},
+				{
+					"message": "I can't seem to get started on anything",
+					"description": "Task initiation problems"
+				},
+				{
+					"message": "I'm always behind on everything",
+					"description": "Chronic delay"
+				}
+			],
+			"concentration_issues": [
+				{
+					"message": "I'm having trouble focusing",
+					"description": "Difficulty with focus and concentration"
+				},
+				{
+					"message": "I can't concentrate on anything",
+					"description": "Concentration problems"
+				},
+				{
+					"message": "My mind keeps wandering",
+					"description": "Mind wandering"
+				},
+				{
+					"message": "I'm easily distracted lately",
+					"description": "Distractibility"
+				}
+			],
+			"decision_difficulty": [
+				{
+					"message": "I'm struggling with decision-making",
+					"description": "Difficulty making choices and decisions"
+				},
+				{
+					"message": "I can't seem to make even small decisions",
+					"description": "Decision paralysis"
+				},
+				{
+					"message": "Every decision feels overwhelming",
+					"description": "Decision overwhelm"
+				},
+				{
+					"message": "I'm afraid of making the wrong choice",
+					"description": "Choice fear"
+				}
+			],
+			"disappointment_fear": [
+				{
+					"message": "I'm worried about disappointing others",
+					"description": "Fear of letting others down"
+				},
+				{
+					"message": "I'm afraid I'll let everyone down",
+					"description": "Letting down fear"
+				},
+				{
+					"message": "I feel like I'm always disappointing people",
+					"description": "Chronic disappointment feeling"
+				},
+				{
+					"message": "I try so hard not to disappoint anyone",
+					"description": "Disappointment avoidance"
+				}
+			],
+			"judgment_fear": [
+				{
+					"message": "I'm worried about being judged",
+					"description": "Fear of negative evaluation by others"
+				},
+				{
+					"message": "I feel like everyone is judging me",
+					"description": "Perceived judgment"
+				},
+				{
+					"message": "I'm scared of what people think of me",
+					"description": "Opinion fear"
+				},
+				{
+					"message": "I avoid things because I'm afraid of judgment",
+					"description": "Judgment avoidance"
+				}
+			]
+		}
+	}
+}

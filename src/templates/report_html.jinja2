@@ -1,0 +1,752 @@
+{#
+============================================================================
+Ash-Thrash: Discord Crisis Detection Testing Suite
+The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
+============================================================================
+
+MISSION - NEVER TO BE VIOLATED:
+    Validate  → Verify crisis detection accuracy through live Ash-NLP integration testing
+    Challenge → Stress test the system with edge cases and adversarial scenarios
+    Guard     → Prevent regressions that could compromise detection reliability
+    Protect   → Safeguard our LGBTQIA+ community through rigorous quality assurance
+
+============================================================================
+HTML Report Template for Ash-Thrash Service
+----------------------------------------------------------------------------
+FILE VERSION: v5.0-4-4.0-1
+LAST MODIFIED: 2026-01-22
+PHASE: Phase 3 - Analysis & Reporting
+CLEAN ARCHITECTURE: Compliant
+Repository: https://github.com/the-alphabet-cartel/ash-thrash
+============================================================================
+
+Template Variables:
+- analysis: AnalysisResult object with all test metrics
+- comparison: Optional BaselineComparison object
+- generated_at: ISO timestamp of report generation
+- version: Ash-Thrash version string
+
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ash-Thrash Test Report - {{ analysis.run_id }}</title>
+    <style>
+        /* ============================================
+           CSS Variables - Dark Mode LGBTQIA+ Theme
+           ============================================ */
+        :root {
+            --color-pass: #2ecc71;
+            --color-fail: #e74c3c;
+            --color-warning: #f39c12;
+            --color-info: #3498db;
+            --color-critical: #9b59b6;
+            
+            /* Pride gradient colors */
+            --pride-red: #e40303;
+            --pride-orange: #ff8c00;
+            --pride-yellow: #ffed00;
+            --pride-green: #008026;
+            --pride-blue: #24408e;
+            --pride-purple: #732982;
+            
+            /* Dark theme */
+            --color-bg: #0f0f1a;
+            --color-surface: #1a1a2e;
+            --color-surface-light: #252545;
+            --color-text: #f0f0f0;
+            --color-text-muted: #a0a0b0;
+            --color-border: rgba(255, 255, 255, 0.1);
+            
+            /* Fonts */
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        /* ============================================
+           Base Styles
+           ============================================ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ============================================
+           Header with Pride Gradient
+           ============================================ */
+        header {
+            background: linear-gradient(135deg, 
+                var(--color-surface) 0%,
+                var(--color-surface-light) 100%
+            );
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg,
+                var(--pride-red),
+                var(--pride-orange),
+                var(--pride-yellow),
+                var(--pride-green),
+                var(--pride-blue),
+                var(--pride-purple)
+            );
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        header h1 .status-badge {
+            font-size: 1rem;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        header .meta {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        header .meta code {
+            background: var(--color-surface-light);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+        }
+
+        /* ============================================
+           Cards
+           ============================================ */
+        .card {
+            background: var(--color-surface);
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--color-info);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin: 1.5rem 0 1rem 0;
+            color: var(--color-text-muted);
+        }
+
+        /* ============================================
+           Stats Grid
+           ============================================ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-box {
+            background: var(--color-surface-light);
+            padding: 1.25rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-box .value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .stat-box .label {
+            color: var(--color-text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* ============================================
+           Status Colors
+           ============================================ */
+        .status-pass, .text-pass { color: var(--color-pass); }
+        .status-fail, .text-fail { color: var(--color-fail); }
+        .status-warning, .text-warning { color: var(--color-warning); }
+        .status-info, .text-info { color: var(--color-info); }
+        .status-critical, .text-critical { color: var(--color-critical); }
+
+        .bg-pass { background: var(--color-pass); color: #000; }
+        .bg-fail { background: var(--color-fail); color: #fff; }
+        .bg-warning { background: var(--color-warning); color: #000; }
+        .bg-info { background: var(--color-info); color: #fff; }
+
+        /* ============================================
+           Badges
+           ============================================ */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-pass { background: var(--color-pass); color: #000; }
+        .badge-fail { background: var(--color-fail); color: #fff; }
+        .badge-warning { background: var(--color-warning); color: #000; }
+        .badge-info { background: var(--color-info); color: #fff; }
+
+        .badge-outline {
+            background: transparent;
+            border: 2px solid currentColor;
+        }
+
+        /* ============================================
+           Tables
+           ============================================ */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.9rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            background: var(--color-surface-light);
+            font-weight: 600;
+            color: var(--color-text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* ============================================
+           Progress Bar
+           ============================================ */
+        .progress-bar {
+            height: 8px;
+            background: var(--color-surface-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* ============================================
+           Two Column Layout
+           ============================================ */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* ============================================
+           Failed Tests Expandable
+           ============================================ */
+        .failed-test {
+            background: var(--color-surface-light);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+        }
+
+        .failed-test-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .failed-test-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .failed-test-body {
+            padding: 1rem;
+            border-top: 1px solid var(--color-border);
+            background: rgba(0, 0, 0, 0.2);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .failed-test-body .message {
+            word-break: break-word;
+            color: var(--color-text-muted);
+        }
+
+        /* ============================================
+           Footer
+           ============================================ */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--color-info);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        footer .pride-heart {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        /* ============================================
+           Responsive
+           ============================================ */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header {
+                padding: 1.5rem;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+                flex-wrap: wrap;
+            }
+            
+            .stat-box .value {
+                font-size: 1.75rem;
+            }
+            
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ============================================
+           Print Styles
+           ============================================ */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .card {
+                break-inside: avoid;
+                border: 1px solid #ccc;
+            }
+            
+            header::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>
+                🧪 Ash-Thrash Test Report
+                {% if analysis.all_thresholds_met %}
+                    <span class="status-badge bg-pass">✅ ALL PASSED</span>
+                {% elif analysis.overall_accuracy >= 80 %}
+                    <span class="status-badge bg-warning">⚠️ WARNING</span>
+                {% else %}
+                    <span class="status-badge bg-fail">❌ FAILED</span>
+                {% endif %}
+            </h1>
+            <p class="meta">
+                Run ID: <code>{{ analysis.run_id }}</code>
+                &nbsp;•&nbsp;
+                Generated: {{ generated_at }}
+                &nbsp;•&nbsp;
+                Duration: {{ "%.1f"|format(analysis.test_run_duration_seconds) }}s
+            </p>
+        </header>
+
+        <!-- Summary Stats -->
+        <div class="card">
+            <h2>📊 Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="value {% if analysis.overall_accuracy >= 90 %}status-pass{% elif analysis.overall_accuracy >= 80 %}status-warning{% else %}status-fail{% endif %}">
+                        {{ "%.1f"|format(analysis.overall_accuracy) }}%
+                    </div>
+                    <div class="label">Overall Accuracy</div>
+                    <div class="progress-bar">
+                        <div class="fill {% if analysis.overall_accuracy >= 90 %}bg-pass{% elif analysis.overall_accuracy >= 80 %}bg-warning{% else %}bg-fail{% endif %}" 
+                             style="width: {{ analysis.overall_accuracy }}%"></div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">{{ analysis.total_tests }}</div>
+                    <div class="label">Total Tests</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-pass">{{ analysis.passed_tests }}</div>
+                    <div class="label">Passed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-fail">{{ analysis.failed_tests }}</div>
+                    <div class="label">Failed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-warning">{{ analysis.error_tests }}</div>
+                    <div class="label">Errors</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">{{ "%.1f"|format(analysis.tests_per_second) }}</div>
+                    <div class="label">Tests/Second</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="two-col">
+            <!-- Threshold Status -->
+            <div class="card">
+                <h2>🎯 Threshold Status</h2>
+                <p style="margin-bottom: 1rem;">
+                    {% if analysis.all_thresholds_met %}
+                        <span class="badge badge-pass">✅ {{ analysis.thresholds_met_count }}/{{ analysis.thresholds_total_count }} Thresholds Met</span>
+                    {% else %}
+                        <span class="badge badge-fail">❌ {{ analysis.thresholds_total_count - analysis.thresholds_met_count }} Threshold(s) Not Met</span>
+                    {% endif %}
+                </p>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Accuracy</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name, result in analysis.threshold_results.items() %}
+                            <tr>
+                                <td>{{ name | replace('_', ' ') | title }}</td>
+                                <td>{{ "%.1f"|format(result.actual_value) }}%</td>
+                                <td>{{ "%.1f"|format(result.target_value) }}%</td>
+                                <td>
+                                    {% if result.status.value == 'met' %}
+                                        <span class="badge badge-pass">✅ MET</span>
+                                    {% elif result.status.value == 'warning' %}
+                                        <span class="badge badge-warning">⚠️ CLOSE</span>
+                                    {% else %}
+                                        <span class="badge badge-fail">❌ NOT MET</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- False Positive/Negative -->
+            <div class="card">
+                <h2>⚠️ Detection Quality</h2>
+                <p style="color: var(--color-text-muted); margin-bottom: 1rem;">
+                    False negatives are critical - they mean crisis messages could be missed.
+                </p>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="value {% if analysis.false_positive_rate <= 5 %}status-pass{% elif analysis.false_positive_rate <= 10 %}status-warning{% else %}status-fail{% endif %}">
+                            {{ "%.1f"|format(analysis.false_positive_rate) }}%
+                        </div>
+                        <div class="label">False Positive Rate</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value {% if analysis.false_negative_rate <= 3 %}status-pass{% elif analysis.false_negative_rate <= 5 %}status-warning{% else %}status-critical{% endif %}">
+                            {{ "%.1f"|format(analysis.false_negative_rate) }}%
+                        </div>
+                        <div class="label">False Negative Rate</div>
+                    </div>
+                </div>
+                <table style="margin-top: 1.5rem;">
+                    <tr>
+                        <td>True Positives (TP)</td>
+                        <td class="text-pass">{{ analysis.true_positive_count }}</td>
+                        <td style="color: var(--color-text-muted);">Crisis correctly detected</td>
+                    </tr>
+                    <tr>
+                        <td>True Negatives (TN)</td>
+                        <td class="text-pass">{{ analysis.true_negative_count }}</td>
+                        <td style="color: var(--color-text-muted);">Non-crisis correctly identified</td>
+                    </tr>
+                    <tr>
+                        <td>False Positives (FP)</td>
+                        <td class="text-warning">{{ analysis.false_positive_count }}</td>
+                        <td style="color: var(--color-text-muted);">Non-crisis flagged as crisis</td>
+                    </tr>
+                    <tr>
+                        <td>False Negatives (FN)</td>
+                        <td class="text-critical">{{ analysis.false_negative_count }}</td>
+                        <td style="color: var(--color-text-muted);">Crisis missed ⚠️</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Latency Metrics -->
+        <div class="card">
+            <h2>⏱️ Latency Metrics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="value">{{ "%.0f"|format(analysis.latency_metrics.min_ms) }}ms</div>
+                    <div class="label">Minimum</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">{{ "%.0f"|format(analysis.latency_metrics.median_ms) }}ms</div>
+                    <div class="label">Median (p50)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value {% if analysis.latency_metrics.p95_ms <= 500 %}status-pass{% elif analysis.latency_metrics.p95_ms <= 1000 %}status-warning{% else %}status-fail{% endif %}">
+                        {{ "%.0f"|format(analysis.latency_metrics.p95_ms) }}ms
+                    </div>
+                    <div class="label">p95 (Target: &lt;500ms)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">{{ "%.0f"|format(analysis.latency_metrics.p99_ms) }}ms</div>
+                    <div class="label">p99</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">{{ "%.0f"|format(analysis.latency_metrics.mean_ms) }}ms</div>
+                    <div class="label">Mean</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">{{ "%.0f"|format(analysis.latency_metrics.max_ms) }}ms</div>
+                    <div class="label">Maximum</div>
+                </div>
+            </div>
+        </div>
+
+        {% if comparison %}
+        <!-- Baseline Comparison -->
+        <div class="card">
+            <h2>📈 Baseline Comparison</h2>
+            <p style="margin-bottom: 1rem;">
+                Compared to baseline: <strong>{{ comparison.baseline_name }}</strong>
+                <span style="color: var(--color-text-muted);">({{ comparison.baseline_run_id }})</span>
+            </p>
+            
+            <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                <div class="stat-box">
+                    <div class="value {% if comparison.overall_accuracy_delta >= 0 %}status-pass{% else %}status-fail{% endif %}">
+                        {{ "%+.1f"|format(comparison.overall_accuracy_delta) }}%
+                    </div>
+                    <div class="label">Accuracy Change</div>
+                </div>
+                <div class="stat-box">
+                    {% if comparison.verdict.value == 'pass' %}
+                        <span class="badge badge-pass" style="font-size: 1.1rem;">✅ PASS</span>
+                    {% elif comparison.verdict.value == 'warning' %}
+                        <span class="badge badge-warning" style="font-size: 1.1rem;">⚠️ WARNING</span>
+                    {% else %}
+                        <span class="badge badge-fail" style="font-size: 1.1rem;">❌ REGRESSION</span>
+                    {% endif %}
+                    <div class="label" style="margin-top: 0.5rem;">Verdict</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-fail">{{ comparison.regressions | length }}</div>
+                    <div class="label">Regressions</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-pass">{{ comparison.improvements | length }}</div>
+                    <div class="label">Improvements</div>
+                </div>
+            </div>
+
+            {% if comparison.regressions %}
+            <h3 class="text-fail">🔻 Regressions Detected</h3>
+            <ul style="list-style: none; padding: 0; margin-top: 0.75rem;">
+                {% for reg in comparison.regressions %}
+                <li style="padding: 0.75rem; background: rgba(231, 76, 60, 0.1); border-radius: 6px; margin-bottom: 0.5rem; border-left: 3px solid var(--color-fail);">
+                    <strong>{{ reg.metric_name | replace('_', ' ') | title }}</strong>
+                    <br>
+                    <span style="color: var(--color-text-muted);">{{ reg.description }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if comparison.improvements %}
+            <h3 class="text-pass">🔺 Improvements</h3>
+            <ul style="list-style: none; padding: 0; margin-top: 0.75rem;">
+                {% for imp in comparison.improvements %}
+                <li style="padding: 0.75rem; background: rgba(46, 204, 113, 0.1); border-radius: 6px; margin-bottom: 0.5rem; border-left: 3px solid var(--color-pass);">
+                    <strong>{{ imp.metric_name | replace('_', ' ') | title }}</strong>
+                    <br>
+                    <span style="color: var(--color-text-muted);">{{ imp.description }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if analysis.failed_test_details %}
+        <!-- Failed Tests -->
+        <div class="card">
+            <h2>❌ Failed Tests ({{ analysis.failed_test_details | length }})</h2>
+            <p style="color: var(--color-text-muted); margin-bottom: 1rem;">
+                Tests where classification did not match expected priority.
+            </p>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Message</th>
+                            <th>Category</th>
+                            <th>Expected</th>
+                            <th>Actual</th>
+                            <th>Score</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test in analysis.failed_test_details[:100] %}
+                        <tr>
+                            <td style="max-width: 400px; word-wrap: break-word;"><em>"{{ test.message }}"</em></td>
+                            <td>{{ test.category }}<br><small style="color: var(--color-text-muted);">{{ test.subcategory }}</small></td>
+                            <td>{{ test.expected_priorities | join(', ') }}</td>
+                            <td class="text-fail"><strong>{{ test.actual_severity }}</strong></td>
+                            <td>{{ "%.3f"|format(test.crisis_score) if test.crisis_score else 'N/A' }}</td>
+                            <td>{{ "%.1f"|format(test.confidence * 100) if test.confidence else 'N/A' }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if analysis.failed_test_details | length > 100 %}
+            <p style="margin-top: 1rem; color: var(--color-text-muted); text-align: center;">
+                Showing 100 of {{ analysis.failed_test_details | length }} failed tests. See JSON report for complete details.
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Category Breakdown -->
+        <div class="card">
+            <h2>📂 Category Breakdown</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Total</th>
+                            <th>Passed</th>
+                            <th>Failed</th>
+                            <th>Errors</th>
+                            <th>Accuracy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name, metrics in analysis.category_metrics.items() %}
+                        <tr>
+                            <td>{{ name | replace('_', ' ') | title }}</td>
+                            <td>{{ metrics.total }}</td>
+                            <td class="text-pass">{{ metrics.passed }}</td>
+                            <td class="text-fail">{{ metrics.failed }}</td>
+                            <td class="text-warning">{{ metrics.errors }}</td>
+                            <td>
+                                <span class="{% if metrics.accuracy >= metrics.target_accuracy %}text-pass{% else %}text-fail{% endif %}">
+                                    {{ "%.1f"|format(metrics.accuracy) }}%
+                                </span>
+                                <small style="color: var(--color-text-muted);">(target: {{ "%.0f"|format(metrics.target_accuracy) }}%)</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>Generated by <strong>Ash-Thrash {{ version }}</strong></p>
+            <p class="pride-heart">🏳️‍🌈</p>
+            <p>
+                <a href="https://discord.gg/alphabetcartel">The Alphabet Cartel</a>
+                &nbsp;•&nbsp;
+                <a href="https://alphabetcartel.org">alphabetcartel.org</a>
+                &nbsp;•&nbsp;
+                <a href="https://github.com/the-alphabet-cartel/ash-thrash">GitHub</a>
+            </p>
+            <p style="margin-top: 1rem;">
+                <em>Built with care for chosen family</em>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

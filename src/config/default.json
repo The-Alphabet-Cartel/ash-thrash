@@ -1,0 +1,321 @@
+{
+	"_metadata": {
+		"file_version": "v5.0-3-3.1-1",
+		"last_modified": "2026-01-20",
+		"clean_architecture": "Compliant",
+		"description": "Ash-Thrash v5.0 Default Configuration",
+		"repository": "https://github.com/the-alphabet-cartel/ash-thrash",
+		"community": "The Alphabet Cartel - https://discord.gg/alphabetcartel | https://alphabetcartel.org"
+	},
+
+	"logging": {
+		"description": "Logging configuration for structured output (Charter v5.2.1 Rule #9)",
+		"level": "${THRASH_LOG_LEVEL}",
+		"format": "${THRASH_LOG_FORMAT}",
+		"file": "${THRASH_LOG_FILE}",
+		"console": "${THRASH_LOG_CONSOLE}",
+		"defaults": {
+			"level": "INFO",
+			"format": "human",
+			"file": "/app/logs/ash-thrash.log",
+			"console": true
+		},
+		"validation": {
+			"level": {
+				"type": "string",
+				"allowed_values": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+				"required": true
+			},
+			"format": {
+				"type": "string",
+				"allowed_values": ["json", "human"],
+				"required": true
+			},
+			"file": {
+				"type": "string",
+				"required": false
+			},
+			"console": {
+				"type": "boolean",
+				"required": false
+			}
+		}
+	},
+
+	"nlp_server": {
+		"description": "Ash-NLP server connection settings",
+		"host": "${THRASH_NLP_HOST}",
+		"port": "${THRASH_NLP_PORT}",
+		"timeout": "${THRASH_NLP_TIMEOUT}",
+		"retry_attempts": "${THRASH_NLP_RETRY_ATTEMPTS}",
+		"retry_delay_ms": "${THRASH_NLP_RETRY_DELAY}",
+		"defaults": {
+			"host": "10.20.30.253",
+			"port": 30880,
+			"timeout": 30,
+			"retry_attempts": 3,
+			"retry_delay_ms": 1000
+		},
+		"validation": {
+			"host": {
+				"type": "string",
+				"required": true
+			},
+			"port": {
+				"type": "integer",
+				"range": [1, 65535],
+				"required": true
+			},
+			"timeout": {
+				"type": "integer",
+				"range": [1, 300],
+				"required": true
+			},
+			"retry_attempts": {
+				"type": "integer",
+				"range": [0, 10],
+				"required": false
+			},
+			"retry_delay_ms": {
+				"type": "integer",
+				"range": [100, 30000],
+				"required": false
+			}
+		}
+	},
+
+	"test_execution": {
+		"description": "Test execution parameters",
+		"delay_between_requests_ms": "${THRASH_REQUEST_DELAY}",
+		"include_explanations": "${THRASH_INCLUDE_EXPLANATIONS}",
+		"include_context_analysis": "${THRASH_INCLUDE_CONTEXT}",
+		"explanation_verbosity": "${THRASH_EXPLANATION_VERBOSITY}",
+		"defaults": {
+			"delay_between_requests_ms": 100,
+			"include_explanations": true,
+			"include_context_analysis": false,
+			"explanation_verbosity": "standard"
+		},
+		"validation": {
+			"delay_between_requests_ms": {
+				"type": "integer",
+				"range": [0, 10000],
+				"required": false
+			},
+			"include_explanations": {
+				"type": "boolean",
+				"required": false
+			},
+			"include_context_analysis": {
+				"type": "boolean",
+				"required": false
+			},
+			"explanation_verbosity": {
+				"type": "string",
+				"allowed_values": ["minimal", "standard", "detailed"],
+				"required": false
+			}
+		}
+	},
+
+	"thresholds": {
+		"description": "Pass/fail accuracy thresholds per category",
+		"high_target_accuracy": "${THRASH_HIGH_TARGET}",
+		"medium_target_accuracy": "${THRASH_MEDIUM_TARGET}",
+		"low_target_accuracy": "${THRASH_LOW_TARGET}",
+		"none_target_accuracy": "${THRASH_NONE_TARGET}",
+		"edge_case_target_accuracy": "${THRASH_EDGE_TARGET}",
+		"specialty_target_accuracy": "${THRASH_SPECIALTY_TARGET}",
+		"defaults": {
+			"high_target_accuracy": 95.0,
+			"medium_target_accuracy": 85.0,
+			"low_target_accuracy": 85.0,
+			"none_target_accuracy": 95.0,
+			"edge_case_target_accuracy": 70.0,
+			"specialty_target_accuracy": 75.0
+		},
+		"validation": {
+			"high_target_accuracy": {
+				"type": "float",
+				"range": [0.0, 100.0],
+				"required": true
+			},
+			"medium_target_accuracy": {
+				"type": "float",
+				"range": [0.0, 100.0],
+				"required": true
+			},
+			"low_target_accuracy": {
+				"type": "float",
+				"range": [0.0, 100.0],
+				"required": true
+			},
+			"none_target_accuracy": {
+				"type": "float",
+				"range": [0.0, 100.0],
+				"required": true
+			},
+			"edge_case_target_accuracy": {
+				"type": "float",
+				"range": [0.0, 100.0],
+				"required": false
+			},
+			"specialty_target_accuracy": {
+				"type": "float",
+				"range": [0.0, 100.0],
+				"required": false
+			}
+		}
+	},
+
+	"reporting": {
+		"description": "Report generation settings",
+		"output_directory": "${THRASH_REPORT_DIR}",
+		"output_formats": "${THRASH_REPORT_FORMATS}",
+		"discord_webhook_enabled": "${THRASH_DISCORD_WEBHOOK}",
+		"include_failed_details": "${THRASH_REPORT_FAILED_DETAILS}",
+		"include_timing_stats": "${THRASH_REPORT_TIMING}",
+		"defaults": {
+			"output_directory": "/app/reports",
+			"output_formats": ["json"],
+			"discord_webhook_enabled": false,
+			"include_failed_details": true,
+			"include_timing_stats": true
+		},
+		"validation": {
+			"output_directory": {
+				"type": "string",
+				"required": true
+			},
+			"output_formats": {
+				"type": "list",
+				"required": true
+			},
+			"discord_webhook_enabled": {
+				"type": "boolean",
+				"required": false
+			},
+			"include_failed_details": {
+				"type": "boolean",
+				"required": false
+			},
+			"include_timing_stats": {
+				"type": "boolean",
+				"required": false
+			}
+		}
+	},
+
+	"phrases": {
+		"description": "Test phrase loading configuration",
+		"directory": "${THRASH_PHRASES_DIR}",
+		"categories": "${THRASH_PHRASE_CATEGORIES}",
+		"defaults": {
+			"directory": "/app/src/config/phrases",
+			"categories": [
+				"critical_high_priority",
+				"medium_priority",
+				"low_priority",
+				"none_priority"
+			]
+		},
+		"validation": {
+			"directory": {
+				"type": "string",
+				"required": true
+			},
+			"categories": {
+				"type": "list",
+				"required": true
+			}
+		}
+	},
+
+	"health": {
+		"description": "Health check server configuration",
+		"enabled": "${THRASH_HEALTH_ENABLED}",
+		"host": "${THRASH_HEALTH_HOST}",
+		"port": "${THRASH_HEALTH_PORT}",
+		"defaults": {
+			"enabled": true,
+			"host": "0.0.0.0",
+			"port": 30888
+		},
+		"validation": {
+			"enabled": {
+				"type": "boolean",
+				"required": false
+			},
+			"host": {
+				"type": "string",
+				"required": false
+			},
+			"port": {
+				"type": "integer",
+				"range": [1, 65535],
+				"required": false
+			}
+		}
+	},
+
+	"baseline": {
+		"description": "Baseline storage and regression detection settings",
+		"storage_directory": "${THRASH_BASELINE_DIR}",
+		"default_baseline_name": "${THRASH_BASELINE_DEFAULT}",
+		"auto_save_baseline": "${THRASH_BASELINE_AUTO_SAVE}",
+		"regression_overall_threshold": "${THRASH_REGRESSION_OVERALL}",
+		"regression_category_threshold": "${THRASH_REGRESSION_CATEGORY}",
+		"regression_false_positive_threshold": "${THRASH_REGRESSION_FP}",
+		"regression_false_negative_threshold": "${THRASH_REGRESSION_FN}",
+		"regression_latency_threshold_pct": "${THRASH_REGRESSION_LATENCY}",
+		"defaults": {
+			"storage_directory": "/app/reports/baselines",
+			"default_baseline_name": "main",
+			"auto_save_baseline": false,
+			"regression_overall_threshold": 2.0,
+			"regression_category_threshold": 5.0,
+			"regression_false_positive_threshold": 3.0,
+			"regression_false_negative_threshold": 2.0,
+			"regression_latency_threshold_pct": 50.0
+		},
+		"validation": {
+			"storage_directory": {
+				"type": "string",
+				"required": true
+			},
+			"default_baseline_name": {
+				"type": "string",
+				"required": false
+			},
+			"auto_save_baseline": {
+				"type": "boolean",
+				"required": false
+			},
+			"regression_overall_threshold": {
+				"type": "float",
+				"range": [0.1, 50.0],
+				"required": false
+			},
+			"regression_category_threshold": {
+				"type": "float",
+				"range": [0.1, 50.0],
+				"required": false
+			},
+			"regression_false_positive_threshold": {
+				"type": "float",
+				"range": [0.1, 50.0],
+				"required": false
+			},
+			"regression_false_negative_threshold": {
+				"type": "float",
+				"range": [0.1, 50.0],
+				"required": false
+			},
+			"regression_latency_threshold_pct": {
+				"type": "float",
+				"range": [1.0, 500.0],
+				"required": false
+			}
+		}
+	}
+}

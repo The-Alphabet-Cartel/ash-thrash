@@ -1,514 +1,686 @@
 #!/usr/bin/env python3
 """
-Ash-Thrash Management Scripts v3.0
-Standard Python-based management and deployment utilities
+============================================================================
+Ash-Thrash: Discord Crisis Detection Testing Suite
+The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
+============================================================================
 
+MISSION - NEVER TO BE VIOLATED:
+    Validate  → Verify crisis detection accuracy through live Ash-NLP integration testing
+    Challenge → Stress test the system with edge cases and adversarial scenarios
+    Guard     → Prevent regressions that could compromise detection reliability
+    Protect   → Safeguard our LGBTQIA+ community through rigorous quality assurance
+
+============================================================================
+Main Entry Point for Ash-Thrash Service
+----------------------------------------------------------------------------
+FILE VERSION: v5.0-3-3.2-1
+LAST MODIFIED: 2026-01-20
+PHASE: Phase 3 - Analysis & Reporting
+CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
-Discord: https://discord.gg/alphabetcartel
-Website: http://alphabetcartel.org
+============================================================================
 
-Usage:
-    python main.py setup        # Initial setup and validation
-    python main.py start        # Start services with Docker Compose  
-    python main.py test-all     # Run comprehensive tests
-    python main.py status       # Check service status
-    python main.py logs         # View service logs
-    python main.py stop         # Stop all services
+USAGE:
+    # Run with default settings (starts API server)
+    python main.py
+
+    # Run tests immediately and exit
+    python main.py --run-tests
+
+    # Run tests for specific category
+    python main.py --run-tests --category critical_high_priority
+
+    # Run tests and save baseline
+    python main.py --run-tests --save-baseline main
+
+    # Run tests and compare to baseline
+    python main.py --run-tests --compare-baseline main
+
+    # Generate HTML reports
+    python main.py --run-tests --report-format html
+
+    # Run with testing environment
+    THRASH_ENVIRONMENT=testing python main.py
+
+ENVIRONMENT VARIABLES:
+    THRASH_ENVIRONMENT     - Environment (production, testing, development)
+    THRASH_LOG_LEVEL       - Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    THRASH_LOG_FORMAT      - Log format (human, json)
+    THRASH_API_HOST        - API server host (default: 0.0.0.0)
+    THRASH_API_PORT        - API server port (default: 30888)
+    See .env.template for complete list
 """
 
-import os
-import sys
-import subprocess
-import json
-import time
 import argparse
-from pathlib import Path
-from typing import Optional
+import asyncio
+import os
+import signal
+import sys
+from typing import List, Optional
 
-# Project configuration
-PROJECT_NAME = "ash-thrash"
-COMPOSE_FILE = "docker-compose.yml"
-ENV_FILE = ".env"
-ENV_TEMPLATE = ".env.template"
+import uvicorn
 
-def print_header(title: str, width: int = 40):
-    """Print a formatted header"""
-    print("=" * width)
-    print(title)
-    print("=" * width)
-
-def print_success(message: str):
-    """Print success message"""
-    print(f"✅ {message}")
-
-def print_error(message: str):
-    """Print error message"""  
-    print(f"❌ {message}")
-
-def print_warning(message: str):
-    """Print warning message"""
-    print(f"⚠️ {message}")
-
-def print_info(message: str):
-    """Print info message"""
-    print(f"ℹ️ {message}")
+# Module version
+__version__ = "v5.0-3-3.2-1"
 
 # =============================================================================
-# COMMAND FUNCTIONS
+# Manager Imports
 # =============================================================================
 
-def setup_command(args):
-    """Initial setup and configuration"""
-    print("🔧 Setting up Ash-Thrash v3.0")
-    print_header("Initial Setup")
-    
-    # 1. Check Docker and Docker Compose
-    if not check_docker():
-        sys.exit(1)
-    
-    # 2. Create environment file if it doesn't exist
-    setup_environment()
-    
-    # 3. Create required directories
-    create_directories()
-    
-    # 4. Validate configuration
-    validate_configuration()
-    
-    print_success("Setup completed successfully!")
-    print("\nNext steps:")
-    print("  1. Review and update .env file with your settings")
-    print("  2. Run 'python main.py start' to start services")
-    print("  3. Run 'python main.py test-all' to run tests")
+from src.managers import (
+    create_config_manager,
+    create_secrets_manager,
+    create_logging_config_manager,
+    create_nlp_client_manager,
+    create_phrase_loader_manager,
+    create_test_runner_manager,
+    create_result_analyzer_manager,
+    create_report_manager,
+    ConfigManager,
+    SecretsManager,
+    LoggingConfigManager,
+    NLPClientManager,
+    PhraseLoaderManager,
+    TestRunnerManager,
+    TestResult,
+    ResultAnalyzerManager,
+    ReportManager,
+    AnalysisResult,
+)
 
-def start_command(args):
-    """Start Ash-Thrash services"""
-    print("🚀 Starting Ash-Thrash Services")
-    print_header("Service Startup")
-    
-    # Build command
-    cmd = ["docker-compose", "-f", COMPOSE_FILE]
-    
-    if args.build:
-        print("🔨 Building images...")
-        run_command(cmd + ["build"])
-    
-    # Start services
-    start_cmd = cmd + ["up"]
-    if args.detach:
-        start_cmd.append("-d")
-    
-    print("🌟 Starting services...")
-    run_command(start_cmd)
-    
-    if args.detach:
-        # Wait a moment and check health
-        time.sleep(5)
-        check_services_health()
+from src.validators import (
+    create_classification_validator,
+    create_response_validator,
+    ClassificationValidator,
+    ResponseValidator,
+)
 
-def stop_command(args):
-    """Stop all services"""
-    print("🛑 Stopping Ash-Thrash Services")
-    print_header("Service Shutdown")
-    
-    run_command(["docker-compose", "-f", COMPOSE_FILE, "down"])
-    print_success("All services stopped")
+from src.api.app import create_app, app_state
 
-def logs_command(args):
-    """View service logs"""
-    cmd = ["docker-compose", "-f", COMPOSE_FILE, "logs"]
-    
-    if args.follow:
-        cmd.append("-f")
-    
-    if args.service:
-        cmd.append(args.service)
-    
-    run_command(cmd)
 
-def status_command(args):
-    """Check service status"""
-    print("📊 Ash-Thrash Service Status")
-    print_header("Service Status")
-    
-    # Check Docker Compose services
-    try:
-        result = subprocess.run(
-            ["docker-compose", "-f", COMPOSE_FILE, "ps", "--format", "json"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        
-        services = json.loads(result.stdout) if result.stdout.strip() else []
-        
-        if not services:
-            print("🔍 No services running")
-            return
-        
-        for service in services:
-            name = service.get('Name', 'Unknown')
-            state = service.get('State', 'Unknown')
-            status_text = service.get('Status', '')
-            
-            if state == 'running':
-                status_emoji = "✅"
-            elif state == 'exited':
-                status_emoji = "❌" if '(0)' not in status_text else "⏹️"
+# =============================================================================
+# Constants
+# =============================================================================
+
+DEFAULT_API_HOST = "0.0.0.0"
+DEFAULT_API_PORT = 30888
+
+
+# =============================================================================
+# Application Class
+# =============================================================================
+
+
+class AshThrash:
+    """
+    Main application class for Ash-Thrash testing suite.
+
+    Manages lifecycle of all managers and coordinates test execution.
+
+    Attributes:
+        config: ConfigManager instance
+        secrets: SecretsManager instance
+        logging_mgr: LoggingConfigManager instance
+        nlp_client: NLPClientManager instance
+        phrase_loader: PhraseLoaderManager instance
+        test_runner: TestRunnerManager instance
+    """
+
+    def __init__(self):
+        """Initialize the application (managers created in startup)."""
+        self.config: Optional[ConfigManager] = None
+        self.secrets: Optional[SecretsManager] = None
+        self.logging_mgr: Optional[LoggingConfigManager] = None
+        self.nlp_client: Optional[NLPClientManager] = None
+        self.phrase_loader: Optional[PhraseLoaderManager] = None
+        self.classification_validator: Optional[ClassificationValidator] = None
+        self.response_validator: Optional[ResponseValidator] = None
+        self.test_runner: Optional[TestRunnerManager] = None
+        self.result_analyzer: Optional[ResultAnalyzerManager] = None
+        self.report_manager: Optional[ReportManager] = None
+        self._logger = None
+        self._shutdown_event = asyncio.Event()
+
+    async def startup(self) -> bool:
+        """
+        Initialize all managers and verify system readiness.
+
+        Returns:
+            True if startup successful, False otherwise
+        """
+        try:
+            # Step 1: Configuration Manager
+            self.config = create_config_manager()
+
+            # Step 2: Secrets Manager
+            self.secrets = create_secrets_manager()
+
+            # Step 3: Logging Manager (depends on config)
+            self.logging_mgr = create_logging_config_manager(config_manager=self.config)
+            self._logger = self.logging_mgr.get_logger("main")
+
+            # Print startup banner
+            self._print_banner()
+
+            # Step 4: NLP Client Manager (depends on config, logging)
+            self._logger.info("Initializing NLP Client...")
+            self.nlp_client = create_nlp_client_manager(
+                config_manager=self.config,
+                logging_manager=self.logging_mgr,
+            )
+
+            # Step 5: Phrase Loader Manager (depends on config, logging)
+            self._logger.info("Loading test phrases...")
+            self.phrase_loader = create_phrase_loader_manager(
+                config_manager=self.config,
+                logging_manager=self.logging_mgr,
+            )
+
+            # Step 6: Validators (Phase 2)
+            self._logger.info("Initializing validators...")
+            self.classification_validator = create_classification_validator(
+                logging_manager=self.logging_mgr
+            )
+            self.response_validator = create_response_validator(
+                logging_manager=self.logging_mgr
+            )
+
+            # Step 7: Test Runner (Phase 2)
+            self._logger.info("Initializing test runner...")
+            self.test_runner = create_test_runner_manager(
+                nlp_client=self.nlp_client,
+                phrase_loader=self.phrase_loader,
+                classification_validator=self.classification_validator,
+                response_validator=self.response_validator,
+                config_manager=self.config,
+                logging_manager=self.logging_mgr,
+            )
+
+            # Step 8: Result Analyzer (Phase 3)
+            self._logger.info("Initializing result analyzer...")
+            self.result_analyzer = create_result_analyzer_manager(
+                config_manager=self.config,
+                logging_manager=self.logging_mgr,
+            )
+
+            # Step 9: Report Manager (Phase 3)
+            self._logger.info("Initializing report manager...")
+            self.report_manager = create_report_manager(
+                config_manager=self.config,
+                secrets_manager=self.secrets,
+                logging_manager=self.logging_mgr,
+            )
+
+            # Verify Ash-NLP connectivity
+            self._logger.info("Checking Ash-NLP connectivity...")
+            if await self.nlp_client.is_available():
+                self._logger.success("Ash-NLP server is available")
             else:
-                status_emoji = "⚠️"
-            
-            print(f"{status_emoji} {name}: {state} {status_text}")
-        
-        # Check API health if running
-        check_api_health()
-        
-    except subprocess.CalledProcessError:
-        print_error("Error checking service status")
-    except json.JSONDecodeError:
-        print_warning("Could not parse service status")
+                self._logger.warning(
+                    "⚠️ Ash-NLP server is not available - tests will fail"
+                )
 
-def test_all_command(args):
-    """Run tests using Docker Compose"""
-    print(f"🧪 Running {args.test_type} tests")
-    print_header("Test Execution")
-    
-    # Ensure services are running
-    if not check_api_running():
-        print_warning("API service not running, starting it...")
-        run_command(["docker-compose", "-f", COMPOSE_FILE, "up", "-d", "ash-thrash-api"])
-        time.sleep(10)  # Wait for startup
-    
-    # Run tests using CLI container
-    cmd = [
-        "docker-compose", "-f", COMPOSE_FILE, "run", "--rm",
-        "ash-thrash-cli", "test", args.test_type
-    ]
-    
-    run_command(cmd)
+            # Update API app state
+            app_state.config_manager = self.config
+            app_state.logging_manager = self.logging_mgr
+            app_state.nlp_client = self.nlp_client
+            app_state.phrase_loader = self.phrase_loader
+            app_state.test_runner = self.test_runner
+            app_state.is_ready = True
 
-def cli_command(args):
-    """Run CLI commands in container"""
-    cmd = [
-        "docker-compose", "-f", COMPOSE_FILE, "run", "--rm",
-        "ash-thrash-cli"
-    ] + args.command
-    
-    run_command(cmd)
+            # Print summary
+            self._print_startup_summary()
 
-def validate_command(args):
-    """Validate configuration and setup"""
-    print("🔍 Validating Ash-Thrash Configuration")
-    print_header("Configuration Validation")
-    
-    issues = []
-    
-    # Check required files
-    required_files = [
-        COMPOSE_FILE,
-        ENV_FILE,
-        "src/ash_thrash_core.py",
-        "src/ash_thrash_api.py",
-        "src/test_data.py",
-        "cli.py"
-    ]
-    
-    for file_path in required_files:
-        if Path(file_path).exists():
-            print_success(f"{file_path}")
-        else:
-            print_error(f"{file_path} missing")
-            issues.append(f"Missing {file_path}")
-    
-    # Check Docker
-    if not check_docker():
-        issues.append("Docker not available")
-    
-    # Check environment variables
-    env_vars = load_env_file()
-    required_env_vars = ["GLOBAL_NLP_API_URL"]
-    
-    for var in required_env_vars:
-        if var in env_vars:
-            print_success(f"{var} configured")
-        else:
-            print_warning(f"{var} not configured (using default)")
-    
-    # Summary
-    if not issues:
-        print_success("All validation checks passed!")
-    else:
-        print_error(f"{len(issues)} issues found:")
-        for issue in issues:
-            print(f"  • {issue}")
+            return True
 
-def clean_command(args):
-    """Clean up containers, images, and volumes"""
-    print("🧹 Cleaning up Ash-Thrash resources")
-    print_header("Resource Cleanup")
-    
-    if not args.force:
-        response = input("This will remove containers, images, and volumes. Continue? (y/N): ")
-        if response.lower() not in ['y', 'yes']:
-            print("Cleanup cancelled")
-            return
-    
-    # Stop services
-    run_command(["docker-compose", "-f", COMPOSE_FILE, "down", "-v"])
-    
-    # Remove images
-    try:
-        run_command(["docker", "rmi", f"ghcr.io/the-alphabet-cartel/{PROJECT_NAME}:v3.0"])
-    except subprocess.CalledProcessError:
-        pass  # Image might not exist
-    
-    # Clean up build cache
-    run_command(["docker", "system", "prune", "-f"])
-    
-    print_success("Cleanup completed")
+        except Exception as e:
+            if self._logger:
+                self._logger.critical(f"Startup failed: {e}")
+            else:
+                print(f"🚨 CRITICAL: Startup failed: {e}", file=sys.stderr)
+            return False
 
-def build_command(args):
-    """Build Docker images"""
-    print("🔨 Building Ash-Thrash Images")
-    print_header("Image Build")
-    
-    run_command(["docker-compose", "-f", COMPOSE_FILE, "build"])
-    print_success("Build completed")
+    async def shutdown(self) -> None:
+        """Clean shutdown of all managers."""
+        if self._logger:
+            self._logger.info("Shutting down Ash-Thrash...")
 
-# =============================================================================
-# UTILITY FUNCTIONS
-# =============================================================================
+        # Close NLP client connection
+        if self.nlp_client:
+            await self.nlp_client.close()
 
-def check_docker() -> bool:
-    """Check if Docker and Docker Compose are available"""
-    try:
-        # Check Docker
-        subprocess.run(["docker", "--version"], 
-                      capture_output=True, check=True)
-        print_success("Docker is available")
-        
-        # Check Docker Compose
-        subprocess.run(["docker-compose", "--version"], 
-                      capture_output=True, check=True)
-        print_success("Docker Compose is available")
-        
-        return True
-        
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print_error("Docker or Docker Compose not found")
-        print("Please install Docker and Docker Compose:")
-        print("  https://docs.docker.com/get-docker/")
-        return False
+        if self._logger:
+            self._logger.success("Shutdown complete")
 
-def setup_environment():
-    """Setup environment file from template"""
-    env_path = Path(ENV_FILE)
-    template_path = Path(ENV_TEMPLATE)
-    
-    if env_path.exists():
-        print_success(f"Environment file exists: {ENV_FILE}")
-        return
-    
-    if template_path.exists():
-        # Copy template to .env
-        import shutil
-        shutil.copy(template_path, env_path)
-        print_success(f"Created {ENV_FILE} from template")
-        print_warning("Please review and update the .env file with your settings")
-    else:
-        # Create basic .env file
-        basic_env = """# Ash-Thrash Configuration
-GLOBAL_NLP_API_URL=http://10.20.30.253:8881
-GLOBAL_LOG_LEVEL=INFO
-THRASH_DISCORD_WEBHOOK_URL=
-THRASH_DISCORD_NOTIFICATIONS_ENABLED=true
+    async def run_server(
+        self, host: str = DEFAULT_API_HOST, port: int = DEFAULT_API_PORT
+    ) -> int:
+        """
+        Run the API server.
+
+        Args:
+            host: Server host (default: 0.0.0.0)
+            port: Server port (default: 30888)
+
+        Returns:
+            Exit code (0 for success, non-zero for failure)
+        """
+        # Startup
+        if not await self.startup():
+            return 1
+
+        try:
+            # Create FastAPI app with injected managers
+            app = create_app(
+                config_manager=self.config,
+                logging_manager=self.logging_mgr,
+                nlp_client=self.nlp_client,
+                phrase_loader=self.phrase_loader,
+                test_runner=self.test_runner,
+            )
+
+            self._logger.info(f"Starting API server on {host}:{port}")
+            self._logger.info(f"Health endpoint: http://{host}:{port}/health")
+            self._logger.info(f"API docs: http://{host}:{port}/docs")
+
+            # Configure uvicorn
+            config = uvicorn.Config(
+                app,
+                host=host,
+                port=port,
+                log_level="info",
+                access_log=False,  # We handle logging ourselves
+            )
+            server = uvicorn.Server(config)
+
+            # Run server
+            await server.serve()
+
+            return 0
+
+        except Exception as e:
+            self._logger.error(f"Server error: {e}")
+            return 1
+
+        finally:
+            await self.shutdown()
+
+    async def run_tests(
+        self,
+        categories: Optional[List[str]] = None,
+        verbose: bool = False,
+        save_baseline: Optional[str] = None,
+        compare_baseline: Optional[str] = None,
+        report_formats: Optional[List[str]] = None,
+        send_discord: bool = False,
+    ) -> int:
+        """
+        Run tests, analyze results, and generate reports.
+
+        Args:
+            categories: Optional list of categories to test
+            verbose: Whether to show verbose output
+            save_baseline: Name to save results as baseline (e.g., "main")
+            compare_baseline: Name of baseline to compare against
+            report_formats: List of report formats to generate (json, html)
+            send_discord: Whether to send Discord notification
+
+        Returns:
+            Exit code (0 if all pass, 1 if any fail)
+        """
+        # Startup
+        if not await self.startup():
+            return 1
+
+        try:
+            self._logger.info("Starting test run...")
+
+            # Progress callback for verbose output
+            def progress_callback(current: int, total: int, result: TestResult):
+                if verbose:
+                    status_icon = (
+                        "✅" if result.passed else "❌" if result.failed else "⚠️"
+                    )
+                    self._logger.info(
+                        f"[{current}/{total}] {status_icon} {result.category}/{result.subcategory}"
+                    )
+
+            # Default report formats
+            if report_formats is None:
+                report_formats = ["json"]
+
+            # Run tests
+            summary = await self.test_runner.run_all_tests(
+                categories=categories,
+                progress_callback=progress_callback if verbose else None,
+            )
+
+            # Analyze results (Phase 3)
+            self._logger.info("Analyzing results...")
+            analysis = self.result_analyzer.analyze(summary)
+
+            # Print results
+            self._logger.info("=" * 60)
+            self._logger.info("Test Run Results")
+            self._logger.info("=" * 60)
+            self._logger.info(f"  Run ID:        {summary.run_id}")
+            self._logger.info(f"  Duration:      {summary.duration_seconds:.1f}s")
+            self._logger.info(f"  Total Tests:   {summary.total_tests}")
+            self._logger.info(f"  Passed:        {summary.passed_tests}")
+            self._logger.info(f"  Failed:        {summary.failed_tests}")
+            self._logger.info(f"  Errors:        {summary.error_tests}")
+            self._logger.info(f"  Accuracy:      {analysis.overall_accuracy:.1f}%")
+            self._logger.info(
+                f"  Avg Response:  {summary.average_response_time_ms:.1f}ms"
+            )
+            self._logger.info(
+                f"  P95 Response:  {analysis.latency_metrics.p95_ms:.1f}ms"
+            )
+
+            # Threshold status
+            self._logger.info("-" * 60)
+            self._logger.info("Threshold Status:")
+            threshold_icon = "✅" if analysis.all_thresholds_met else "❌"
+            self._logger.info(
+                f"  {threshold_icon} {analysis.thresholds_met_count}/{analysis.thresholds_total_count} thresholds met"
+            )
+
+            for cat, result in analysis.threshold_results.items():
+                status_icon = (
+                    "✅"
+                    if result.status.value == "met"
+                    else "⚠️"
+                    if result.status.value == "warning"
+                    else "❌"
+                )
+                self._logger.info(
+                    f"  {status_icon} {cat}: {result.actual_value:.1f}% (target: {result.target_value:.1f}%)"
+                )
+
+            # False positive/negative rates
+            self._logger.info("-" * 60)
+            self._logger.info("Detection Quality:")
+            self._logger.info(
+                f"  False Positive Rate: {analysis.false_positive_rate:.1f}%"
+            )
+            self._logger.info(
+                f"  False Negative Rate: {analysis.false_negative_rate:.1f}%"
+            )
+
+            # Baseline comparison (Phase 3)
+            comparison = None
+            if compare_baseline:
+                self._logger.info("-" * 60)
+                self._logger.info(f"Comparing to baseline: {compare_baseline}")
+                baseline = self.report_manager.load_baseline(compare_baseline)
+                if baseline:
+                    comparison = self.report_manager.compare_to_baseline(
+                        analysis, baseline, compare_baseline
+                    )
+
+                    delta_icon = (
+                        "📈" if comparison.overall_accuracy_delta >= 0 else "📉"
+                    )
+                    self._logger.info(
+                        f"  {delta_icon} Accuracy change: {comparison.overall_accuracy_delta:+.1f}%"
+                    )
+
+                    if comparison.regressions:
+                        self._logger.warning(
+                            f"  🔻 {len(comparison.regressions)} regression(s) detected!"
+                        )
+                        for reg in comparison.regressions[:5]:
+                            self._logger.warning(f"    - {reg.description}")
+
+                    if comparison.improvements:
+                        self._logger.info(
+                            f"  🔺 {len(comparison.improvements)} improvement(s)"
+                        )
+                else:
+                    self._logger.warning(f"  Baseline '{compare_baseline}' not found")
+
+            # Generate reports (Phase 3)
+            self._logger.info("=" * 60)
+            self._logger.info("Generating reports...")
+
+            if "json" in report_formats:
+                json_path = self.report_manager.generate_json_report(
+                    analysis, comparison
+                )
+                self._logger.info(f"  📄 JSON: {json_path}")
+
+            if "html" in report_formats:
+                html_path = self.report_manager.generate_html_report(
+                    analysis, comparison
+                )
+                self._logger.info(f"  📄 HTML: {html_path}")
+
+            # Save baseline (Phase 3)
+            if save_baseline:
+                baseline_path = self.report_manager.save_baseline(
+                    analysis, save_baseline
+                )
+                self._logger.info(
+                    f"  💾 Baseline '{save_baseline}' saved: {baseline_path}"
+                )
+
+            # Discord notification (Phase 3)
+            if send_discord:
+                self._logger.info("Sending Discord notification...")
+                if await self.report_manager.send_discord_notification(
+                    analysis, comparison
+                ):
+                    self._logger.success("  📨 Discord notification sent")
+
+            self._logger.info("=" * 60)
+
+            # Return exit code based on results
+            exit_code = 0
+
+            if summary.failed_tests > 0 or summary.error_tests > 0:
+                self._logger.warning(
+                    f"⚠️ {summary.failed_tests} failures, {summary.error_tests} errors"
+                )
+                exit_code = 1
+
+            if comparison and comparison.verdict.value == "fail":
+                self._logger.error(
+                    f"🔻 Regression check failed: {comparison.verdict_reason}"
+                )
+                exit_code = 1
+
+            if exit_code == 0:
+                self._logger.success(f"✅ All {summary.passed_tests} tests passed!")
+
+            return exit_code
+
+        except Exception as e:
+            self._logger.error(f"Test execution error: {e}")
+            return 1
+
+        finally:
+            await self.shutdown()
+
+    def _print_banner(self) -> None:
+        """Print the startup banner."""
+        banner = """
+╔═══════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                       ║
+║     █████╗ ███████╗██╗  ██╗      ████████╗██╗  ██╗██████╗  █████╗ ███████╗██╗  ██╗    ║
+║    ██╔══██╗██╔════╝██║  ██║      ╚══██╔══╝██║  ██║██╔══██╗██╔══██╗██╔════╝██║  ██║    ║
+║    ███████║███████╗███████║█████╗   ██║   ███████║██████╔╝███████║███████╗███████║    ║
+║    ██╔══██║╚════██║██╔══██║╚════╝   ██║   ██╔══██║██╔══██╗██╔══██║╚════██║██╔══██║    ║
+║    ██║  ██║███████║██║  ██║         ██║   ██║  ██║██║  ██║██║  ██║███████║██║  ██║    ║
+║    ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝         ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ║
+║                                                                                       ║
+║                         Crisis Detection Testing Suite v5.0                           ║
+║                                                                                       ║
+║                   The Alphabet Cartel - https://discord.gg/alphabetcartel             ║
+║                                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════════════════════╝
 """
-        env_path.write_text(basic_env)
-        print_success(f"Created basic {ENV_FILE}")
+        # Print banner without logging (direct to console)
+        print(banner)
 
-def create_directories():
-    """Create required directories"""
-    directories = ["results", "logs", "reports", "config"]
-    
-    for directory in directories:
-        dir_path = Path(directory)
-        dir_path.mkdir(exist_ok=True)
-        print_success(f"Created directory: {directory}")
+        self._logger.info(f"Ash-Thrash {__version__} starting...")
+        self._logger.info(f"Environment: {self.config.get_environment()}")
 
-def validate_configuration():
-    """Validate configuration files"""
-    # Check if key files exist and are valid
-    try:
-        # Validate docker-compose.yml
-        subprocess.run(
-            ["docker-compose", "-f", COMPOSE_FILE, "config"],
-            capture_output=True,
-            check=True
+    def _print_startup_summary(self) -> None:
+        """Print startup summary."""
+        stats = self.phrase_loader.get_statistics()
+
+        self._logger.info("=" * 60)
+        self._logger.info("Startup Summary")
+        self._logger.info("=" * 60)
+        self._logger.info(f"  Environment:    {self.config.get_environment()}")
+        self._logger.info(f"  Log Level:      {self.logging_mgr.log_level}")
+        self._logger.info(f"  NLP Server:     {self.nlp_client.base_url}")
+        self._logger.info(f"  Total Phrases:  {stats.total_phrases}")
+        self._logger.info(f"  Files Loaded:   {stats.files_loaded}")
+
+        if stats.by_category_type:
+            self._logger.info("  By Type:")
+            for cat_type, count in stats.by_category_type.items():
+                self._logger.info(f"    - {cat_type}: {count}")
+
+        webhook_status = (
+            "Configured" if self.secrets.has_discord_webhook() else "Not configured"
         )
-        print_success("Docker Compose configuration is valid")
-        
-    except subprocess.CalledProcessError:
-        print_error("Docker Compose configuration is invalid")
+        self._logger.info(f"  Discord Webhook: {webhook_status}")
+        self._logger.info("=" * 60)
+        self._logger.success("Ash-Thrash initialized successfully")
 
-def load_env_file() -> dict:
-    """Load environment variables from .env file"""
-    env_vars = {}
-    env_path = Path(ENV_FILE)
-    
-    if env_path.exists():
-        with open(env_path) as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    key, value = line.split('=', 1)
-                    env_vars[key] = value
-    
-    return env_vars
-
-def check_services_health():
-    """Check health of running services"""
-    print("\n🏥 Checking service health...")
-    check_api_health()
-
-def check_api_health():
-    """Check API service health"""
-    try:
-        import requests
-        response = requests.get("http://localhost:8884/health", timeout=5)
-        if response.status_code == 200:
-            health_data = response.json()
-            status = health_data.get('status', 'unknown')
-            
-            if status == 'healthy':
-                print_success("API service is healthy")
-            else:
-                print_warning(f"API service status: {status}")
-        else:
-            print_error(f"API service returned {response.status_code}")
-            
-    except Exception as e:
-        print_error(f"API service unreachable: {str(e)}")
-
-def check_api_running() -> bool:
-    """Check if API service is running"""
-    try:
-        result = subprocess.run(
-            ["docker-compose", "-f", COMPOSE_FILE, "ps", "-q", "ash-thrash-api"],
-            capture_output=True,
-            text=True
-        )
-        return bool(result.stdout.strip())
-    except subprocess.CalledProcessError:
-        return False
-
-def run_command(cmd: list):
-    """Run a subprocess command with proper error handling"""
-    try:
-        subprocess.run(cmd, check=True)
-    except subprocess.CalledProcessError as e:
-        print_error(f"Command failed: {' '.join(cmd)}")
-        sys.exit(e.returncode)
-    except FileNotFoundError:
-        print_error(f"Command not found: {cmd[0]}")
-        sys.exit(1)
 
 # =============================================================================
-# ARGUMENT PARSING
+# CLI Argument Parser
 # =============================================================================
 
-def create_parser():
-    """Create argument parser"""
+
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description='Ash-Thrash v3.0 Management System',
+        description="Ash-Thrash: Discord Crisis Detection Testing Suite",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python main.py setup
-  python main.py start --detach
-  python main.py test-all comprehensive
-  python main.py status
-  python main.py logs --follow
-  python main.py stop
-        """
+  python main.py                          Start API server
+  python main.py --run-tests              Run all tests and exit
+  python main.py --run-tests --verbose    Run tests with verbose output
+  python main.py --run-tests --category critical_high_priority
+  python main.py --run-tests --save-baseline main
+  python main.py --run-tests --compare-baseline main
+  python main.py --run-tests --report-format html --report-format json
+  python main.py --run-tests --send-discord
+        """,
     )
-    
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
-    # Setup command
-    subparsers.add_parser('setup', help='Initial setup and configuration')
-    
-    # Start command
-    start_parser = subparsers.add_parser('start', help='Start services')
-    start_parser.add_argument('--build', action='store_true', help='Force rebuild images')
-    start_parser.add_argument('--detach', action='store_true', default=True, help='Run in background')
-    start_parser.add_argument('--no-detach', dest='detach', action='store_false', help='Run in foreground')
-    
-    # Stop command
-    subparsers.add_parser('stop', help='Stop all services')
-    
-    # Logs command
-    logs_parser = subparsers.add_parser('logs', help='View service logs')
-    logs_parser.add_argument('--follow', '-f', action='store_true', help='Follow logs')
-    logs_parser.add_argument('--service', help='Show logs for specific service')
-    
-    # Status command
-    subparsers.add_parser('status', help='Check service status')
-    
-    # Test command
-    test_parser = subparsers.add_parser('test-all', help='Run tests')
-    test_parser.add_argument('test_type', default='comprehensive', nargs='?',
-                            help='Test type to run')
-    
-    # CLI command
-    cli_parser = subparsers.add_parser('cli', help='Run CLI commands in container')
-    cli_parser.add_argument('command', nargs='+', help='CLI command to run')
-    
-    # Validate command
-    subparsers.add_parser('validate', help='Validate configuration')
-    
-    # Clean command
-    clean_parser = subparsers.add_parser('clean', help='Clean up resources')
-    clean_parser.add_argument('--force', action='store_true', help='Force cleanup without confirmation')
-    
-    # Build command
-    subparsers.add_parser('build', help='Build Docker images')
-    
-    return parser
 
-def main():
-    """Main management entry point"""
-    parser = create_parser()
-    args = parser.parse_args()
-    
-    if not args.command:
-        parser.print_help()
-        return
-    
+    # Server options
+    parser.add_argument(
+        "--host",
+        default=os.environ.get("THRASH_API_HOST", DEFAULT_API_HOST),
+        help=f"API server host (default: {DEFAULT_API_HOST})",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.environ.get("THRASH_API_PORT", DEFAULT_API_PORT)),
+        help=f"API server port (default: {DEFAULT_API_PORT})",
+    )
+
+    # Test execution options
+    parser.add_argument(
+        "--run-tests",
+        action="store_true",
+        help="Run tests immediately and exit (don't start server)",
+    )
+    parser.add_argument(
+        "--category",
+        action="append",
+        dest="categories",
+        help="Category to test (can be specified multiple times)",
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Show verbose output during test execution",
+    )
+
+    # Phase 3: Reporting options
+    parser.add_argument(
+        "--save-baseline",
+        metavar="NAME",
+        help="Save results as named baseline (e.g., 'main', 'pre-release')",
+    )
+    parser.add_argument(
+        "--compare-baseline",
+        metavar="NAME",
+        help="Compare results against named baseline for regression detection",
+    )
+    parser.add_argument(
+        "--report-format",
+        action="append",
+        dest="report_formats",
+        choices=["json", "html"],
+        help="Report format to generate (can be specified multiple times, default: json)",
+    )
+    parser.add_argument(
+        "--send-discord",
+        action="store_true",
+        help="Send results to Discord webhook (requires configured webhook)",
+    )
+
+    # Version
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"Ash-Thrash {__version__}",
+    )
+
+    return parser.parse_args()
+
+
+# =============================================================================
+# Entry Point
+# =============================================================================
+
+
+def main() -> int:
+    """
+    Main entry point.
+
+    Returns:
+        Exit code
+    """
+    args = parse_args()
+    app = AshThrash()
+
     try:
-        command_map = {
-            'setup': setup_command,
-            'start': start_command,
-            'stop': stop_command,
-            'logs': logs_command,
-            'status': status_command,
-            'test-all': test_all_command,
-            'cli': cli_command,
-            'validate': validate_command,
-            'clean': clean_command,
-            'build': build_command
-        }
-        
-        if args.command in command_map:
-            command_map[args.command](args)
+        if args.run_tests:
+            # Run tests and exit
+            return asyncio.run(
+                app.run_tests(
+                    categories=args.categories,
+                    verbose=args.verbose,
+                    save_baseline=args.save_baseline,
+                    compare_baseline=args.compare_baseline,
+                    report_formats=args.report_formats,
+                    send_discord=args.send_discord,
+                )
+            )
         else:
-            print_error(f"Unknown command: {args.command}")
-            parser.print_help()
-            
+            # Run API server
+            return asyncio.run(
+                app.run_server(
+                    host=args.host,
+                    port=args.port,
+                )
+            )
     except KeyboardInterrupt:
-        print("\n⏹️ Operation cancelled by user")
-    except Exception as e:
-        print_error(f"Unexpected error: {str(e)}")
-        sys.exit(1)
+        print("\n👋 Interrupted by user")
+        return 0
 
-if __name__ == '__main__':
-    main()
+
+if __name__ == "__main__":
+    sys.exit(main())

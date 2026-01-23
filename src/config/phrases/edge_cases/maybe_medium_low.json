@@ -1,0 +1,207 @@
+{
+	"_metadata": {
+		"title": "Maybe Medium/Low Priority Crisis Test Phrases",
+		"file_version": "v5.0-4-4.1-2",
+		"last_modified": "2026-01-22",
+		"clean_architecture": "v5.2.1",
+		"description": "These phrases represent borderline cases between low and medium priority.",
+		"target": "85% catch rate",
+		"note": "Should be detected as 'low' or 'medium' priority. A detection of 'none' or 'high' is considered a failure."
+	},
+
+	"category_info": {
+		"name": "maybe_medium_low",
+		"description": "Maybe Medium/Low",
+		"total_phrases": 25,
+		"target_pass_rate": "${THRASH_LOW_MEDIUM_TARGET}",
+		"critical": "${THRASH_LOW_MEDIUM_CRITICAL}",
+		"allow_escalation": "${THRASH_LOW_MEDIUM_ESCALATION}",
+		"allow_de-escalation": "${THRASH_LOW_MEDIUM_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 85,
+			"critical": false,
+			"allow_escalation": false,
+			"allow_de-escalation": false
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "maybe_medium_low",
+		"expected_priority": "${THRASH_LOW_MEDIUM_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["low", "medium"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"burden_sensation": [
+				{
+					"message": "Things feel burdensome",
+					"description": "Life feeling like a burden"
+				}
+			],
+			"difficult_period": [
+				{
+					"message": "I've been having a hard time",
+					"description": "Experiencing difficult times"
+				}
+			],
+			"direction_uncertainty": [
+				{
+					"message": "I'm feeling a bit lost",
+					"description": "Uncertainty about direction"
+				}
+			],
+			"emotional_unwellness": [
+				{
+					"message": "I'm not feeling well emotionally",
+					"description": "Poor emotional state"
+				}
+			],
+			"emotional_weight": [
+				{
+					"message": "Things feel heavy",
+					"description": "Emotional burden or heaviness"
+				}
+			],
+			"exhaustion_feeling": [
+				{
+					"message": "Things feel exhausting",
+					"description": "Life feeling exhausting"
+				}
+			],
+			"general_struggle": [
+				{
+					"message": "I've been struggling with things",
+					"description": "General life struggles"
+				}
+			],
+			"intermittent_overwhelm": [
+				{
+					"message": "Things feel overwhelming sometimes",
+					"description": "Occasional overwhelming feelings"
+				}
+			],
+			"low_mood": [
+				{
+					"message": "I've been feeling down",
+					"description": "Depressed mood state"
+				}
+			],
+			"mild_anxiety": [
+				{
+					"message": "I'm feeling a bit anxious",
+					"description": "Low-level anxiety"
+				}
+			],
+			"mild_defeat": [
+				{
+					"message": "I'm feeling somewhat defeated",
+					"description": "Moderate sense of defeat"
+				}
+			],
+			"mild_hopelessness": [
+				{
+					"message": "I'm feeling a bit hopeless",
+					"description": "Low-level hopelessness"
+				}
+			],
+			"mild_overwhelm": [
+				{
+					"message": "I'm feeling somewhat overwhelmed",
+					"description": "Moderate sense of being overwhelmed"
+				}
+			],
+			"moderate_sadness": [
+				{
+					"message": "I'm feeling somewhat sad",
+					"description": "Mild to moderate sadness"
+				}
+			],
+			"motivation_lack": [
+				{
+					"message": "I'm not feeling motivated",
+					"description": "Absence of motivation"
+				}
+			],
+			"optimism_lack": [
+				{
+					"message": "I'm not feeling optimistic",
+					"description": "Absence of optimistic outlook"
+				}
+			],
+			"pain_experience": [
+				{
+					"message": "I've been experiencing pain",
+					"description": "Experiencing emotional pain"
+				}
+			],
+			"perceived_difficulty": [
+				{
+					"message": "Things feel difficult",
+					"description": "General sense of difficulty"
+				}
+			],
+			"poor_state": [
+				{
+					"message": "I'm not doing great",
+					"description": "Below average functioning"
+				}
+			],
+			"security_lack": [
+				{
+					"message": "I'm not feeling secure",
+					"description": "Feeling insecure or unsafe"
+				}
+			],
+			"stability_concerns": [
+				{
+					"message": "Things feel unstable",
+					"description": "Sense of instability"
+				}
+			],
+			"stress_acknowledgment": [
+				{
+					"message": "Things have been stressful",
+					"description": "Recognition of increased stress"
+				}
+			],
+			"suboptimal_state": [
+				{
+					"message": "I'm not feeling my best",
+					"description": "Below optimal emotional state"
+				}
+			],
+			"tough_circumstances": [
+				{
+					"message": "Things have been tough",
+					"description": "Challenging life circumstances"
+				}
+			],
+			"vague_discomfort": [
+				{
+					"message": "I've been feeling kind of off lately",
+					"description": "Undefined feeling of being unwell"
+				}
+			]
+		}
+	}
+}

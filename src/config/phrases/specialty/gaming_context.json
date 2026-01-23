@@ -1,0 +1,129 @@
+{
+	"_metadata": {
+		"title": "Gaming Context Test Phrases",
+		"file_version": "v5.0-4-4.7-2",
+		"last_modified": "2026-01-22",
+		"clean_architecture": "v5.2.1",
+		"description": "Gaming language that might trigger false positives. Common gaming expressions that use crisis-adjacent language.",
+		"target": "95% catch rate",
+		"note": "All phrases should be detected as 'none' or 'safe' priority. False positives here indicate context detection failure."
+	},
+
+	"category_info": {
+		"name": "specialty_gaming",
+		"description": "Gaming Context Test Cases",
+		"total_phrases": 15,
+		"target_pass_rate": "${THRASH_GAMING_TARGET}",
+		"critical": "${THRASH_GAMING_CRITICAL}",
+		"allow_escalation": "${THRASH_GAMING_ESCALATION}",
+		"allow_de-escalation": "${THRASH_GAMING_DEESCALATION}",
+		"defaults": {
+			"target_pass_rate": 95,
+			"critical": false,
+			"allow_escalation": false,
+			"allow_de-escalation": true
+		},
+		"validation": {
+			"target_pass_rate": {
+				"type": "float",
+				"range": [0.01, 100.0]
+			},
+			"critical": {
+				"type": "boolean"
+			},
+			"allow_escalation": {
+				"type": "boolean"
+			},
+			"allow_de-escalation": {
+				"type": "boolean"
+			}
+		}
+	},
+
+	"category": {
+		"name": "specialty_gaming",
+		"expected_priority": "${THRASH_GAMING_PRIORITY}",
+		"defaults": {
+			"expected_priority": ["none", "safe"]
+		},
+		"validation": {
+			"expected_priority": {
+				"type": "list"
+			}
+		},
+		"subcategories": {
+			"game_death": [
+				{
+					"message": "I died to that boss again, I'm going to lose it",
+					"description": "Game death frustration"
+				},
+				{
+					"message": "I keep dying in this level over and over",
+					"description": "Repeated game death"
+				},
+				{
+					"message": "That enemy just killed me for the 50th time",
+					"description": "Game death count"
+				}
+			],
+			"frustration_expression": [
+				{
+					"message": "Kill me now, that was such an embarrassing play",
+					"description": "Gaming embarrassment hyperbole"
+				},
+				{
+					"message": "I want to end it all... this match is absolutely terrible",
+					"description": "Bad match frustration"
+				},
+				{
+					"message": "I'm so dead if my team sees this play",
+					"description": "Team performance anxiety"
+				}
+			],
+			"competitive_language": [
+				{
+					"message": "That headshot destroyed me completely",
+					"description": "Competitive gaming loss"
+				},
+				{
+					"message": "We got absolutely murdered in that game",
+					"description": "Team loss expression"
+				},
+				{
+					"message": "They're slaughtering us out there",
+					"description": "Losing badly expression"
+				}
+			],
+			"rage_quit": [
+				{
+					"message": "I can't take this game anymore, I'm uninstalling",
+					"description": "Game frustration rage quit"
+				},
+				{
+					"message": "This game is making me want to throw my controller out the window",
+					"description": "Controller rage"
+				}
+			],
+			"respawn_context": [
+				{
+					"message": "Just waiting to respawn after that death",
+					"description": "Respawn waiting"
+				},
+				{
+					"message": "I'll be back after this death cooldown",
+					"description": "Death cooldown reference"
+				}
+			],
+			"loss_streak": [
+				{
+					"message": "I've lost like ten games in a row, existence is pain",
+					"description": "Loss streak hyperbole"
+				},
+				{
+					"message": "This losing streak is killing my rank",
+					"description": "Rank concern"
+				}
+			]
+		}
+	}
+}

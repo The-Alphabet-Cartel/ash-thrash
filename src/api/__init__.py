@@ -11,37 +11,28 @@ MISSION - NEVER TO BE VIOLATED:
     Protect   → Safeguard our LGBTQIA+ community through rigorous quality assurance
 
 ============================================================================
-Ash-Thrash Source Package
+Ash-Thrash API Package
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-1-1.7-1
+FILE VERSION: v5.0-2-2.4-1
 LAST MODIFIED: 2026-01-20
-PHASE: Phase 1 - Foundation
+PHASE: Phase 2 - Test Execution Engine
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
 
-This is the main source package for Ash-Thrash containing:
+This package contains the FastAPI application for Ash-Thrash:
 
-PACKAGES:
-- managers:   Configuration and resource management
-- config:     JSON configuration files
-- validators: Response and classification validation (Phase 2)
-
-MANAGERS (Phase 1):
-- ConfigManager:        Configuration loading and validation
-- SecretsManager:       Docker secrets and credential management  
-- LoggingConfigManager: Colorized logging with SUCCESS level
-- NLPClientManager:     HTTP client for Ash-NLP API communication
-- PhraseLoaderManager:  Test phrase loading and validation
+- Health endpoint for Docker health checks
+- Status endpoint for detailed service information
+- Future: Test execution API endpoints
 
 USAGE:
-    from src.managers import (
-        create_config_manager,
-        create_secrets_manager,
-        create_logging_config_manager,
-        create_nlp_client_manager,
-        create_phrase_loader_manager,
-    )
+    from src.api import create_app
+    
+    app = create_app()
+    
+    # Run with uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=30888)
 """
 
 __version__ = "5.0.0"
@@ -49,10 +40,13 @@ __author__ = "The Alphabet Cartel"
 __email__ = "dev@alphabetcartel.org"
 __url__ = "https://github.com/the-alphabet-cartel/ash-thrash"
 
-# Package metadata
+from src.api.app import create_app, get_app
+
 __all__ = [
     "__version__",
     "__author__",
     "__email__",
     "__url__",
+    "create_app",
+    "get_app",
 ]
