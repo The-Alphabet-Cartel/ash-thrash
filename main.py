@@ -161,7 +161,7 @@ class AshThrash:
             self._logger = self.logging_mgr.get_logger("main")
 
             # Print startup banner
-            self._print_banner()
+            # self._print_banner()
 
             # Step 4: NLP Client Manager (depends on config, logging)
             self._logger.info("Initializing NLP Client...")
