@@ -97,10 +97,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean
 
 # Create non-root user (will be modified at runtime by entrypoint if PUID/PGID differ)
-RUN groupadd --gid ${DEFAULT_GID} thrash \
-    && useradd --uid ${DEFAULT_UID} --gid thrash --shell /bin/bash --create-home thrash \
+RUN groupadd --gid ${PGID} ash-thrash \
+    && useradd --uid ${PUID} --gid ash-thrash --shell /bin/bash --create-home ash-thrash \
     && mkdir -p /app/logs /app/reports /app/src/config/phrases \
-    && chown -R ${DEFAULT_UID}:${DEFAULT_GID} /app
+    && chown -R ${PUID}:${PGID} /app
 
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
@@ -117,7 +117,7 @@ RUN chmod +x /app/docker-entrypoint.py
 
 # Set ownership of app directory to default user
 # (entrypoint will fix this at runtime based on PUID/PGID)
-RUN chown -R thrash:thrash /app
+RUN chown -R ${PUID}:${PGID} /app
 
 # NOTE: We do NOT switch to USER thrash here!
 # The entrypoint script handles user switching at runtime after fixing permissions.
