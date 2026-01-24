@@ -1,9 +1,9 @@
 {
 	"_metadata": {
 		"title": "Multi-Language Hinting Test Phrases",
-		"file_version": "v5.0-4-4.11-1",
-		"last_modified": "2026-01-21",
-		"clean_architecture": "v5.2.1",
+		"file_version": "v5.0-5-5.0-1",
+		"last_modified": "2026-01-24",
+		"clean_architecture": "v5.2.2",
 		"description": "Code-switching and expressions from other languages that might contain crisis-adjacent terms. Tests the system's ability to handle multilingual content.",
 		"target": "85% catch rate",
 		"note": "Phrases may need manual review as language context affects meaning. Expected priorities vary based on actual content meaning."
@@ -12,7 +12,7 @@
 	"category_info": {
 		"name": "specialty_multilang",
 		"description": "Multi-Language Test Cases",
-		"total_phrases": 10,
+		"total_phrases": 50,
 		"target_pass_rate": "${THRASH_MULTILANG_TARGET}",
 		"critical": "${THRASH_MULTILANG_CRITICAL}",
 		"allow_escalation": "${THRASH_MULTILANG_ESCALATION}",
@@ -60,6 +60,30 @@
 				{
 					"message": "No puedo más with all this stress at work",
 					"description": "Spanish phrase meaning 'I can't take anymore' in work context - low priority"
+				},
+				{
+					"message": "Ay dios mío, this day is never ending",
+					"description": "Spanish exclamation with English complaint - none/low"
+				},
+				{
+					"message": "Me duele la cabeza and I'm over everything",
+					"description": "Headache complaint in mixed language"
+				},
+				{
+					"message": "Qué horror this meeting was, never again",
+					"description": "Spanish reaction to bad meeting"
+				},
+				{
+					"message": "I'm so agotado from this week, necesito sleep",
+					"description": "Mixed exhaustion expression"
+				},
+				{
+					"message": "Esto es una pesadilla, this project will never end",
+					"description": "Work nightmare hyperbole"
+				},
+				{
+					"message": "Ya no aguanto más these deadlines",
+					"description": "Spanish stress expression about deadlines"
 				}
 			],
 			"french_expressions": [
@@ -70,30 +94,156 @@
 				{
 					"message": "Je suis fatiguée de tout this constant drama",
 					"description": "French-English expressing tiredness of drama - low priority"
+				},
+				{
+					"message": "Quel cauchemar this commute was today",
+					"description": "French nightmare expression for bad commute"
+				},
+				{
+					"message": "Je m'en fiche honestly, not my problem anymore",
+					"description": "French indifference expression"
+				},
+				{
+					"message": "Mon dieu, the audacity of some people",
+					"description": "French exclamation of disbelief"
+				},
+				{
+					"message": "I'm feeling très overwhelmed right now",
+					"description": "Mixed language stress expression"
+				},
+				{
+					"message": "C'est n'importe quoi this whole situation",
+					"description": "French dismissal of chaotic situation"
 				}
 			],
 			"german_expressions": [
 				{
 					"message": "I have such Weltschmerz today, everything feels heavy",
 					"description": "German term for world-weariness - low/medium priority"
+				},
+				{
+					"message": "This Schadenfreude is real watching them fail",
+					"description": "German term for pleasure at others' misfortune - none"
+				},
+				{
+					"message": "The Wanderlust is hitting hard, need to travel",
+					"description": "German term for travel desire - none"
+				},
+				{
+					"message": "Having major Fernweh, I need to be anywhere but here",
+					"description": "German term for longing for distant places"
+				},
+				{
+					"message": "This is giving Angst but like, in a productive way",
+					"description": "German anxiety term used casually"
+				},
+				{
+					"message": "Total Kopfkino about this presentation tomorrow",
+					"description": "German term for mental cinema/overthinking"
 				}
 			],
 			"japanese_expressions": [
 				{
 					"message": "Feeling very 仕方がない about this situation",
 					"description": "Japanese term meaning 'it can't be helped' - none priority"
+				},
+				{
+					"message": "This is giving 辛い energy honestly",
+					"description": "Japanese word for painful/spicy used casually"
+				},
+				{
+					"message": "Such a めんどくさい task, don't want to do it",
+					"description": "Japanese for troublesome/bothersome"
+				},
+				{
+					"message": "Major 疲れた vibes today",
+					"description": "Japanese for tired"
+				},
+				{
+					"message": "The 空気 in that room was so awkward",
+					"description": "Japanese term for atmosphere"
 				}
 			],
 			"portuguese_expressions": [
 				{
 					"message": "Tenho tanta saudade, I miss everyone so much",
 					"description": "Portuguese expression of longing/missing - low priority"
+				},
+				{
+					"message": "Que chatice this whole thing is",
+					"description": "Portuguese annoyance expression"
+				},
+				{
+					"message": "I'm feeling very desanimado about work",
+					"description": "Portuguese for discouraged"
+				},
+				{
+					"message": "Isto é uma confusão, I can't follow this",
+					"description": "Portuguese confusion expression"
 				}
 			],
 			"tagalog_codeswitching": [
 				{
 					"message": "Nakakastress naman this deadline, I'm so overwhelmed",
 					"description": "Tagalog-English expressing stress about deadline - low priority"
+				},
+				{
+					"message": "Ang hirap naman, this is so difficult",
+					"description": "Tagalog difficulty expression"
+				},
+				{
+					"message": "Sobrang pagod na ako, I need rest",
+					"description": "Tagalog exhaustion expression"
+				},
+				{
+					"message": "Nakakainis talaga this situation",
+					"description": "Tagalog annoyance expression"
+				}
+			],
+			"italian_expressions": [
+				{
+					"message": "Che palle, not another meeting",
+					"description": "Italian frustration expression"
+				},
+				{
+					"message": "I'm feeling very stanco, need a nap",
+					"description": "Italian for tired"
+				},
+				{
+					"message": "Mamma mia what a disaster today was",
+					"description": "Italian exclamation for bad day"
+				},
+				{
+					"message": "This is troppo, I can't handle any more",
+					"description": "Italian for too much"
+				}
+			],
+			"korean_expressions": [
+				{
+					"message": "This is so 답답해, nothing is working",
+					"description": "Korean for frustrating/suffocating"
+				},
+				{
+					"message": "Feeling very 피곤해 today",
+					"description": "Korean for tired"
+				},
+				{
+					"message": "아이고 what a mess this became",
+					"description": "Korean exclamation of exasperation"
+				}
+			],
+			"hindi_expressions": [
+				{
+					"message": "Bahut thak gaya yaar, so exhausted",
+					"description": "Hindi exhaustion expression"
+				},
+				{
+					"message": "Kya bakwas is this meeting",
+					"description": "Hindi nonsense/annoying expression"
+				},
+				{
+					"message": "Itna stress hai, can't deal",
+					"description": "Hindi stress expression"
 				}
 			],
 			"mixed_cultural": [
@@ -104,6 +254,22 @@
 				{
 					"message": "Having a total ennui moment today, nothing interests me",
 					"description": "French term for listless boredom - low priority"
+				},
+				{
+					"message": "Very hygge vibes needed right now",
+					"description": "Danish term for cozy comfort - none"
+				},
+				{
+					"message": "This ikigai search is exhausting me",
+					"description": "Japanese term for life purpose - none/low"
+				},
+				{
+					"message": "Need some lagom in my life, everything is extreme",
+					"description": "Swedish term for balance - none"
+				},
+				{
+					"message": "Major wabi-sabi energy accepting this mess",
+					"description": "Japanese aesthetic of imperfection - none"
 				}
 			]
 		}

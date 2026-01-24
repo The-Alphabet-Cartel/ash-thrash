@@ -1,9 +1,9 @@
 {
 	"_metadata": {
 		"title": "Songs & Quotes Test Phrases",
-		"file_version": "v5.0-4-4.9-2",
-		"last_modified": "2026-01-22",
-		"clean_architecture": "v5.2.1",
+		"file_version": "v5.0-5-5.0-1",
+		"last_modified": "2026-01-24",
+		"clean_architecture": "v5.2.2",
 		"description": "Quoted content from songs, movies, or literature that sounds concerning out of context. Tests the system's ability to recognize quoted material.",
 		"target": "85% catch rate",
 		"note": "Most phrases should be detected as 'none' or 'low' priority. These are recognizable quotes/references, not genuine distress."
@@ -12,7 +12,7 @@
 	"category_info": {
 		"name": "specialty_quotes",
 		"description": "Songs & Quotes Test Cases",
-		"total_phrases": 15,
+		"total_phrases": 50,
 		"target_pass_rate": "${THRASH_QUOTES_TARGET}",
 		"critical": "${THRASH_QUOTES_CRITICAL}",
 		"allow_escalation": "${THRASH_QUOTES_ESCALATION}",
@@ -64,6 +64,22 @@
 				{
 					"message": "All around me are familiar faces, worn out places",
 					"description": "Mad World reference"
+				},
+				{
+					"message": "Is this the real life? Is this just fantasy?",
+					"description": "Queen - Bohemian Rhapsody reference"
+				},
+				{
+					"message": "I can't get no satisfaction",
+					"description": "Rolling Stones reference"
+				},
+				{
+					"message": "Help, I need somebody, help, not just anybody",
+					"description": "Beatles - Help! reference"
+				},
+				{
+					"message": "All by myself, don't wanna be all by myself anymore",
+					"description": "Eric Carmen/Celine Dion reference"
 				}
 			],
 			"modern_songs": [
@@ -78,6 +94,56 @@
 				{
 					"message": "In the end it doesn't even matter",
 					"description": "Linkin Park - In The End reference"
+				},
+				{
+					"message": "When you're gone the pieces of my heart are missing you",
+					"description": "Avril Lavigne reference"
+				},
+				{
+					"message": "Cut my life into pieces, this is my last resort",
+					"description": "Papa Roach - Last Resort reference"
+				},
+				{
+					"message": "How can you see into my eyes like open doors",
+					"description": "Evanescence - Bring Me To Life reference"
+				},
+				{
+					"message": "I'm bringing sexy back",
+					"description": "Justin Timberlake reference - safe contrast"
+				},
+				{
+					"message": "Hello from the other side, I must have called a thousand times",
+					"description": "Adele reference"
+				},
+				{
+					"message": "I'm just a poor boy nobody loves me",
+					"description": "Bohemian Rhapsody reference"
+				},
+				{
+					"message": "What doesn't kill you makes you stronger",
+					"description": "Kelly Clarkson reference"
+				}
+			],
+			"emo_era_songs": [
+				{
+					"message": "I'm not okay, I promise",
+					"description": "My Chemical Romance reference"
+				},
+				{
+					"message": "Welcome to the Black Parade",
+					"description": "My Chemical Romance reference"
+				},
+				{
+					"message": "I write sins not tragedies",
+					"description": "Panic! At The Disco reference"
+				},
+				{
+					"message": "Sugar we're going down swinging",
+					"description": "Fall Out Boy reference"
+				},
+				{
+					"message": "This ain't a scene it's an arms race",
+					"description": "Fall Out Boy reference"
 				}
 			],
 			"movie_quotes": [
@@ -92,6 +158,30 @@
 				{
 					"message": "Life is like a box of chocolates",
 					"description": "Forrest Gump reference"
+				},
+				{
+					"message": "Here's looking at you, kid",
+					"description": "Casablanca reference"
+				},
+				{
+					"message": "I'll be back",
+					"description": "Terminator reference"
+				},
+				{
+					"message": "Why so serious?",
+					"description": "Dark Knight Joker reference"
+				},
+				{
+					"message": "You can't handle the truth",
+					"description": "A Few Good Men reference"
+				},
+				{
+					"message": "I'm the king of the world",
+					"description": "Titanic reference"
+				},
+				{
+					"message": "To infinity and beyond",
+					"description": "Toy Story reference"
 				}
 			],
 			"literature_quotes": [
@@ -106,6 +196,22 @@
 				{
 					"message": "All hope abandon, ye who enter here",
 					"description": "Dante's Inferno reference"
+				},
+				{
+					"message": "The only thing we have to fear is fear itself",
+					"description": "FDR quote reference"
+				},
+				{
+					"message": "Not all those who wander are lost",
+					"description": "Tolkien reference"
+				},
+				{
+					"message": "In the depths of winter I finally learned there was in me an invincible summer",
+					"description": "Camus reference"
+				},
+				{
+					"message": "So it goes",
+					"description": "Vonnegut - Slaughterhouse-Five reference"
 				}
 			],
 			"meme_quotes": [
@@ -120,6 +226,62 @@
 				{
 					"message": "Existence is pain",
 					"description": "Mr. Meeseeks/Rick and Morty reference"
+				},
+				{
+					"message": "I've made a huge mistake",
+					"description": "Arrested Development reference"
+				},
+				{
+					"message": "Everything is awesome",
+					"description": "Lego Movie reference (often used ironically)"
+				},
+				{
+					"message": "Perfectly balanced, as all things should be",
+					"description": "Thanos/Marvel meme reference"
+				},
+				{
+					"message": "Reality is often disappointing",
+					"description": "Thanos quote meme"
+				}
+			],
+			"tv_show_quotes": [
+				{
+					"message": "Winter is coming",
+					"description": "Game of Thrones reference"
+				},
+				{
+					"message": "I am the one who knocks",
+					"description": "Breaking Bad reference"
+				},
+				{
+					"message": "That's what she said",
+					"description": "The Office reference"
+				},
+				{
+					"message": "How you doin'?",
+					"description": "Friends reference"
+				},
+				{
+					"message": "Cool cool cool cool cool no doubt no doubt",
+					"description": "Brooklyn 99 reference"
+				},
+				{
+					"message": "I've heard it both ways",
+					"description": "Psych reference"
+				}
+			],
+			"video_game_quotes": [
+				{
+					"message": "The cake is a lie",
+					"description": "Portal meme reference"
+				},
+				{
+					"message": "It's dangerous to go alone",
+					"description": "Legend of Zelda reference"
+				},
+				{
+					"message": "Would you kindly",
+					"description": "Bioshock reference"
 				}
 			]
 		}

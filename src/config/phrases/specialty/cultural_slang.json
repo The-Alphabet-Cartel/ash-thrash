@@ -1,9 +1,9 @@
 {
 	"_metadata": {
 		"title": "Cultural / Slang Test Phrases",
-		"file_version": "v5.0-4-4.10-2",
-		"last_modified": "2026-01-22",
-		"clean_architecture": "v5.2.1",
+		"file_version": "v5.0-5-5.0-1",
+		"last_modified": "2026-01-24",
+		"clean_architecture": "v5.2.2",
 		"description": "Internet slang and cultural expressions that might trigger false positives or contain crisis-adjacent language in non-crisis context.",
 		"target": "90% catch rate",
 		"note": "Most phrases should be detected as 'none' or 'low' priority. Tests the system's understanding of modern internet/cultural language."
@@ -12,7 +12,7 @@
 	"category_info": {
 		"name": "specialty_slang",
 		"description": "Cultural/Slang Test Cases",
-		"total_phrases": 15,
+		"total_phrases": 50,
 		"target_pass_rate": "${THRASH_SLANG_TARGET}",
 		"critical": "${THRASH_SLANG_CRITICAL}",
 		"allow_escalation": "${THRASH_SLANG_ESCALATION}",
@@ -64,6 +64,26 @@
 				{
 					"message": "That joke absolutely killed me lmaooo",
 					"description": "Slang for finding something hilarious"
+				},
+				{
+					"message": "I'm literally dying rn 😭😂",
+					"description": "Mixed emoji death slang"
+				},
+				{
+					"message": "That tweet ended me completely",
+					"description": "Social media amusement expression"
+				},
+				{
+					"message": "Stop I'm actually crying laughing I can't breathe",
+					"description": "Laughter hyperbole"
+				},
+				{
+					"message": "You're killing me with these jokes bro",
+					"description": "Comedy appreciation slang"
+				},
+				{
+					"message": "RIP me after that embarrassing moment",
+					"description": "Self-deprecating death slang"
 				}
 			],
 			"stan_culture": [
@@ -74,6 +94,22 @@
 				{
 					"message": "This song is everything, I can't live without it",
 					"description": "Fan enthusiasm hyperbole"
+				},
+				{
+					"message": "I'm OBSESSED with this band, it's unhealthy",
+					"description": "Fan exaggeration"
+				},
+				{
+					"message": "New album dropped and I'm not okay",
+					"description": "Media release excitement"
+				},
+				{
+					"message": "They looked at the camera and I ascended",
+					"description": "Fan dramatic reaction"
+				},
+				{
+					"message": "If they don't tour near me I will simply perish",
+					"description": "Concert availability hyperbole"
 				}
 			],
 			"mood_slang": [
@@ -88,6 +124,18 @@
 				{
 					"message": "That's such a vibe honestly",
 					"description": "Positive/neutral slang expression"
+				},
+				{
+					"message": "Current mood: screaming internally",
+					"description": "Mood status update"
+				},
+				{
+					"message": "This hits different at 3am",
+					"description": "Late night mood slang"
+				},
+				{
+					"message": "Why is this so relatable it hurts",
+					"description": "Content connection expression"
 				}
 			],
 			"gen_z_expressions": [
@@ -102,6 +150,30 @@
 				{
 					"message": "That's so slay actually",
 					"description": "Positive slang expression"
+				},
+				{
+					"message": "Not the intrusive thoughts winning today",
+					"description": "Mental health meme language"
+				},
+				{
+					"message": "POV: you're having a moment",
+					"description": "TikTok-style framing"
+				},
+				{
+					"message": "It's the audacity for me",
+					"description": "Commentary slang"
+				},
+				{
+					"message": "Main character energy but derogatory",
+					"description": "Self-deprecating TikTok slang"
+				},
+				{
+					"message": "This ain't it chief",
+					"description": "Disapproval slang"
+				},
+				{
+					"message": "Rent free in my head and not paying utilities",
+					"description": "Mental occupation joke"
 				}
 			],
 			"aave_expressions": [
@@ -112,6 +184,18 @@
 				{
 					"message": "Not me having a whole moment rn",
 					"description": "AAVE-influenced expression of emotional state"
+				},
+				{
+					"message": "The way I just screamed",
+					"description": "Reaction expression"
+				},
+				{
+					"message": "Periodt, as you should",
+					"description": "Affirmation slang"
+				},
+				{
+					"message": "And I oop-",
+					"description": "Surprised/caught off guard expression"
 				}
 			],
 			"reaction_slang": [
@@ -122,6 +206,76 @@
 				{
 					"message": "Bestie I am SHOOK",
 					"description": "Slang for being surprised/impressed"
+				},
+				{
+					"message": "Crying throwing up rn",
+					"description": "Dramatic reaction slang (positive or negative)"
+				},
+				{
+					"message": "I'm gagged, gooped, and gathering my things",
+					"description": "Shock expression from drag culture"
+				},
+				{
+					"message": "Excuse me while I go feral for a moment",
+					"description": "Excitement expression"
+				},
+				{
+					"message": "Bro I'm actually tweaking",
+					"description": "Excitement/disbelief slang"
+				}
+			],
+			"online_culture": [
+				{
+					"message": "Touch grass challenge: failed",
+					"description": "Internet culture self-deprecation"
+				},
+				{
+					"message": "The algorithm really said 'suffer'",
+					"description": "Social media complaint"
+				},
+				{
+					"message": "My screen time report is violence",
+					"description": "Phone usage self-roast"
+				},
+				{
+					"message": "Doom scrolling my way to enlightenment",
+					"description": "Social media behavior irony"
+				},
+				{
+					"message": "The timeline is unhinged today and so am I",
+					"description": "Social media chaos acknowledgment"
+				}
+			],
+			"emoji_context": [
+				{
+					"message": "💀💀💀 stop why is this so true",
+					"description": "Skull emoji as laughter"
+				},
+				{
+					"message": "Not me 😭😭😭",
+					"description": "Crying emoji as laughter/relatability"
+				},
+				{
+					"message": "Help 💀",
+					"description": "Single word death slang"
+				},
+				{
+					"message": "Screaming crying 🤡",
+					"description": "Self-deprecating clown emoji"
+				}
+			],
+			"gaming_adjacent_slang": [
+				{
+					"message": "That was mid, I'm not gonna lie",
+					"description": "Gaming/internet mediocrity assessment"
+				},
+				{
+					"message": "This is bussin fr fr",
+					"description": "Approval slang"
+				},
+				{
+					"message": "Based take honestly",
+					"description": "Agreement slang"
 				}
 			]
 		}

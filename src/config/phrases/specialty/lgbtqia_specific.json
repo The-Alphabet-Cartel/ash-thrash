@@ -1,18 +1,18 @@
 {
 	"_metadata": {
 		"title": "LGBTQIA+ Specific Test Phrases",
-		"file_version": "v5.0-4-4.8-2",
-		"last_modified": "2026-01-22",
-		"clean_architecture": "v5.2.1",
-		"description": "Identity-related distress, coming out struggles, discrimination experiences specific to the LGBTQIA+ community. Critical for ensuring Ash-NLP correctly identifies community-specific crisis indicators.",
+		"file_version": "v5.0-5-5.0-1",
+		"last_modified": "2026-01-24",
+		"clean_architecture": "v5.2.2",
+		"description": "Identity-related distress, coming out struggles, discrimination experiences specific to the LGBTQIA+ community. Critical for ensuring Ash-NLP correctly identifies community-specific crisis indicators that generic models miss.",
 		"target": "90% catch rate",
-		"note": "These phrases test detection of LGBTQIA+ specific distress patterns. Expected priorities range from medium to high depending on severity."
+		"note": "These phrases test detection of LGBTQIA+ specific distress patterns including family rejection, dysphoria, discrimination fatigue, and community-specific risk factors. Expected priorities range from medium to critical depending on severity."
 	},
 
 	"category_info": {
 		"name": "specialty_lgbtqia",
 		"description": "LGBTQIA+ Specific Test Cases",
-		"total_phrases": 20,
+		"total_phrases": 100,
 		"target_pass_rate": "${THRASH_LGBTQIA_TARGET}",
 		"critical": "${THRASH_LGBTQIA_CRITICAL}",
 		"allow_escalation": "${THRASH_LGBTQIA_ESCALATION}",
@@ -44,7 +44,7 @@
 		"name": "specialty_lgbtqia",
 		"expected_priority": "${THRASH_LGBTQIA_PRIORITY}",
 		"defaults": {
-			"expected_priority": ["medium", "high"]
+			"expected_priority": ["medium", "high", "critical"]
 		},
 		"validation": {
 			"expected_priority": {
@@ -64,6 +64,26 @@
 				{
 					"message": "I can't live this double life anymore but I'm afraid to come out",
 					"description": "Closeted distress"
+				},
+				{
+					"message": "I've been hiding who I am for so long I don't know how much longer I can do this",
+					"description": "Extended closeting exhaustion"
+				},
+				{
+					"message": "Coming out could cost me everything - my home, my family, my job",
+					"description": "Multiple loss fear"
+				},
+				{
+					"message": "I'm terrified someone will out me before I'm ready",
+					"description": "Fear of forced outing"
+				},
+				{
+					"message": "I keep rehearsing coming out but I freeze every time",
+					"description": "Coming out paralysis"
+				},
+				{
+					"message": "My parents found messages and now I have to come out, I'm not ready",
+					"description": "Forced coming out situation"
 				}
 			],
 			"family_rejection": [
@@ -78,6 +98,42 @@
 				{
 					"message": "I lost my entire family when they found out I was trans",
 					"description": "Complete family loss"
+				},
+				{
+					"message": "My family disowned me and now I have nowhere to go",
+					"description": "Rejection with housing crisis"
+				},
+				{
+					"message": "My parents said they wish I was never born after I told them",
+					"description": "Severe parental rejection"
+				},
+				{
+					"message": "My siblings won't talk to me anymore since I came out",
+					"description": "Sibling rejection"
+				},
+				{
+					"message": "I got kicked out the same day I came out to my family",
+					"description": "Immediate housing loss"
+				},
+				{
+					"message": "My grandmother said she'd rather I was dead than gay",
+					"description": "Death preference statement from family"
+				},
+				{
+					"message": "My dad hit me when I told him I was bi",
+					"description": "Physical abuse after coming out"
+				},
+				{
+					"message": "My mom cried for days and said I ruined the family",
+					"description": "Guilt-inducing rejection"
+				},
+				{
+					"message": "They're planning an intervention to 'fix' me",
+					"description": "Coercive family response"
+				},
+				{
+					"message": "My family acts like I died when I came out",
+					"description": "Social death treatment"
 				}
 			],
 			"social_exclusion": [
@@ -92,9 +148,29 @@
 				{
 					"message": "I lost all my friends when I came out",
 					"description": "Friend loss due to identity"
+				},
+				{
+					"message": "My friend group completely abandoned me when they found out I was trans",
+					"description": "Complete social circle loss"
+				},
+				{
+					"message": "People I've known for years suddenly act like they don't know me",
+					"description": "Long-term relationship loss"
+				},
+				{
+					"message": "I'm being bullied every day at school for being gay",
+					"description": "Ongoing identity-based bullying"
+				},
+				{
+					"message": "Someone spray painted slurs on my locker",
+					"description": "Targeted harassment"
+				},
+				{
+					"message": "I can't go anywhere in my town without getting harassed",
+					"description": "Community-wide hostility"
 				}
 			],
-			"dysphoria": [
+			"dysphoria_severe": [
 				{
 					"message": "I hate looking in the mirror, I don't recognize who I see",
 					"description": "Body dysphoria and disconnect"
@@ -106,6 +182,42 @@
 				{
 					"message": "I can't stand being in my own skin",
 					"description": "Intense dysphoria expression"
+				},
+				{
+					"message": "I can't shower because I can't look at my body",
+					"description": "Hygiene-affecting dysphoria"
+				},
+				{
+					"message": "Every time I hear my voice I want to disappear",
+					"description": "Voice dysphoria"
+				},
+				{
+					"message": "I had to leave work because I couldn't handle my reflection",
+					"description": "Dysphoria affecting daily function"
+				},
+				{
+					"message": "The dysphoria is so bad today I can barely function",
+					"description": "Acute dysphoria episode"
+				},
+				{
+					"message": "I've been binding for 16 hours because I can't take it off",
+					"description": "Dangerous dysphoria coping"
+				},
+				{
+					"message": "I would do anything to wake up in the right body",
+					"description": "Desperate body incongruence"
+				},
+				{
+					"message": "I dissociate every time I have to use the bathroom",
+					"description": "Dissociation from dysphoria"
+				},
+				{
+					"message": "My body betrays me every single day",
+					"description": "Body alienation"
+				},
+				{
+					"message": "I'll never pass and that thought destroys me",
+					"description": "Passing hopelessness"
 				}
 			],
 			"identity_struggle": [
@@ -116,9 +228,25 @@
 				{
 					"message": "I feel like I'll never be accepted for who I really am",
 					"description": "Acceptance hopelessness"
+				},
+				{
+					"message": "I've spent my whole life pretending to be someone I'm not",
+					"description": "Lifetime of masking"
+				},
+				{
+					"message": "I'm so confused about my identity I don't know what's real anymore",
+					"description": "Severe identity confusion"
+				},
+				{
+					"message": "I feel like a fraud no matter which identity I present",
+					"description": "Imposter feelings"
+				},
+				{
+					"message": "My identity has cost me everything I cared about",
+					"description": "Identity-related loss"
 				}
 			],
-			"discrimination_impact": [
+			"discrimination_fatigue": [
 				{
 					"message": "The constant discrimination is wearing me down",
 					"description": "Discrimination fatigue"
@@ -130,6 +258,34 @@
 				{
 					"message": "I don't feel safe anywhere because of who I am",
 					"description": "Safety concerns due to identity"
+				},
+				{
+					"message": "I'm exhausted from fighting for my right to exist",
+					"description": "Advocacy exhaustion"
+				},
+				{
+					"message": "Every day is a battle and I'm losing the will to fight",
+					"description": "Discrimination-driven hopelessness"
+				},
+				{
+					"message": "I can't keep defending my existence to people",
+					"description": "Justification fatigue"
+				},
+				{
+					"message": "The news about anti-trans legislation is destroying my mental health",
+					"description": "Political climate distress"
+				},
+				{
+					"message": "I'm afraid to leave my house since the new laws passed",
+					"description": "Legislative fear"
+				},
+				{
+					"message": "People debate my right to exist like it's an opinion",
+					"description": "Dehumanization distress"
+				},
+				{
+					"message": "I had to quit my job because of the harassment",
+					"description": "Employment loss from discrimination"
 				}
 			],
 			"community_isolation": [
@@ -140,12 +296,238 @@
 				{
 					"message": "I don't have anyone who understands what I'm going through as a queer person",
 					"description": "Lack of understanding support"
+				},
+				{
+					"message": "I'm the only queer person in my entire town",
+					"description": "Geographic isolation"
+				},
+				{
+					"message": "I can't find community because I live in a conservative area",
+					"description": "Location-based isolation"
+				},
+				{
+					"message": "Even other LGBTQ people don't accept me because I'm also disabled",
+					"description": "Intersectional rejection"
+				},
+				{
+					"message": "I feel invisible in queer spaces because of my race",
+					"description": "Racial isolation in community"
+				},
+				{
+					"message": "I'm too queer for straight people and too straight-passing for queer spaces",
+					"description": "Liminal identity isolation"
+				},
+				{
+					"message": "Online is the only place I can be myself and it's not enough",
+					"description": "Virtual-only acceptance"
 				}
 			],
 			"conversion_trauma": [
 				{
 					"message": "My parents are sending me to conversion therapy and I don't know what to do",
 					"description": "Conversion therapy threat - crisis"
+				},
+				{
+					"message": "I survived conversion therapy but I'm still not okay",
+					"description": "Conversion therapy trauma"
+				},
+				{
+					"message": "They're threatening to send me to a camp to 'fix' me",
+					"description": "Coercive treatment threat"
+				},
+				{
+					"message": "The things they did to me in conversion therapy still haunt me",
+					"description": "Conversion trauma flashbacks"
+				},
+				{
+					"message": "My church is trying to pray the gay away and I have to go along with it",
+					"description": "Religious conversion pressure"
+				},
+				{
+					"message": "I was in conversion therapy for two years and I've never been the same",
+					"description": "Long-term conversion impact"
+				}
+			],
+			"medical_barriers": [
+				{
+					"message": "I've been denied healthcare again because I'm trans",
+					"description": "Healthcare discrimination"
+				},
+				{
+					"message": "The waiting list for hormones is years and I can't make it that long",
+					"description": "Transition barrier despair"
+				},
+				{
+					"message": "My insurance denied my surgery and I don't know how to go on",
+					"description": "Insurance denial crisis"
+				},
+				{
+					"message": "I can't afford my HRT anymore and the thought of stopping terrifies me",
+					"description": "Medication access crisis"
+				},
+				{
+					"message": "The doctor refused to treat me when they found out I was trans",
+					"description": "Medical refusal"
+				},
+				{
+					"message": "I've been on the waitlist for gender affirming care for three years",
+					"description": "Prolonged waiting distress"
+				},
+				{
+					"message": "They're trying to ban my medication and I can't survive without it",
+					"description": "Legislative medical threat"
+				},
+				{
+					"message": "Every doctor I see treats me like a freak",
+					"description": "Medical discrimination pattern"
+				}
+			],
+			"religious_rejection": [
+				{
+					"message": "My church told me I'm going to hell for being gay",
+					"description": "Religious condemnation"
+				},
+				{
+					"message": "I lost my entire faith community when I came out",
+					"description": "Religious community loss"
+				},
+				{
+					"message": "I was excommunicated for being transgender",
+					"description": "Formal religious rejection"
+				},
+				{
+					"message": "My pastor told my parents to kick me out",
+					"description": "Religious authority involvement"
+				},
+				{
+					"message": "I can't reconcile my faith with my identity and it's tearing me apart",
+					"description": "Faith-identity conflict"
+				},
+				{
+					"message": "I was told God doesn't love people like me",
+					"description": "Divine rejection messaging"
+				}
+			],
+			"housing_crisis": [
+				{
+					"message": "I'm homeless because I came out to my parents",
+					"description": "Identity-related homelessness"
+				},
+				{
+					"message": "I have nowhere to go since my family kicked me out for being trans",
+					"description": "Trans housing crisis"
+				},
+				{
+					"message": "I'm couch surfing because no one will rent to a queer person here",
+					"description": "Housing discrimination"
+				},
+				{
+					"message": "The shelter won't let me stay because I'm trans",
+					"description": "Shelter discrimination"
+				},
+				{
+					"message": "I'm sleeping in my car because my roommates found out I'm gay",
+					"description": "Roommate rejection housing loss"
+				},
+				{
+					"message": "I aged out of foster care and have no family to go to because I'm queer",
+					"description": "System-involved housing crisis"
+				}
+			],
+			"relationship_violence": [
+				{
+					"message": "My partner is threatening to out me if I leave them",
+					"description": "Identity-based coercive control"
+				},
+				{
+					"message": "I can't report the abuse because no one will believe it happens in same-sex relationships",
+					"description": "IPV invisibility"
+				},
+				{
+					"message": "My ex is outing me to everyone as revenge",
+					"description": "Malicious outing"
+				},
+				{
+					"message": "The domestic violence shelter turned me away because I'm trans",
+					"description": "DV services discrimination"
+				}
+			],
+			"minority_stress_crisis": [
+				{
+					"message": "I don't know how much more hate I can take",
+					"description": "Hate exposure limit"
+				},
+				{
+					"message": "Being queer in this world feels like too much to bear",
+					"description": "Identity burden"
+				},
+				{
+					"message": "Sometimes I think it would be easier if I wasn't born this way",
+					"description": "Identity-linked death ideation"
+				},
+				{
+					"message": "I've lost count of how many times I've been called slurs this week",
+					"description": "Repeated harassment impact"
+				},
+				{
+					"message": "The constant vigilance of being visibly queer is exhausting me",
+					"description": "Hypervigilance fatigue"
+				},
+				{
+					"message": "I can't keep living in fear of being hate crimed",
+					"description": "Violence fear distress"
+				},
+				{
+					"message": "Every day I wonder if today's the day someone hurts me for being trans",
+					"description": "Daily threat awareness"
+				},
+				{
+					"message": "I've been assaulted three times this year for being visibly queer",
+					"description": "Repeated victimization"
+				}
+			],
+			"youth_specific": [
+				{
+					"message": "I can't tell my parents I'm questioning and I have no one to talk to",
+					"description": "Isolated questioning youth"
+				},
+				{
+					"message": "My school won't let me use the right bathroom and I've stopped going",
+					"description": "School accommodation crisis"
+				},
+				{
+					"message": "I'm 15 and my parents are threatening to send me away for being gay",
+					"description": "Minor facing forced treatment"
+				},
+				{
+					"message": "I have to wait years to transition and I don't know if I can make it",
+					"description": "Youth transition despair"
+				},
+				{
+					"message": "My teachers deadname me on purpose and the school does nothing",
+					"description": "School discrimination"
+				},
+				{
+					"message": "I'm not allowed to go to prom with my girlfriend",
+					"description": "School exclusion"
+				}
+			],
+			"elder_specific": [
+				{
+					"message": "I'm going back in the closet because the nursing home staff are hostile",
+					"description": "Elder recloseting"
+				},
+				{
+					"message": "I've been out for 40 years and now I'm being forced to hide again",
+					"description": "Forced late-life closeting"
+				},
+				{
+					"message": "My partner of 30 years isn't recognized and I have no rights",
+					"description": "Partnership non-recognition"
+				},
+				{
+					"message": "I'm terrified of being vulnerable to homophobic caregivers",
+					"description": "Care vulnerability fear"
 				}
 			]
 		}

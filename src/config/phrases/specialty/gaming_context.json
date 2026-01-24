@@ -1,18 +1,18 @@
 {
 	"_metadata": {
 		"title": "Gaming Context Test Phrases",
-		"file_version": "v5.0-4-4.7-2",
-		"last_modified": "2026-01-22",
-		"clean_architecture": "v5.2.1",
-		"description": "Gaming language that might trigger false positives. Common gaming expressions that use crisis-adjacent language.",
+		"file_version": "v5.0-5-5.0-1",
+		"last_modified": "2026-01-24",
+		"clean_architecture": "v5.2.2",
+		"description": "Gaming language that might trigger false positives. Common gaming expressions that use crisis-adjacent language but are contextually safe. Critical for preventing alert fatigue from misclassified gaming chat.",
 		"target": "95% catch rate",
-		"note": "All phrases should be detected as 'none' or 'safe' priority. False positives here indicate context detection failure."
+		"note": "All phrases should be detected as 'none' or 'safe' priority. False positives here indicate context detection failure and contribute to alert fatigue for CRT."
 	},
 
 	"category_info": {
 		"name": "specialty_gaming",
 		"description": "Gaming Context Test Cases",
-		"total_phrases": 15,
+		"total_phrases": 100,
 		"target_pass_rate": "${THRASH_GAMING_TARGET}",
 		"critical": "${THRASH_GAMING_CRITICAL}",
 		"allow_escalation": "${THRASH_GAMING_ESCALATION}",
@@ -64,6 +64,34 @@
 				{
 					"message": "That enemy just killed me for the 50th time",
 					"description": "Game death count"
+				},
+				{
+					"message": "I died again, this boss is impossible",
+					"description": "Boss death frustration"
+				},
+				{
+					"message": "How did I die there? That's such BS",
+					"description": "Unfair death complaint"
+				},
+				{
+					"message": "I literally died in one hit, what a joke",
+					"description": "One-shot death"
+				},
+				{
+					"message": "I've died more times to this boss than I can count",
+					"description": "Excessive death count"
+				},
+				{
+					"message": "That death was totally my fault though",
+					"description": "Acknowledged death"
+				},
+				{
+					"message": "I can't believe I died to fall damage again",
+					"description": "Environmental death"
+				},
+				{
+					"message": "That death was so tilting",
+					"description": "Frustrating death"
 				}
 			],
 			"frustration_expression": [
@@ -78,6 +106,34 @@
 				{
 					"message": "I'm so dead if my team sees this play",
 					"description": "Team performance anxiety"
+				},
+				{
+					"message": "This game makes me want to throw myself out the window",
+					"description": "Hyperbolic game frustration"
+				},
+				{
+					"message": "I want to die, that was the worst play I've ever made",
+					"description": "Embarrassment hyperbole"
+				},
+				{
+					"message": "Just kill me, I can't believe I missed that shot",
+					"description": "Missed shot frustration"
+				},
+				{
+					"message": "End my suffering, this RNG is cursed",
+					"description": "Bad luck frustration"
+				},
+				{
+					"message": "I'm going to scream if I get one-shot again",
+					"description": "Repeated frustration"
+				},
+				{
+					"message": "This is actually torture, why do I play this game",
+					"description": "Difficulty frustration"
+				},
+				{
+					"message": "Someone end me, I just walked into the same trap twice",
+					"description": "Repeated mistake frustration"
 				}
 			],
 			"competitive_language": [
@@ -92,6 +148,34 @@
 				{
 					"message": "They're slaughtering us out there",
 					"description": "Losing badly expression"
+				},
+				{
+					"message": "We got massacred that round",
+					"description": "Heavy loss expression"
+				},
+				{
+					"message": "That team is killing it right now",
+					"description": "Opponent praise"
+				},
+				{
+					"message": "I'm getting demolished in lane",
+					"description": "MOBA losing expression"
+				},
+				{
+					"message": "They're absolutely crushing us",
+					"description": "Domination expression"
+				},
+				{
+					"message": "We're getting annihilated",
+					"description": "Heavy defeat expression"
+				},
+				{
+					"message": "I got absolutely obliterated that fight",
+					"description": "Combat loss"
+				},
+				{
+					"message": "That sniper is murdering our whole team",
+					"description": "Enemy dominance"
 				}
 			],
 			"rage_quit": [
@@ -102,6 +186,30 @@
 				{
 					"message": "This game is making me want to throw my controller out the window",
 					"description": "Controller rage"
+				},
+				{
+					"message": "I'm done, this game is actually killing me",
+					"description": "Quitting expression"
+				},
+				{
+					"message": "That's it, I'm deleting this garbage",
+					"description": "Rage uninstall"
+				},
+				{
+					"message": "I'm about to snap my keyboard in half",
+					"description": "Hardware rage"
+				},
+				{
+					"message": "I need to take a break before I destroy something",
+					"description": "Rage management"
+				},
+				{
+					"message": "This game is going to give me an aneurysm",
+					"description": "Hyperbolic health complaint"
+				},
+				{
+					"message": "I'm going to throw my PC out the window if this happens again",
+					"description": "Equipment rage threat"
 				}
 			],
 			"respawn_context": [
@@ -112,6 +220,22 @@
 				{
 					"message": "I'll be back after this death cooldown",
 					"description": "Death cooldown reference"
+				},
+				{
+					"message": "Long respawn timer, this sucks",
+					"description": "Respawn complaint"
+				},
+				{
+					"message": "At least the respawn is quick in this game",
+					"description": "Respawn appreciation"
+				},
+				{
+					"message": "I'll avenge my death after I respawn",
+					"description": "Respawn revenge"
+				},
+				{
+					"message": "Death timers are so long late game",
+					"description": "Timer complaint"
 				}
 			],
 			"loss_streak": [
@@ -122,6 +246,308 @@
 				{
 					"message": "This losing streak is killing my rank",
 					"description": "Rank concern"
+				},
+				{
+					"message": "I'm on a massive L streak and it's soul crushing",
+					"description": "Extended losses"
+				},
+				{
+					"message": "Every game today has been a loss, I'm cursed",
+					"description": "Bad luck streak"
+				},
+				{
+					"message": "My MMR is in the gutter after these losses",
+					"description": "Rating concern"
+				},
+				{
+					"message": "I've dropped two ranks today, this is brutal",
+					"description": "Rank loss"
+				}
+			],
+			"mmo_moba_specific": [
+				{
+					"message": "I got ganked and it's making me want to alt-F4",
+					"description": "MOBA gank frustration"
+				},
+				{
+					"message": "My jungler is afk and I'm dying inside",
+					"description": "Teammate complaint hyperbole"
+				},
+				{
+					"message": "I'm feeding so hard this game, sorry team",
+					"description": "Poor performance acknowledgment"
+				},
+				{
+					"message": "Bot lane is inting and it's tilting me to death",
+					"description": "Teammate frustration"
+				},
+				{
+					"message": "I'm 0/10 and questioning all my life choices",
+					"description": "Bad game hyperbole"
+				},
+				{
+					"message": "Our mid diff is so huge we're getting gapped",
+					"description": "Skill comparison"
+				},
+				{
+					"message": "I got flamed by my whole team and honestly deserved it",
+					"description": "Team criticism acceptance"
+				},
+				{
+					"message": "This comp is killing me, we have no synergy",
+					"description": "Team composition complaint"
+				}
+			],
+			"fps_specific": [
+				{
+					"message": "I keep getting domed by the same guy",
+					"description": "Repeated headshots"
+				},
+				{
+					"message": "Campers are the bane of my existence",
+					"description": "Camping complaint"
+				},
+				{
+					"message": "I'm getting spawn killed and it's ruining my life",
+					"description": "Spawn trap hyperbole"
+				},
+				{
+					"message": "My aim is so bad today I want to cry",
+					"description": "Aim complaint"
+				},
+				{
+					"message": "That hitbox is broken, I definitely hit him",
+					"description": "Hit registration complaint"
+				},
+				{
+					"message": "The lag is making this game unplayable, I'm suffering",
+					"description": "Connection complaint"
+				},
+				{
+					"message": "I got 360 no-scoped and I'm not even mad, just impressed",
+					"description": "Impressive death"
+				},
+				{
+					"message": "Snipers are ruining my existence in this game",
+					"description": "Class complaint"
+				}
+			],
+			"battle_royale": [
+				{
+					"message": "I died off drop again, this game hates me",
+					"description": "Early game death"
+				},
+				{
+					"message": "I came second and I want to throw up",
+					"description": "Close loss frustration"
+				},
+				{
+					"message": "The zone killed me, I'm actually so bad",
+					"description": "Zone death"
+				},
+				{
+					"message": "I had the win and choked so hard I want to disappear",
+					"description": "Choke frustration"
+				},
+				{
+					"message": "Third partied again, I'm losing my mind",
+					"description": "Third party frustration"
+				},
+				{
+					"message": "My loot RNG is so bad I might as well not play",
+					"description": "Loot complaint"
+				}
+			],
+			"souls_like": [
+				{
+					"message": "This boss has killed me 100 times and I'm questioning my sanity",
+					"description": "Souls boss frustration"
+				},
+				{
+					"message": "I lost all my souls and a piece of my soul died with them",
+					"description": "Souls loss"
+				},
+				{
+					"message": "YOU DIED is burned into my retinas at this point",
+					"description": "Death screen fatigue"
+				},
+				{
+					"message": "I finally beat that boss and I literally cried",
+					"description": "Boss victory emotion"
+				},
+				{
+					"message": "The run back to this boss is killing me more than the boss",
+					"description": "Corpse run complaint"
+				},
+				{
+					"message": "I'm one hit away from beating this boss and I die every time",
+					"description": "Close attempts frustration"
+				}
+			],
+			"rng_gacha": [
+				{
+					"message": "My luck is so bad I want to die",
+					"description": "Bad RNG hyperbole"
+				},
+				{
+					"message": "I spent 200 rolls and got nothing, existence is meaningless",
+					"description": "Gacha despair"
+				},
+				{
+					"message": "The drop rate is killing my will to live",
+					"description": "Low drop rate frustration"
+				},
+				{
+					"message": "RNG gods have forsaken me completely",
+					"description": "Bad luck expression"
+				},
+				{
+					"message": "I got the worst possible roll, I'm cursed",
+					"description": "Bad roll"
+				},
+				{
+					"message": "This gacha game is draining my soul and my wallet",
+					"description": "Gacha complaint"
+				}
+			],
+			"team_based": [
+				{
+					"message": "My teammates are killing me more than the enemy",
+					"description": "Friendly fire/bad teamwork"
+				},
+				{
+					"message": "Solo queue is actually torture",
+					"description": "Solo queue complaint"
+				},
+				{
+					"message": "I'm hard carrying and still losing, I give up on humanity",
+					"description": "Carry frustration"
+				},
+				{
+					"message": "Our team comp makes me want to cry",
+					"description": "Composition complaint"
+				},
+				{
+					"message": "Nobody is on comms and it's driving me insane",
+					"description": "Communication frustration"
+				},
+				{
+					"message": "I'm the only one playing objective, I'm going to lose it",
+					"description": "Objective play frustration"
+				}
+			],
+			"ranking_ladder": [
+				{
+					"message": "I'm hardstuck and it's destroying my mental",
+					"description": "Rank stagnation"
+				},
+				{
+					"message": "One game from promo and I get THIS team, I want to scream",
+					"description": "Promotion loss"
+				},
+				{
+					"message": "I demoted and I'm questioning everything",
+					"description": "Demotion frustration"
+				},
+				{
+					"message": "Ranked is making me hate this game",
+					"description": "Ranked fatigue"
+				},
+				{
+					"message": "I've been Gold for five seasons and I want to cry",
+					"description": "Long-term rank stagnation"
+				},
+				{
+					"message": "Lost promos three times and I'm dying inside",
+					"description": "Repeated promotion failure"
+				}
+			],
+			"stream_chat": [
+				{
+					"message": "Chat spam is killing my vibe",
+					"description": "Chat complaint"
+				},
+				{
+					"message": "I got stream sniped and I'm malding",
+					"description": "Stream snipe frustration"
+				},
+				{
+					"message": "F in chat for that play",
+					"description": "Twitch culture reference"
+				},
+				{
+					"message": "That clip is going to haunt me forever",
+					"description": "Embarrassing clip"
+				}
+			],
+			"performance_issues": [
+				{
+					"message": "My FPS dropped and I died because of it, I'm livid",
+					"description": "Frame rate death"
+				},
+				{
+					"message": "The lag spike killed me, I'm actually going to cry",
+					"description": "Lag death"
+				},
+				{
+					"message": "My game crashed and I lost everything, end me",
+					"description": "Crash frustration"
+				},
+				{
+					"message": "I got disconnected in a ranked match and I want to scream",
+					"description": "Disconnect frustration"
+				},
+				{
+					"message": "Server issues cost me the game, I'm done",
+					"description": "Server complaint"
+				},
+				{
+					"message": "Rubberbanding is making this unplayable, I'm suffering",
+					"description": "Network issues"
+				}
+			],
+			"build_craft": [
+				{
+					"message": "My build is trash and I'm having an existential crisis",
+					"description": "Build regret"
+				},
+				{
+					"message": "I used all my materials on the wrong thing, kill me",
+					"description": "Resource waste"
+				},
+				{
+					"message": "I accidentally salvaged my best gear, I'm devastated",
+					"description": "Gear loss"
+				},
+				{
+					"message": "The meta changed and my build is useless, I want to cry",
+					"description": "Meta shift frustration"
+				}
+			],
+			"sandbox_survival": [
+				{
+					"message": "A creeper blew up my entire base, I'm going to lose it",
+					"description": "Minecraft creeper rage"
+				},
+				{
+					"message": "I fell in lava and lost all my diamonds, I'm dead inside",
+					"description": "Minecraft lava death"
+				},
+				{
+					"message": "My hardcore world just ended, I'm actually crying",
+					"description": "Hardcore death"
+				},
+				{
+					"message": "I spent 10 hours on this build and it's gone",
+					"description": "Progress loss"
+				},
+				{
+					"message": "I forgot to set my spawn and I'm devastated",
+					"description": "Spawn point mistake"
+				},
+				{
+					"message": "My dog died in game and I'm genuinely sad",
+					"description": "Pet death"
 				}
 			]
 		}

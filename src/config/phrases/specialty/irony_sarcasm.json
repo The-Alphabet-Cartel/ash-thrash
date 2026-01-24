@@ -1,9 +1,9 @@
 {
 	"_metadata": {
 		"title": "Irony / Sarcasm Test Phrases",
-		"file_version": "v5.0-4-4.6-2",
-		"last_modified": "2026-01-22",
-		"clean_architecture": "v5.2.1",
+		"file_version": "v5.0-5-5.0-1",
+		"last_modified": "2026-01-24",
+		"clean_architecture": "v5.2.2",
 		"description": "Dark humor, sarcasm that might trigger false positives. Tests the system's ability to detect ironic or sarcastic usage of crisis-adjacent language.",
 		"target": "90% catch rate",
 		"note": "Most phrases should be detected as 'none' or 'low' priority with irony markers. False positives here indicate over-sensitivity."
@@ -12,7 +12,7 @@
 	"category_info": {
 		"name": "specialty_irony",
 		"description": "Irony/Sarcasm Test Cases",
-		"total_phrases": 25,
+		"total_phrases": 50,
 		"target_pass_rate": "${THRASH_IRONY_TARGET}",
 		"critical": "${THRASH_IRONY_CRITICAL}",
 		"allow_escalation": "${THRASH_IRONY_ESCALATION}",
@@ -60,6 +60,10 @@
 				{
 					"message": "Mondays make me want to cease to exist (jk just need coffee)",
 					"description": "Hyperbolic Monday complaint with qualifier"
+				},
+				{
+					"message": "Monday came for my soul and honestly? It can have it",
+					"description": "Hyperbolic Monday humor"
 				}
 			],
 			"work_sarcasm": [
@@ -74,6 +78,18 @@
 				{
 					"message": "Oh I'm just LOVING this 12-hour shift",
 					"description": "Sarcastic work complaint"
+				},
+				{
+					"message": "Another meeting that could have been an email, I'm thriving",
+					"description": "Corporate sarcasm"
+				},
+				{
+					"message": "My boss wants this done yesterday? Sure, let me just time travel",
+					"description": "Deadline sarcasm"
+				},
+				{
+					"message": "Oh wonderful, another last-minute project change, exactly what I needed",
+					"description": "Project management sarcasm"
 				}
 			],
 			"living_the_dream": [
@@ -88,6 +104,14 @@
 				{
 					"message": "Wow I'm having SO much fun right now",
 					"description": "Obvious sarcasm about current situation"
+				},
+				{
+					"message": "Living my best life (narrator: they were not living their best life)",
+					"description": "Self-aware ironic narration"
+				},
+				{
+					"message": "Everything is fine, I'm fine, we're all fine here",
+					"description": "Denial as humor"
 				}
 			],
 			"dark_humor": [
@@ -102,6 +126,18 @@
 				{
 					"message": "Just casually falling apart over here, no big deal",
 					"description": "Self-aware humor about struggles"
+				},
+				{
+					"message": "My coping mechanism is making jokes about not coping, and that's fine",
+					"description": "Meta self-awareness humor"
+				},
+				{
+					"message": "I put the fun in dysfunctional",
+					"description": "Self-deprecating wordplay"
+				},
+				{
+					"message": "My life is a comedy of errors, heavy on the errors",
+					"description": "Self-deprecating life assessment"
 				}
 			],
 			"traffic_hyperbole": [
@@ -112,6 +148,10 @@
 				{
 					"message": "This commute is slowly killing me (figuratively)",
 					"description": "Commute complaint with qualifier"
+				},
+				{
+					"message": "I've aged ten years in this parking lot",
+					"description": "Waiting hyperbole"
 				}
 			],
 			"food_death": [
@@ -126,6 +166,10 @@
 				{
 					"message": "Kill me now... with more of this amazing food",
 					"description": "Food hyperbole with context"
+				},
+				{
+					"message": "This burger is worth dying for (not literally, food safety matters)",
+					"description": "Food hyperbole with parenthetical"
 				}
 			],
 			"weather_drama": [
@@ -136,6 +180,14 @@
 				{
 					"message": "This weather makes me want to never leave my bed again",
 					"description": "Weather-induced hyperbolic statement"
+				},
+				{
+					"message": "Winter is here and so is my will to become one with the couch",
+					"description": "Seasonal hibernation humor"
+				},
+				{
+					"message": "It's raining, time to dramatically stare out the window and question everything",
+					"description": "Weather-induced theatrics"
 				}
 			],
 			"social_exhaustion": [
@@ -146,6 +198,14 @@
 				{
 					"message": "That party almost killed me (from second-hand embarrassment)",
 					"description": "Social event hyperbole with context"
+				},
+				{
+					"message": "My social battery is at -10% please do not speak to me",
+					"description": "Introvert humor"
+				},
+				{
+					"message": "Networking events are my personal version of hell, but with appetizers",
+					"description": "Professional social complaint"
 				}
 			],
 			"academic_stress": [
@@ -156,6 +216,14 @@
 				{
 					"message": "Finals week has me contemplating my existence (existential crisis sponsored by calculus)",
 					"description": "Academic stress humor"
+				},
+				{
+					"message": "My degree is held together by caffeine and spite at this point",
+					"description": "Student survival humor"
+				},
+				{
+					"message": "Who needs sleep when you have deadlines and poor life choices",
+					"description": "Student self-deprecation"
 				}
 			],
 			"tech_frustration": [
@@ -166,9 +234,17 @@
 				{
 					"message": "My computer crashed again and I am DECEASED",
 					"description": "Tech frustration with internet slang"
+				},
+				{
+					"message": "The WiFi is down and so is my will to function",
+					"description": "Internet dependency humor"
+				},
+				{
+					"message": "Have you tried turning it off and on again? Yes, including my life choices",
+					"description": "IT humor extended metaphor"
 				}
 			],
-			"millennial_humor": [
+			"millennial_genz_humor": [
 				{
 					"message": "I'm not having a breakdown, it's just millennial vibes",
 					"description": "Generational humor about struggles"
@@ -180,6 +256,18 @@
 				{
 					"message": "Therapy is expensive so I just look at memes about wanting to disappear",
 					"description": "Self-aware mental health humor"
+				},
+				{
+					"message": "My emotional support water bottle and I are having a day",
+					"description": "Object attachment humor"
+				},
+				{
+					"message": "Normalize just disappearing into the forest for a bit (camping, I mean camping)",
+					"description": "Escapism humor with clarification"
+				},
+				{
+					"message": "I'm not procrastinating, I'm just buffering",
+					"description": "Tech metaphor for avoidance"
 				}
 			],
 			"exercise_drama": [
@@ -190,6 +278,56 @@
 				{
 					"message": "Leg day has me wishing for sweet release",
 					"description": "Gym humor"
+				},
+				{
+					"message": "Ran a mile and now I understand why people cry at the gym",
+					"description": "Fitness struggle humor"
+				}
+			],
+			"adulting_complaints": [
+				{
+					"message": "Adulting is just googling how to do stuff until you die",
+					"description": "Life skills humor"
+				},
+				{
+					"message": "I'm not ready to be an adult today, try again tomorrow",
+					"description": "Responsibility avoidance humor"
+				},
+				{
+					"message": "Taxes exist and I wish I didn't",
+					"description": "Financial adult humor"
+				},
+				{
+					"message": "Just discovered another new bill I have to pay, existence is a scam",
+					"description": "Adult financial complaint"
+				}
+			],
+			"relationship_jokes": [
+				{
+					"message": "Single and ready to mingle (with my bed, I'm going to sleep)",
+					"description": "Relationship status joke"
+				},
+				{
+					"message": "My love life is deader than my phone battery at 2pm",
+					"description": "Dating self-deprecation"
+				}
+			],
+			"explicit_markers": [
+				{
+					"message": "I'm going to scream into the void /s",
+					"description": "Explicit sarcasm marker"
+				},
+				{
+					"message": "Life is meaningless (joke, I'm fine, just tired)",
+					"description": "Statement with explicit reassurance"
+				},
+				{
+					"message": "I want to disappear lol jk I just need a vacation",
+					"description": "Hyperbole with laugh and clarification"
+				},
+				{
+					"message": "End me 😂 (this is about the printer, not a cry for help)",
+					"description": "Context clarification"
 				}
 			]
 		}
