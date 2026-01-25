@@ -28,7 +28,7 @@
 # =============================================================================
 # Stage 1: Builder
 # =============================================================================
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.11-slim AS builder
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -57,7 +57,7 @@ RUN python3.11 -m pip install -r /tmp/requirements.txt
 # =============================================================================
 # Stage 2: Runtime
 # =============================================================================
-FROM python:3.11-slim-bookworm AS runtime
+FROM python:3.11-slim AS runtime
 
 # Labels
 LABEL maintainer="PapaBearDoes <github.com/PapaBearDoes>"
