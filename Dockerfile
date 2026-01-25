@@ -28,7 +28,7 @@
 # =============================================================================
 # Stage 1: Builder
 # =============================================================================
-FROM python:3.11-slim AS builder
+FROM python:3.12-slim AS builder
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -43,21 +43,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Create virtual environment
-RUN python3.11 -m venv /opt/venv
+RUN python3.12 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Upgrade pip (Rule #10: version-specific command)
-RUN python3.11 -m pip install --upgrade pip setuptools wheel
+RUN python3.12 -m pip install --upgrade pip setuptools wheel
 
 # Copy requirements and install dependencies
 COPY requirements.txt /tmp/requirements.txt
-RUN python3.11 -m pip install -r /tmp/requirements.txt
+RUN python3.12 -m pip install -r /tmp/requirements.txt
 
 
 # =============================================================================
 # Stage 2: Runtime
 # =============================================================================
-FROM python:3.11-slim AS runtime
+FROM python:3.12-slim AS runtime
 
 # Labels
 LABEL maintainer="PapaBearDoes <github.com/PapaBearDoes>"
@@ -135,4 +135,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 ENTRYPOINT ["/usr/bin/tini", "--", "python", "/app/docker-entrypoint.py"]
 
 # Default command (passed to docker-entrypoint.py)
-CMD ["python3.11", "main.py"]
+CMD ["python3.12", "main.py"]
