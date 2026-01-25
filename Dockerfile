@@ -42,16 +42,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Create app directory
+WORKDIR /app
+
 # Create virtual environment
-RUN python3.12 -m venv /opt/venv
+RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Upgrade pip (Rule #10: version-specific command)
-RUN python3.12 -m pip install --upgrade pip setuptools wheel
-
-# Copy requirements and install dependencies
-COPY requirements.txt /tmp/requirements.txt
-RUN python3.12 -m pip install -r /tmp/requirements.txt
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
 
 # =============================================================================
@@ -75,7 +75,7 @@ ARG DEFAULT_GID=1000
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
+    APP_HOME=/app \
     PATH="/opt/venv/bin:$PATH" \
     # Force ANSI colors in Docker logs (Charter v5.2.1 colorized logging)
     FORCE_COLOR=1 \
@@ -99,25 +99,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create non-root user (will be modified at runtime by entrypoint if PUID/PGID differ)
 RUN groupadd --gid ${PGID} ash-thrash \
     && useradd --uid ${PUID} --gid ash-thrash --shell /bin/bash --create-home ash-thrash \
-    && mkdir -p /app/logs /app/reports /app/src/config/phrases \
-    && chown -R ${PUID}:${PGID} /app
+    && mkdir -p ${APP_HOME}/logs ${APP_HOME}/reports ${APP_HOME}/src/config/phrases \
+    && chown -R ${PUID}:${PGID} ${APP_HOME}
+
+# Set working directory
+WORKDIR ${APP_HOME}
 
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 
-# Set working directory
-WORKDIR /app
-
 # Copy application code
-COPY . /app/
+COPY . ${APP_HOME}/
 
 # Copy and set up entrypoint script (Rule #13: Pure Python PUID/PGID handling)
-COPY docker-entrypoint.py /app/docker-entrypoint.py
-RUN chmod +x /app/docker-entrypoint.py
+COPY docker-entrypoint.py ${APP_HOME}/docker-entrypoint.py
+RUN chmod +x ${APP_HOME}/docker-entrypoint.py
 
 # Set ownership of app directory to default user
 # (entrypoint will fix this at runtime based on PUID/PGID)
-RUN chown -R ${PUID}:${PGID} /app
+RUN chown -R ${PUID}:${PGID} ${APP_HOME}
 
 # NOTE: We do NOT switch to USER thrash here!
 # The entrypoint script handles user switching at runtime after fixing permissions.
@@ -135,4 +135,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 ENTRYPOINT ["/usr/bin/tini", "--", "python", "/app/docker-entrypoint.py"]
 
 # Default command (passed to docker-entrypoint.py)
-CMD ["python3.12", "main.py"]
+CMD ["python", "main.py"]
