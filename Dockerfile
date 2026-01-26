@@ -19,7 +19,7 @@
 #   Stage 2 (runtime): Minimal production image
 #
 # CLEAN ARCHITECTURE COMPLIANCE:
-#   - Uses python3.11 -m pip (Rule #10)
+#   - Uses python3.12 -m pip (Rule #10)
 #   - Pure Python entrypoint for PUID/PGID (Rule #13)
 #   - tini for PID 1 signal handling
 #
