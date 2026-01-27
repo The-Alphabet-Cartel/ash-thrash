@@ -1,0 +1,220 @@
+{
+    "_metadata": {
+        "title": "Ash-Vigil Candidate Models Registry",
+        "file_version": "v5.0-2-2.3-1",
+        "last_modified": "2026-01-26",
+        "clean_architecture": "v5.2.3",
+        "description": "Registry of candidate mental health risk detection models for Ash-Vigil evaluation. This file documents available models, their characteristics, and expected performance."
+    },
+
+    "models": {
+        "ourafla/mental-health-bert-finetuned": {
+            "display_name": "Mental Health BERT",
+            "priority": "primary",
+            "huggingface_url": "https://huggingface.co/ourafla/mental-health-bert-finetuned",
+            "size_mb": 440,
+            "license": "Apache-2.0",
+            "base_model": "mental/mental-bert-base-uncased",
+            "training_data": [
+                "r/SuicideWatch (Reddit)",
+                "Reddit Mental Health Dataset",
+                "Social media suicide indicators"
+            ],
+            "labels": {
+                "LABEL_0": {
+                    "name": "Anxiety",
+                    "risk_level": "moderate_risk"
+                },
+                "LABEL_1": {
+                    "name": "Depression",
+                    "risk_level": "moderate_risk"
+                },
+                "LABEL_2": {
+                    "name": "Normal",
+                    "risk_level": "safe"
+                },
+                "LABEL_3": {
+                    "name": "Suicidal",
+                    "risk_level": "high_risk"
+                }
+            },
+            "expected_strengths": [
+                "suicide_risk_detection",
+                "self_harm_indicators",
+                "depression_signals",
+                "anxiety_patterns"
+            ],
+            "expected_weaknesses": [
+                "gaming_context_discrimination",
+                "sarcasm_detection",
+                "cultural_slang_understanding"
+            ],
+            "notes": "Primary model. Fine-tuned from MentalBERT specifically for suicide risk detection. Verified working on Ash-Vigil as of 2026-01-26.",
+            "phase1_verified": true,
+            "inference_time_typical_ms": 25
+        },
+        "dsuram/distilbert-mentalhealth-classifier": {
+            "display_name": "DistilBERT MH Classifier",
+            "priority": "secondary",
+            "huggingface_url": "https://huggingface.co/dsuram/distilbert-mentalhealth-classifier",
+            "size_mb": 265,
+            "license": "MIT",
+            "base_model": "distilbert-base-uncased",
+            "training_data": [
+                "Mental health classification corpus"
+            ],
+            "labels": {
+                "LABEL_0": {
+                    "name": "Negative/Distressed",
+                    "risk_level": "moderate_risk"
+                },
+                "LABEL_1": {
+                    "name": "Positive/Stable",
+                    "risk_level": "safe"
+                }
+            },
+            "expected_strengths": [
+                "general_distress_detection",
+                "fast_inference",
+                "smaller_footprint"
+            ],
+            "expected_weaknesses": [
+                "planning_signals",
+                "severity_differentiation",
+                "lgbtqia_specific_patterns"
+            ],
+            "notes": "Faster, smaller model. Binary classification only (distressed vs stable). May not differentiate severity levels well.",
+            "phase1_verified": false,
+            "inference_time_typical_ms": 15
+        },
+        "mrm8488/distilroberta-finetuned-suicide-depression": {
+            "display_name": "DistilRoBERTa Suicide/Depression",
+            "priority": "evaluation_candidate",
+            "huggingface_url": "https://huggingface.co/mrm8488/distilroberta-finetuned-suicide-depression",
+            "size_mb": 328,
+            "license": "Apache-2.0",
+            "base_model": "distilroberta-base",
+            "training_data": [
+                "Suicide and depression dataset"
+            ],
+            "labels": {
+                "LABEL_0": {
+                    "name": "Not Suicidal",
+                    "risk_level": "safe"
+                },
+                "LABEL_1": {
+                    "name": "Suicidal",
+                    "risk_level": "high_risk"
+                }
+            },
+            "expected_strengths": [
+                "suicide_detection",
+                "roberta_architecture"
+            ],
+            "expected_weaknesses": [
+                "binary_only",
+                "no_severity_graduation"
+            ],
+            "notes": "Alternative binary classifier. May be useful for comparison but lacks granularity for amplification use case.",
+            "phase1_verified": false,
+            "inference_time_typical_ms": 18
+        }
+    },
+
+    "evaluation_config": {
+        "default_model": "${THRASH_VIGIL_DEFAULT_MODEL}",
+        "batch_size": "${THRASH_VIGIL_BATCH_SIZE}",
+        "timeout_seconds": "${THRASH_VIGIL_TIMEOUT}",
+        "retry_attempts": "${THRASH_VIGIL_RETRY_ATTEMPTS}",
+        "defaults": {
+            "default_model": "ourafla/mental-health-bert-finetuned",
+            "batch_size": 50,
+            "timeout_seconds": 120,
+            "retry_attempts": 2
+        },
+        "validation": {
+            "batch_size": {
+                "type": "integer",
+                "range": [1, 200]
+            },
+            "timeout_seconds": {
+                "type": "integer",
+                "range": [10, 600]
+            },
+            "retry_attempts": {
+                "type": "integer",
+                "range": [0, 5]
+            }
+        }
+    },
+
+    "evaluation_targets": {
+        "description": "Target accuracy thresholds for Ash-Vigil as a specialty amplifier",
+        "note": "These targets reflect Ash-Vigil's role as an AMPLIFIER for edge cases, not a primary classifier",
+        "categories": {
+            "specialty_lgbtqia": {
+                "description": "LGBTQIA+ specific crisis patterns (minority stress, family rejection, dysphoria)",
+                "minimum_acceptable": 50,
+                "target": 70,
+                "stretch_goal": 85,
+                "critical": true
+            },
+            "specialty_gaming": {
+                "description": "Gaming context - should correctly identify as LOW RISK (false positive reduction)",
+                "minimum_acceptable": 70,
+                "target": 90,
+                "stretch_goal": 95,
+                "critical": false,
+                "note": "High accuracy here means CORRECTLY identifying gaming language as NOT crisis"
+            },
+            "specialty_slang": {
+                "description": "Internet slang and cultural expressions",
+                "minimum_acceptable": 40,
+                "target": 60,
+                "stretch_goal": 75,
+                "critical": false
+            },
+            "specialty_irony": {
+                "description": "Sarcasm and ironic expressions",
+                "minimum_acceptable": 30,
+                "target": 50,
+                "stretch_goal": 70,
+                "critical": false
+            },
+            "specialty_multilang": {
+                "description": "Code-switching and multilingual expressions",
+                "minimum_acceptable": 30,
+                "target": 50,
+                "stretch_goal": 65,
+                "critical": false
+            },
+            "specialty_quotes": {
+                "description": "Song lyrics and media quotes",
+                "minimum_acceptable": 40,
+                "target": 60,
+                "stretch_goal": 80,
+                "critical": false
+            }
+        },
+        "overall": {
+            "minimum_acceptable": 50,
+            "target": 65,
+            "stretch_goal": 80
+        }
+    },
+
+    "model_switching_procedure": {
+        "description": "How to switch models on Ash-Vigil for evaluation",
+        "steps": [
+            "1. Update VIGIL_MODEL_NAME in Ash-Vigil .env file",
+            "2. Restart Ash-Vigil container: docker compose restart ash-vigil",
+            "3. Wait for model download (if first use) - check logs",
+            "4. Verify model loaded via /health endpoint",
+            "5. Run evaluation via Ash-Thrash"
+        ],
+        "environment_variable": "VIGIL_MODEL_NAME",
+        "restart_required": true,
+        "estimated_switch_time_seconds": 60,
+        "model_download_time_notes": "First-time model download may take 1-5 minutes depending on model size and network speed"
+    }
+}

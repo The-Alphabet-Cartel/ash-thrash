@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Ash-Thrash Source Package
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-1-1.7-1
-LAST MODIFIED: 2026-01-20
-PHASE: Phase 1 - Foundation
+FILE VERSION: v5.0-2-2.1-1
+LAST MODIFIED: 2026-01-26
+PHASE: Phase 2 - Ash-Thrash Evaluation Infrastructure
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -24,8 +24,10 @@ This is the main source package for Ash-Thrash containing:
 
 PACKAGES:
 - managers:   Configuration and resource management
+- evaluators: Ash-Vigil model evaluation framework (Phase 2)
+- validators: Response and classification validation
 - config:     JSON configuration files
-- validators: Response and classification validation (Phase 2)
+- templates:  Jinja2 report templates
 
 MANAGERS (Phase 1):
 - ConfigManager:        Configuration loading and validation
@@ -34,13 +36,24 @@ MANAGERS (Phase 1):
 - NLPClientManager:     HTTP client for Ash-NLP API communication
 - PhraseLoaderManager:  Test phrase loading and validation
 
+EVALUATORS (Phase 2):
+- VigilEvaluator:       HTTP client for Ash-Vigil model evaluation
+- EvaluationReportGenerator: Model comparison reports
+
 USAGE:
+    # Manager imports
     from src.managers import (
         create_config_manager,
         create_secrets_manager,
         create_logging_config_manager,
         create_nlp_client_manager,
         create_phrase_loader_manager,
+    )
+    
+    # Evaluator imports (Phase 2)
+    from src.evaluators import (
+        create_vigil_evaluator,
+        create_evaluation_report_generator,
     )
 """
 

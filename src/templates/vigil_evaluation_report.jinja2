@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<!--
+============================================================================
+Ash-Thrash: Discord Crisis Detection Testing Suite
+The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
+============================================================================
+FILE VERSION: v5.0-2-2.4-1
+LAST MODIFIED: 2026-01-26
+PHASE: Phase 2 - Ash-Thrash Evaluation Infrastructure
+CLEAN ARCHITECTURE: Compliant
+Repository: https://github.com/the-alphabet-cartel/ash-thrash
+============================================================================
+Vigil Model Evaluation Report Template
+============================================================================
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ash-Vigil Evaluation: {{ evaluation.model_name }}</title>
+    <style>
+        :root {
+            --color-pass: #2ecc71;
+            --color-fail: #e74c3c;
+            --color-warning: #f39c12;
+            --color-info: #3498db;
+            --color-escalated: #9b59b6;
+            --color-bg: #1a1a2e;
+            --color-surface: #16213e;
+            --color-surface-alt: #1f2b47;
+            --color-text: #eee;
+            --color-text-muted: #aaa;
+            --color-border: rgba(255,255,255,0.1);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        header {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-alt) 100%);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-border);
+        }
+        
+        header h1 { 
+            color: var(--color-info); 
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        header .model-name {
+            font-size: 1.4rem;
+            color: var(--color-text);
+            margin-bottom: 1rem;
+        }
+        
+        header .subtitle { 
+            color: var(--color-text-muted); 
+            font-size: 0.9rem;
+        }
+        
+        .card {
+            background: var(--color-surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--color-border);
+        }
+        
+        .card h2 {
+            border-bottom: 2px solid var(--color-info);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.03);
+            padding: 1.25rem 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--color-border);
+        }
+        
+        .stat-box .value { 
+            font-size: 2rem; 
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        
+        .stat-box .label { 
+            color: var(--color-text-muted); 
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        .status-pass { color: var(--color-pass); }
+        .status-fail { color: var(--color-fail); }
+        .status-warning { color: var(--color-warning); }
+        .status-escalated { color: var(--color-escalated); }
+        .status-info { color: var(--color-info); }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        th { 
+            background: rgba(255,255,255,0.05); 
+            font-weight: 600;
+        }
+        
+        tbody tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .badge-pass { background: var(--color-pass); color: #000; }
+        .badge-fail { background: var(--color-fail); color: #fff; }
+        .badge-escalated { background: var(--color-escalated); color: #fff; }
+        .badge-warning { background: var(--color-warning); color: #000; }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            height: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: width 0.3s ease;
+        }
+        
+        .subcategory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .subcategory-item {
+            background: rgba(255,255,255,0.03);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .message-preview {
+            font-style: italic;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+        
+        footer a { 
+            color: var(--color-info); 
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .pride-flag {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .stat-box .value { font-size: 1.5rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 Ash-Vigil Model Evaluation</h1>
+            <p class="model-name">{{ evaluation.model_name }}</p>
+            <p class="subtitle">
+                Evaluation ID: <strong>{{ evaluation.evaluation_id }}</strong> |
+                Status: <strong>{{ evaluation.status.value }}</strong>
+            </p>
+            <p class="subtitle">
+                Vigil Server: {{ evaluation.vigil_host }} |
+                Generated: {{ generated_at }}
+            </p>
+        </header>
+
+        <!-- Overall Performance Summary -->
+        <div class="card">
+            <h2>📊 Overall Performance</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="value {% if evaluation.overall_accuracy >= 80 %}status-pass{% elif evaluation.overall_accuracy >= 60 %}status-warning{% else %}status-fail{% endif %}">
+                        {{ "%.1f"|format(evaluation.overall_accuracy) }}%
+                    </div>
+                    <div class="label">Overall Accuracy</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-info">{{ evaluation.total_phrases }}</div>
+                    <div class="label">Total Phrases</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-pass">{{ evaluation.total_passed }}</div>
+                    <div class="label">Passed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-escalated">{{ evaluation.total_escalated }}</div>
+                    <div class="label">Escalated</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-fail">{{ evaluation.total_failed }}</div>
+                    <div class="label">Failed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value status-warning">{{ evaluation.total_errors }}</div>
+                    <div class="label">Errors</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timing Metrics -->
+        <div class="card">
+            <h2>⏱️ Performance Timing</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="value">{{ "%.1f"|format(evaluation.total_evaluation_time_seconds) }}s</div>
+                    <div class="label">Total Evaluation Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value {% if evaluation.average_inference_time_ms <= 50 %}status-pass{% elif evaluation.average_inference_time_ms <= 100 %}status-warning{% else %}status-fail{% endif %}">
+                        {{ "%.1f"|format(evaluation.average_inference_time_ms) }}ms
+                    </div>
+                    <div class="label">Avg Inference Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value">{{ "%.0f"|format(evaluation.total_inference_time_ms) }}ms</div>
+                    <div class="label">Total Inference Time</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="card">
+            <h2>📂 Category Performance</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Accuracy</th>
+                        <th>Passed</th>
+                        <th>Escalated</th>
+                        <th>Failed</th>
+                        <th>Errors</th>
+                        <th style="width: 200px;">Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, cat in evaluation.category_accuracies.items() %}
+                    <tr>
+                        <td>
+                            <strong>{{ name }}</strong>
+                            <br>
+                            <small style="color: var(--color-text-muted);">{{ cat.total_phrases }} phrases</small>
+                        </td>
+                        <td class="{% if cat.accuracy >= 80 %}status-pass{% elif cat.accuracy >= 60 %}status-warning{% else %}status-fail{% endif %}">
+                            <strong>{{ "%.1f"|format(cat.accuracy) }}%</strong>
+                        </td>
+                        <td class="status-pass">{{ cat.passed }}</td>
+                        <td class="status-escalated">{{ cat.escalated }}</td>
+                        <td class="status-fail">{{ cat.failed }}</td>
+                        <td class="status-warning">{{ cat.errors }}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ cat.accuracy }}%; background: {% if cat.accuracy >= 80 %}var(--color-pass){% elif cat.accuracy >= 60 %}var(--color-warning){% else %}var(--color-fail){% endif %};">
+                                    {{ "%.0f"|format(cat.accuracy) }}%
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% if cat.subcategory_breakdown %}
+                    <tr>
+                        <td colspan="7" style="padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.02);">
+                            <details>
+                                <summary style="cursor: pointer; font-size: 0.9rem; color: var(--color-text-muted);">
+                                    📋 Subcategory Breakdown ({{ cat.subcategory_breakdown|length }} subcategories)
+                                </summary>
+                                <div class="subcategory-grid">
+                                    {% for subcat_name, subcat_data in cat.subcategory_breakdown.items() %}
+                                    <div class="subcategory-item">
+                                        <span>{{ subcat_name }}</span>
+                                        <span>
+                                            <span class="status-pass">{{ subcat_data.passed }}</span> |
+                                            <span class="status-escalated">{{ subcat_data.escalated }}</span> |
+                                            <span class="status-fail">{{ subcat_data.failed }}</span>
+                                        </span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if failed_phrases %}
+        <!-- Failed Phrases Detail -->
+        <div class="card">
+            <h2>❌ Failed Phrases ({{ total_failures }})</h2>
+            <p style="color: var(--color-text-muted); margin-bottom: 1rem;">
+                Phrases where Ash-Vigil's classification did not match expected risk levels.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Expected</th>
+                        <th>Actual</th>
+                        <th>Confidence</th>
+                        <th>Message Preview</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for phrase in failed_phrases %}
+                    <tr>
+                        <td>{{ phrase.category }}</td>
+                        <td>{{ phrase.subcategory }}</td>
+                        <td>{{ phrase.expected_risk_levels|join(', ') }}</td>
+                        <td class="status-fail"><strong>{{ phrase.vigil_risk_level }}</strong></td>
+                        <td>{{ "%.2f"|format(phrase.vigil_confidence) }}</td>
+                        <td class="message-preview" title="{{ phrase.message }}">
+                            {{ phrase.message[:60] }}{% if phrase.message|length > 60 %}...{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if show_more_failures %}
+            <p style="margin-top: 1rem; color: var(--color-text-muted); text-align: center;">
+                ⚠️ Showing 50 of {{ total_failures }} failed phrases. See JSON report for complete list.
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if comparison %}
+        <!-- Baseline Comparison -->
+        <div class="card">
+            <h2>📈 Baseline Comparison</h2>
+            <p style="color: var(--color-text-muted); margin-bottom: 1rem;">
+                Compared to baseline: <strong>{{ comparison.baseline_name }}</strong>
+            </p>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="value {% if comparison.overall_accuracy_delta >= 0 %}status-pass{% else %}status-fail{% endif %}">
+                        {{ "%+.1f"|format(comparison.overall_accuracy_delta) }}%
+                    </div>
+                    <div class="label">Accuracy Change</div>
+                </div>
+            </div>
+            {% if comparison.recommendations %}
+            <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">💡 Recommendations</h3>
+            <ul style="padding-left: 1.5rem;">
+                {% for rec in comparison.recommendations %}
+                <li style="margin-bottom: 0.5rem;">{{ rec }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <footer>
+            <p>Generated by Ash-Thrash {{ version }} | Vigil Evaluator</p>
+            <p>
+                <a href="https://discord.gg/alphabetcartel">The Alphabet Cartel</a> |
+                <a href="https://alphabetcartel.org">alphabetcartel.org</a> |
+                <a href="https://github.com/the-alphabet-cartel/ash-vigil">GitHub</a>
+            </p>
+            <p class="pride-flag">Built with care for chosen family 🏳️‍🌈</p>
+        </footer>
+    </div>
+</body>
+</html>
