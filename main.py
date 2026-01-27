@@ -40,6 +40,12 @@ USAGE:
     # Generate HTML reports
     python main.py --run-tests --report-format html
 
+    # Run Ash-Vigil model evaluation
+    python main.py --run-vigil-eval
+
+    # Run Ash-Vigil evaluation and save baseline
+    python main.py --run-vigil-eval --save-baseline primary-model-v1
+
     # Run with testing environment
     THRASH_ENVIRONMENT=testing python main.py
 
@@ -94,6 +100,13 @@ from src.validators import (
     create_response_validator,
     ClassificationValidator,
     ResponseValidator,
+)
+
+from src.evaluators import (
+    create_vigil_evaluator,
+    create_evaluation_report_generator,
+    VigilEvaluator,
+    EvaluationReportGenerator,
 )
 
 from src.api.app import create_app, app_state
@@ -502,6 +515,177 @@ class AshThrash:
         finally:
             await self.shutdown()
 
+    async def run_vigil_eval(
+        self,
+        categories: Optional[List[str]] = None,
+        verbose: bool = False,
+        save_baseline: Optional[str] = None,
+        report_formats: Optional[List[str]] = None,
+    ) -> int:
+        """
+        Run Ash-Vigil model evaluation against specialty phrases.
+
+        Args:
+            categories: Optional list of specialty categories to test
+            verbose: Whether to show verbose output
+            save_baseline: Name to save results as baseline
+            report_formats: List of report formats to generate (json, html)
+
+        Returns:
+            Exit code (0 for success, non-zero for failure)
+        """
+        # Minimal startup - just config and logging
+        try:
+            self.config = create_config_manager()
+            self.secrets = create_secrets_manager()
+            self.logging_mgr = create_logging_config_manager(config_manager=self.config)
+            self._logger = self.logging_mgr.get_logger("vigil_eval")
+        except Exception as e:
+            print(f"🚨 CRITICAL: Startup failed: {e}", file=sys.stderr)
+            return 1
+
+        # Default report formats
+        if report_formats is None:
+            report_formats = ["json", "html"]
+
+        # Get Vigil configuration
+        vigil_host = os.environ.get("THRASH_VIGIL_HOST", "10.20.30.14")
+        vigil_port = int(os.environ.get("THRASH_VIGIL_PORT", "30882"))
+
+        self._logger.info("=" * 60)
+        self._logger.info("🔍 ASH-VIGIL MODEL EVALUATION")
+        self._logger.info("=" * 60)
+        self._logger.info(f"Target: Ash-Vigil at {vigil_host}:{vigil_port}")
+
+        try:
+            # Create evaluator
+            evaluator = create_vigil_evaluator(
+                vigil_host=vigil_host,
+                vigil_port=vigil_port,
+                timeout=120,
+                batch_size=50,
+                logging_manager=self.logging_mgr,
+            )
+
+            async with evaluator:
+                # Check availability
+                self._logger.info("Checking Ash-Vigil availability...")
+                if not await evaluator.is_available():
+                    self._logger.error(
+                        f"❌ Ash-Vigil is not available at {vigil_host}:{vigil_port}"
+                    )
+                    return 1
+
+                # Get model info
+                version, model = await evaluator.get_vigil_info()
+                self._logger.success(f"Connected to Ash-Vigil {version}")
+                self._logger.info(f"Model: {model}")
+
+                # Run evaluation
+                self._logger.info("-" * 60)
+                self._logger.info("Running evaluation (this may take 1-2 minutes)...")
+
+                result = await evaluator.evaluate_model(categories=categories)
+
+                # Print results
+                self._logger.info("=" * 60)
+                self._logger.info("📊 EVALUATION RESULTS")
+                self._logger.info("=" * 60)
+                self._logger.info(f"Status: {result.status.value}")
+                self._logger.info(f"Model: {result.model_name}")
+                self._logger.info(f"Total Phrases: {result.total_phrases}")
+                self._logger.info(f"Overall Accuracy: {result.overall_accuracy:.1f}%")
+                self._logger.info(f"  ✅ Passed: {result.total_passed}")
+                self._logger.info(f"  ⬆️  Escalated: {result.total_escalated}")
+                self._logger.info(f"  ❌ Failed: {result.total_failed}")
+                self._logger.info(f"  ⚠️  Errors: {result.total_errors}")
+                self._logger.info(f"Avg Inference: {result.average_inference_time_ms:.1f}ms")
+
+                self._logger.info("-" * 60)
+                self._logger.info("Per-Category Results:")
+                for cat_name, cat_acc in result.category_accuracies.items():
+                    status_icon = (
+                        "✅" if cat_acc.accuracy >= 70
+                        else "⚠️" if cat_acc.accuracy >= 50
+                        else "❌"
+                    )
+                    self._logger.info(
+                        f"  {status_icon} {cat_name}: {cat_acc.accuracy:.1f}% "
+                        f"({cat_acc.passed + cat_acc.escalated}/{cat_acc.total_phrases})"
+                    )
+
+            # Generate reports
+            self._logger.info("=" * 60)
+            self._logger.info("Generating reports...")
+
+            reporter = create_evaluation_report_generator(
+                config_manager=self.config,
+                logging_manager=self.logging_mgr,
+            )
+
+            if "json" in report_formats:
+                json_path = reporter.generate_json_report(result, include_phrase_details=True)
+                self._logger.info(f"  📄 JSON: {json_path}")
+
+            if "html" in report_formats:
+                html_path = reporter.generate_html_report(result)
+                self._logger.info(f"  📄 HTML: {html_path}")
+
+            if save_baseline:
+                baseline_path = reporter.save_baseline(result, name=save_baseline)
+                self._logger.info(f"  💾 Baseline '{save_baseline}' saved: {baseline_path}")
+
+            # Decision gate summary
+            self._logger.info("=" * 60)
+            self._logger.info("📋 DECISION GATE SUMMARY")
+            self._logger.info("-" * 60)
+
+            targets = {
+                "specialty_lgbtqia": {"min": 50, "target": 70},
+                "specialty_gaming": {"min": 70, "target": 90},
+                "specialty_slang": {"min": 40, "target": 60},
+                "specialty_irony": {"min": 30, "target": 50},
+                "specialty_multilang": {"min": 30, "target": 50},
+                "specialty_quotes": {"min": 40, "target": 60},
+            }
+
+            all_minimum_met = True
+            for cat_name, thresholds in targets.items():
+                if cat_name in result.category_accuracies:
+                    acc = result.category_accuracies[cat_name].accuracy
+                    meets_min = acc >= thresholds["min"]
+                    meets_target = acc >= thresholds["target"]
+
+                    if meets_target:
+                        status = "✅ TARGET MET"
+                    elif meets_min:
+                        status = "⚠️ MINIMUM MET"
+                    else:
+                        status = "❌ BELOW MINIMUM"
+                        all_minimum_met = False
+
+                    self._logger.info(
+                        f"  {cat_name}: {acc:.1f}% "
+                        f"(min: {thresholds['min']}%, target: {thresholds['target']}%) "
+                        f"→ {status}"
+                    )
+
+            self._logger.info("=" * 60)
+            if all_minimum_met:
+                self._logger.success("✅ RECOMMENDATION: Proceed to Phase 3")
+                self._logger.info("   All categories meet minimum thresholds.")
+            else:
+                self._logger.warning("⚠️ RECOMMENDATION: Review results before proceeding")
+                self._logger.info("   Some categories are below minimum thresholds.")
+
+            return 0 if all_minimum_met else 1
+
+        except Exception as e:
+            self._logger.error(f"Evaluation error: {e}")
+            import traceback
+            traceback.print_exc()
+            return 1
+
     def _print_banner(self) -> None:
         """Print the startup banner."""
         banner = """
@@ -572,6 +756,8 @@ Examples:
   python main.py --run-tests --compare-baseline main
   python main.py --run-tests --report-format html --report-format json
   python main.py --run-tests --send-discord
+  python main.py --run-vigil-eval         Run Ash-Vigil model evaluation
+  python main.py --run-vigil-eval --save-baseline primary-model-v1
         """,
     )
 
@@ -593,6 +779,11 @@ Examples:
         "--run-tests",
         action="store_true",
         help="Run tests immediately and exit (don't start server)",
+    )
+    parser.add_argument(
+        "--run-vigil-eval",
+        action="store_true",
+        help="Run Ash-Vigil model evaluation against specialty phrases",
     )
     parser.add_argument(
         "--category",
@@ -657,7 +848,17 @@ def main() -> int:
     app = AshThrash()
 
     try:
-        if args.run_tests:
+        if args.run_vigil_eval:
+            # Run Ash-Vigil model evaluation
+            return asyncio.run(
+                app.run_vigil_eval(
+                    categories=args.categories,
+                    verbose=args.verbose,
+                    save_baseline=args.save_baseline,
+                    report_formats=args.report_formats,
+                )
+            )
+        elif args.run_tests:
             # Run tests and exit
             return asyncio.run(
                 app.run_tests(
