@@ -773,9 +773,13 @@ class VigilEvaluator:
         Returns:
             List of phrase results
         """
-        # Prepare request
+        # Prepare request - Ash-Vigil expects {"phrases": [{"id": "...", "text": "..."}, ...]}
         request_data = {
-            "phrases": [p.message for p in phrases],
+            "phrases": [
+                {"id": p.phrase_id, "text": p.message}
+                for p in phrases
+            ],
+            "include_timing": True,
         }
         
         try:
@@ -803,41 +807,57 @@ class VigilEvaluator:
         results = []
         vigil_results = response.get("results", [])
         
-        # Calculate per-phrase timing (approximate)
+        # Build a lookup by ID for matching results
+        vigil_by_id = {r.get("id", ""): r for r in vigil_results}
+        
+        # Calculate per-phrase timing (approximate if not provided)
         per_phrase_time_ms = total_time_ms / len(phrases) if phrases else 0
         
-        for i, phrase in enumerate(phrases):
-            if i < len(vigil_results):
-                vigil_data = vigil_results[i]
-                
+        for phrase in phrases:
+            vigil_data = vigil_by_id.get(phrase.phrase_id, {})
+            
+            if vigil_data:
                 # Extract Vigil response fields
-                label = vigil_data.get("label", "")
-                risk_level = vigil_data.get("risk_level", "")
+                # API returns: risk_score, risk_label, confidence, inference_time_ms
+                risk_label = vigil_data.get("risk_label", "")
+                risk_score = vigil_data.get("risk_score", 0.0)
                 confidence = vigil_data.get("confidence", 0.0)
-                scores = vigil_data.get("scores", {})
                 inference_time = vigil_data.get("inference_time_ms", per_phrase_time_ms)
+                error = vigil_data.get("error")
                 
-                # Determine pass/fail
-                status = self._determine_pass_status(
-                    expected_risk_levels=phrase.expected_risk_levels,
-                    actual_risk_level=risk_level,
-                    allow_escalation=True,
-                )
-                
-                results.append(PhraseResult(
-                    phrase_id=phrase.phrase_id,
-                    message=phrase.message,
-                    category=phrase.category,
-                    subcategory=phrase.subcategory,
-                    expected_priorities=phrase.expected_priorities,
-                    expected_risk_levels=phrase.expected_risk_levels,
-                    vigil_label=label,
-                    vigil_risk_level=risk_level,
-                    vigil_confidence=confidence,
-                    vigil_scores=scores,
-                    status=status,
-                    inference_time_ms=inference_time,
-                ))
+                if error:
+                    results.append(PhraseResult(
+                        phrase_id=phrase.phrase_id,
+                        message=phrase.message,
+                        category=phrase.category,
+                        subcategory=phrase.subcategory,
+                        expected_priorities=phrase.expected_priorities,
+                        expected_risk_levels=phrase.expected_risk_levels,
+                        status=PassStatus.ERROR,
+                        error_message=error,
+                    ))
+                else:
+                    # Determine pass/fail
+                    status = self._determine_pass_status(
+                        expected_risk_levels=phrase.expected_risk_levels,
+                        actual_risk_level=risk_label,
+                        allow_escalation=True,
+                    )
+                    
+                    results.append(PhraseResult(
+                        phrase_id=phrase.phrase_id,
+                        message=phrase.message,
+                        category=phrase.category,
+                        subcategory=phrase.subcategory,
+                        expected_priorities=phrase.expected_priorities,
+                        expected_risk_levels=phrase.expected_risk_levels,
+                        vigil_label=risk_label,
+                        vigil_risk_level=risk_label,
+                        vigil_confidence=confidence,
+                        vigil_scores={"risk_score": risk_score},
+                        status=status,
+                        inference_time_ms=inference_time,
+                    ))
             else:
                 results.append(PhraseResult(
                     phrase_id=phrase.phrase_id,
@@ -847,7 +867,7 @@ class VigilEvaluator:
                     expected_priorities=phrase.expected_priorities,
                     expected_risk_levels=phrase.expected_risk_levels,
                     status=PassStatus.ERROR,
-                    error_message="No result from Vigil",
+                    error_message="No result from Vigil for this phrase",
                 ))
         
         return results
