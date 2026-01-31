@@ -82,12 +82,12 @@ Ash-Thrash is part of the larger Ash ecosystem:
 
 4. **Start the service**:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 5. **View logs**:
    ```bash
-   docker-compose logs -f ash-thrash
+   docker compose logs -f ash-thrash
    ```
 
 ---

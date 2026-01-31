@@ -9,16 +9,16 @@
 #
 # USAGE:
 #   # Start services
-#   docker-compose up -d
+#   docker compose up -d
 #
 #   # View logs
-#   docker-compose logs -f ash-thrash
+#   docker compose logs -f ash-thrash
 #
 #   # Stop services
-#   docker-compose down
+#   docker compose down
 #
 #   # Rebuild and start
-#   docker-compose up -d --build
+#   docker compose up -d --build
 #
 # SECRETS:
 #   Secrets are stored in ./secrets/ directory:
