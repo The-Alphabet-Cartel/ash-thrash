@@ -1,7 +1,7 @@
 {
 	"_metadata": {
-		"file_version": "v5.0-3-3.1-1",
-		"last_modified": "2026-01-20",
+		"file_version": "v5.0-6-6.3-2",
+		"last_modified": "2026-02-07",
 		"clean_architecture": "Compliant",
 		"description": "Ash-Thrash v5.0 Default Configuration",
 		"repository": "https://github.com/the-alphabet-cartel/ash-thrash",
@@ -315,6 +315,73 @@
 				"type": "float",
 				"range": [1.0, 500.0],
 				"required": false
+			}
+		}
+	},
+
+	"comparison": {
+		"description": "A/B comparison configuration for v5.1 migration testing (Phase 6)",
+		"snapshot_dir": "${THRASH_SNAPSHOT_DIR}",
+		"comparison_dir": "${THRASH_COMPARISON_DIR}",
+		"template_dir": "${THRASH_COMPARISON_TEMPLATE_DIR}",
+		"critical_categories": "${THRASH_COMPARISON_CRITICAL_CATEGORIES}",
+		"regression_thresholds": {
+			"description": "Percentage point thresholds for verdict determination (negative = regression)",
+			"overall_fail": "${THRASH_COMPARISON_OVERALL_FAIL}",
+			"category_warn": "${THRASH_COMPARISON_CATEGORY_WARN}",
+			"critical_category_fail": "${THRASH_COMPARISON_CRITICAL_FAIL}"
+		},
+		"defaults": {
+			"snapshot_dir": "/app/reports/snapshots",
+			"comparison_dir": "/app/reports/comparisons",
+			"template_dir": "/app/src/templates",
+			"critical_categories": [
+				"specialty_lgbtqia",
+				"lgbtqia_specific"
+			],
+			"regression_thresholds": {
+				"overall_fail": -2.0,
+				"category_warn": -5.0,
+				"critical_category_fail": -3.0
+			}
+		},
+		"validation": {
+			"snapshot_dir": {
+				"type": "string",
+				"required": true
+			},
+			"comparison_dir": {
+				"type": "string",
+				"required": true
+			},
+			"template_dir": {
+				"type": "string",
+				"required": false
+			},
+			"critical_categories": {
+				"type": "list",
+				"required": false,
+				"description": "Categories where any regression triggers stricter thresholds"
+			},
+			"regression_thresholds": {
+				"overall_fail": {
+					"type": "float",
+					"range": [-50.0, 0.0],
+					"required": false,
+					"description": "Overall accuracy drop (pp) that triggers FAIL verdict"
+				},
+				"category_warn": {
+					"type": "float",
+					"range": [-50.0, 0.0],
+					"required": false,
+					"description": "Per-category accuracy drop (pp) that triggers WARN verdict"
+				},
+				"critical_category_fail": {
+					"type": "float",
+					"range": [-50.0, 0.0],
+					"required": false,
+					"description": "Critical category accuracy drop (pp) that triggers FAIL verdict"
+				}
 			}
 		}
 	}

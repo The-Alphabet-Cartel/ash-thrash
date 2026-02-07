@@ -1,0 +1,362 @@
+{#
+============================================================================
+Ash-Thrash: Discord Crisis Detection Testing Suite
+The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
+============================================================================
+
+MISSION - NEVER TO BE VIOLATED:
+    Validate  -> Verify crisis detection accuracy through live Ash-NLP integration testing
+    Challenge -> Stress test the system with edge cases and adversarial scenarios
+    Guard     -> Prevent regressions that could compromise detection reliability
+    Protect   -> Safeguard our LGBTQIA+ community through rigorous quality assurance
+
+============================================================================
+A/B Comparison HTML Report Template for Ash-Thrash Service
+----------------------------------------------------------------------------
+FILE VERSION: v5.0-6-6.3-1
+LAST MODIFIED: 2026-02-07
+PHASE: Phase 6 - A/B Testing Infrastructure (v5.1 Migration Phase 1)
+CLEAN ARCHITECTURE: Compliant
+Repository: https://github.com/the-alphabet-cartel/ash-thrash
+============================================================================
+
+Template Variables:
+- comparison: ComparisonResult object with all deltas and verdicts
+- generated_at: ISO timestamp of report generation
+- version: Ash-Thrash version string
+
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/B Comparison: {{ comparison.baseline_label }} vs {{ comparison.candidate_label }}</title>
+    <style>
+        :root {
+            --color-pass: #2ecc71;
+            --color-fail: #e74c3c;
+            --color-warning: #f39c12;
+            --color-info: #3498db;
+            --pride-red: #e40303;
+            --pride-orange: #ff8c00;
+            --pride-yellow: #ffed00;
+            --pride-green: #008026;
+            --pride-blue: #24408e;
+            --pride-purple: #732982;
+            --color-bg: #0f0f1a;
+            --color-surface: #1a1a2e;
+            --color-surface-light: #252545;
+            --color-text: #f0f0f0;
+            --color-text-muted: #a0a0b0;
+            --color-border: rgba(255, 255, 255, 0.1);
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .pride-bar {
+            height: 4px;
+            background: linear-gradient(90deg,
+                var(--pride-red), var(--pride-orange), var(--pride-yellow),
+                var(--pride-green), var(--pride-blue), var(--pride-purple));
+            border-radius: 2px;
+            margin-bottom: 2rem;
+        }
+        header { text-align: center; margin-bottom: 2rem; }
+        header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        header .subtitle { color: var(--color-text-muted); font-size: 0.95rem; }
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .verdict-banner {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        .verdict-PASS { background: rgba(46, 204, 113, 0.15); border: 2px solid var(--color-pass); color: var(--color-pass); }
+        .verdict-WARN { background: rgba(243, 156, 18, 0.15); border: 2px solid var(--color-warning); color: var(--color-warning); }
+        .verdict-FAIL { background: rgba(231, 76, 60, 0.15); border: 2px solid var(--color-fail); color: var(--color-fail); }
+        .overall-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .stat-box {
+            background: var(--color-surface-light);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat-box .label { font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 0.25rem; }
+        .stat-box .value { font-size: 1.6rem; font-weight: bold; font-family: var(--font-mono); }
+        .delta-positive { color: var(--color-pass); }
+        .delta-negative { color: var(--color-fail); }
+        .delta-neutral { color: var(--color-text-muted); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { background: var(--color-surface-light); color: var(--color-text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { font-family: var(--font-mono); font-size: 0.85rem; }
+        tr:hover { background: rgba(255, 255, 255, 0.03); }
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-pass { background: rgba(46, 204, 113, 0.2); color: var(--color-pass); }
+        .badge-warn { background: rgba(243, 156, 18, 0.2); color: var(--color-warning); }
+        .badge-fail { background: rgba(231, 76, 60, 0.2); color: var(--color-fail); }
+        .badge-improved { background: rgba(46, 204, 113, 0.2); color: var(--color-pass); }
+        .badge-regressed { background: rgba(231, 76, 60, 0.2); color: var(--color-fail); }
+        .badge-critical { background: rgba(155, 89, 182, 0.2); color: #bb86fc; }
+        .collapsible { cursor: pointer; user-select: none; }
+        .collapsible::before { content: '+ '; font-family: var(--font-mono); }
+        .collapsible.active::before { content: '- '; }
+        .collapse-content { display: none; margin-top: 1rem; }
+        .collapse-content.show { display: block; }
+        .phrase-text { max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: -apple-system, sans-serif; }
+        .reasons-list { list-style: none; padding: 0; }
+        .reasons-list li { padding: 0.3rem 0; color: var(--color-text-muted); }
+        .reasons-list li::before { content: '- '; color: var(--color-warning); }
+        footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pride-bar"></div>
+
+        <header>
+            <h1>A/B Comparison Report</h1>
+            <div class="subtitle">
+                <strong>{{ comparison.baseline_label }}</strong> (baseline)
+                vs
+                <strong>{{ comparison.candidate_label }}</strong> (candidate)
+            </div>
+            <div class="subtitle" style="margin-top: 0.3rem;">
+                Generated: {{ generated_at }} | Ash-Thrash {{ version }}
+            </div>
+        </header>
+
+        {# Verdict Banner #}
+        <div class="verdict-banner verdict-{{ comparison.overall_verdict }}">
+            {% if comparison.overall_verdict == "PASS" %}PASS - All checks passed{% endif %}
+            {% if comparison.overall_verdict == "WARN" %}WARN - Improvements detected with some regressions{% endif %}
+            {% if comparison.overall_verdict == "FAIL" %}FAIL - Regression detected{% endif %}
+        </div>
+
+        {# Overall Accuracy Comparison #}
+        <div class="card">
+            <h2>Overall Accuracy</h2>
+            <div class="overall-grid">
+                <div class="stat-box">
+                    <div class="label">Baseline</div>
+                    <div class="value">{{ "%.1f"|format(comparison.baseline_overall_accuracy) }}%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Candidate</div>
+                    <div class="value">{{ "%.1f"|format(comparison.candidate_overall_accuracy) }}%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Delta</div>
+                    <div class="value {% if comparison.overall_delta > 0 %}delta-positive{% elif comparison.overall_delta < 0 %}delta-negative{% else %}delta-neutral{% endif %}">
+                        {% if comparison.overall_delta >= 0 %}+{% endif %}{{ "%.2f"|format(comparison.overall_delta) }}%
+                    </div>
+                </div>
+            </div>
+            <div class="overall-grid">
+                <div class="stat-box">
+                    <div class="label">Phrases Improved</div>
+                    <div class="value delta-positive">{{ comparison.total_phrases_improved }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Phrases Regressed</div>
+                    <div class="value delta-negative">{{ comparison.total_phrases_regressed }}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Categories</div>
+                    <div class="value">
+                        <span class="delta-positive">{{ comparison.categories_passed }}P</span> /
+                        <span style="color: var(--color-warning);">{{ comparison.categories_warned }}W</span> /
+                        <span class="delta-negative">{{ comparison.categories_failed }}F</span>
+                    </div>
+                </div>
+            </div>
+            {% if comparison.verdict_reasons %}
+            <div style="margin-top: 1rem;">
+                <strong style="color: var(--color-warning);">Verdict Reasons:</strong>
+                <ul class="reasons-list">
+                    {% for reason in comparison.verdict_reasons %}
+                    <li>{{ reason }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        {# Per-Category Comparison Table #}
+        <div class="card">
+            <h2>Category Comparison</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Baseline</th>
+                        <th>Candidate</th>
+                        <th>Delta</th>
+                        <th>Improved</th>
+                        <th>Regressed</th>
+                        <th>Verdict</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, delta in comparison.category_deltas.items() %}
+                    <tr>
+                        <td>
+                            {{ name }}
+                            {% if delta.is_critical %}<span class="badge badge-critical">CRITICAL</span>{% endif %}
+                        </td>
+                        <td>{{ "%.1f"|format(delta.baseline_accuracy) }}%</td>
+                        <td>{{ "%.1f"|format(delta.candidate_accuracy) }}%</td>
+                        <td class="{% if delta.delta > 0 %}delta-positive{% elif delta.delta < 0 %}delta-negative{% else %}delta-neutral{% endif %}">
+                            {% if delta.delta >= 0 %}+{% endif %}{{ "%.2f"|format(delta.delta) }}%
+                        </td>
+                        <td>{{ delta.phrases_improved|length }}</td>
+                        <td>{{ delta.phrases_regressed|length }}</td>
+                        <td>
+                            <span class="badge badge-{{ delta.verdict|lower }}">{{ delta.verdict }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# Latency Comparison #}
+        {% if comparison.latency_delta %}
+        <div class="card">
+            <h2>Latency Comparison</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Baseline</th>
+                        <th>Candidate</th>
+                        <th>Delta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mean</td>
+                        <td>{{ "%.1f"|format(comparison.latency_delta.baseline_mean_ms) }}ms</td>
+                        <td>{{ "%.1f"|format(comparison.latency_delta.candidate_mean_ms) }}ms</td>
+                        <td class="{% if comparison.latency_delta.mean_delta_ms <= 0 %}delta-positive{% else %}delta-negative{% endif %}">
+                            {% if comparison.latency_delta.mean_delta_ms >= 0 %}+{% endif %}{{ "%.1f"|format(comparison.latency_delta.mean_delta_ms) }}ms
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>P95</td>
+                        <td>{{ "%.1f"|format(comparison.latency_delta.baseline_p95_ms) }}ms</td>
+                        <td>{{ "%.1f"|format(comparison.latency_delta.candidate_p95_ms) }}ms</td>
+                        <td class="{% if comparison.latency_delta.p95_delta_ms <= 0 %}delta-positive{% else %}delta-negative{% endif %}">
+                            {% if comparison.latency_delta.p95_delta_ms >= 0 %}+{% endif %}{{ "%.1f"|format(comparison.latency_delta.p95_delta_ms) }}ms
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>P99</td>
+                        <td>{{ "%.1f"|format(comparison.latency_delta.baseline_p99_ms) }}ms</td>
+                        <td>{{ "%.1f"|format(comparison.latency_delta.candidate_p99_ms) }}ms</td>
+                        <td class="{% if comparison.latency_delta.p99_delta_ms <= 0 %}delta-positive{% else %}delta-negative{% endif %}">
+                            {% if comparison.latency_delta.p99_delta_ms >= 0 %}+{% endif %}{{ "%.1f"|format(comparison.latency_delta.p99_delta_ms) }}ms
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {# Per-Phrase Changes #}
+        {% if comparison.phrase_changes %}
+        <div class="card">
+            <h2 class="collapsible" onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('show');">
+                Phrase-Level Changes ({{ comparison.phrase_changes|length }})
+            </h2>
+            <div class="collapse-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Change</th>
+                            <th>Category</th>
+                            <th>Phrase</th>
+                            <th>Expected</th>
+                            <th>Baseline</th>
+                            <th>Candidate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for change in comparison.phrase_changes %}
+                        <tr>
+                            <td>
+                                <span class="badge badge-{{ change.change_type }}">{{ change.change_type|upper }}</span>
+                            </td>
+                            <td>{{ change.category }}</td>
+                            <td class="phrase-text" title="{{ change.text }}">{{ change.text }}</td>
+                            <td>{{ change.expected_priorities|join(', ') }}</td>
+                            <td>{{ change.baseline_severity or 'N/A' }}</td>
+                            <td>{{ change.candidate_severity or 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="pride-bar"></div>
+
+        <footer>
+            <p>
+                <strong>Ash-Thrash</strong> - Discord Crisis Detection Testing Suite<br>
+                <a href="https://discord.gg/alphabetcartel" style="color: var(--pride-blue);">The Alphabet Cartel</a> |
+                <a href="https://alphabetcartel.org" style="color: var(--pride-purple);">alphabetcartel.org</a>
+            </p>
+            <p style="margin-top: 0.5rem;">Built with care for chosen family</p>
+        </footer>
+    </div>
+
+    <script>
+        // Auto-expand phrase changes if there are regressions
+        document.addEventListener('DOMContentLoaded', function() {
+            var regressions = {{ comparison.total_phrases_regressed }};
+            if (regressions > 0 && regressions <= 20) {
+                var collapsibles = document.querySelectorAll('.collapsible');
+                collapsibles.forEach(function(el) {
+                    el.classList.add('active');
+                    el.nextElementSibling.classList.add('show');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 FastAPI Application for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-2-2.4-1
-LAST MODIFIED: 2026-01-20
-PHASE: Phase 2 - Test Execution Engine
+FILE VERSION: v5.0-6-6.3-4
+LAST MODIFIED: 2026-02-07
+PHASE: Phase 6 - A/B Testing Infrastructure (v5.1 Migration Phase 1)
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -30,6 +30,10 @@ ENDPOINTS:
     GET  /health  - Simple health check (for Docker HEALTHCHECK)
     GET  /status  - Detailed service status
     GET  /        - Service information
+    GET  /snapshots           - List available test run snapshots
+    POST /snapshots/capture   - Capture snapshot from last test run
+    POST /comparisons/compare - Compare two snapshots (A/B analysis)
+    GET  /comparisons/thresholds - Get current comparison thresholds
 
 PORT: 30888 (configured via THRASH_API_PORT)
 
@@ -51,7 +55,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 # Module version
-__version__ = "v5.0-2-2.4-1"
+__version__ = "v5.0-6-6.3-4"
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -85,6 +89,8 @@ class AppState:
         self.nlp_client = None
         self.phrase_loader = None
         self.test_runner = None
+        self.snapshot_manager = None
+        self.comparison_analyzer = None
         self.is_ready = False
         self.initialization_error: Optional[str] = None
 
@@ -146,6 +152,8 @@ async def _initialize_managers():
         create_nlp_client_manager,
         create_phrase_loader_manager,
         create_test_runner_manager,
+        create_snapshot_manager,
+        create_comparison_analyzer_manager,
     )
     from src.validators import (
         create_classification_validator,
@@ -196,6 +204,20 @@ async def _initialize_managers():
             config_manager=app_state.config_manager,
             logging_manager=app_state.logging_manager,
         )
+
+    # Snapshot Manager (Phase 6)
+    if not app_state.snapshot_manager:
+        app_state.snapshot_manager = create_snapshot_manager(
+            config_manager=app_state.config_manager,
+            logging_manager=app_state.logging_manager,
+        )
+
+    # Comparison Analyzer (Phase 6)
+    if not app_state.comparison_analyzer:
+        app_state.comparison_analyzer = create_comparison_analyzer_manager(
+            config_manager=app_state.config_manager,
+            logging_manager=app_state.logging_manager,
+        )
     
     logger.info("✅ All managers initialized")
 
@@ -210,6 +232,8 @@ def create_app(
     nlp_client: Optional[Any] = None,
     phrase_loader: Optional[Any] = None,
     test_runner: Optional[Any] = None,
+    snapshot_manager: Optional[Any] = None,
+    comparison_analyzer: Optional[Any] = None,
 ) -> FastAPI:
     """
     Create and configure the FastAPI application.
@@ -248,6 +272,10 @@ def create_app(
         app_state.phrase_loader = phrase_loader
     if test_runner:
         app_state.test_runner = test_runner
+    if snapshot_manager:
+        app_state.snapshot_manager = snapshot_manager
+    if comparison_analyzer:
+        app_state.comparison_analyzer = comparison_analyzer
     
     # Mark as ready if all critical managers are provided
     if all([config_manager, nlp_client, phrase_loader, test_runner]):
@@ -307,6 +335,10 @@ def _register_routes(app: FastAPI) -> None:
             "endpoints": {
                 "health": "/health",
                 "status": "/status",
+                "snapshots": "/snapshots",
+                "capture_snapshot": "/snapshots/capture",
+                "compare": "/comparisons/compare",
+                "thresholds": "/comparisons/thresholds",
                 "docs": "/docs",
             },
         }
@@ -373,6 +405,8 @@ def _register_routes(app: FastAPI) -> None:
             "nlp_client": app_state.nlp_client is not None,
             "phrase_loader": app_state.phrase_loader is not None,
             "test_runner": app_state.test_runner is not None,
+            "snapshot_manager": app_state.snapshot_manager is not None,
+            "comparison_analyzer": app_state.comparison_analyzer is not None,
         }
         response["components"] = components
         
@@ -415,6 +449,170 @@ def _register_routes(app: FastAPI) -> None:
             response["error"] = app_state.initialization_error
         
         return response
+
+    # =================================================================
+    # Snapshot Endpoints (Phase 6 - A/B Testing)
+    # =================================================================
+
+    @app.get("/snapshots", tags=["A/B Testing"])
+    async def list_snapshots(
+        sort_by: str = "captured_at",
+        reverse: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        List available test run snapshots.
+
+        Returns metadata for all captured snapshots, sorted by the
+        specified field. Used to identify baselines and candidates
+        for A/B comparison.
+        """
+        if not app_state.snapshot_manager:
+            return JSONResponse(
+                status_code=503,
+                content={"error": "Snapshot manager not initialized"},
+            )
+
+        snapshots = app_state.snapshot_manager.list_snapshots(
+            sort_by=sort_by, reverse=reverse,
+        )
+
+        return {
+            "total": len(snapshots),
+            "snapshots": [s.to_dict() for s in snapshots],
+            "snapshot_dir": app_state.snapshot_manager.get_snapshot_dir(),
+        }
+
+    @app.post("/snapshots/capture", tags=["A/B Testing"])
+    async def capture_snapshot(
+        label: str,
+        description: str = "",
+        nlp_version: str = "",
+        nlp_git_commit: str = "",
+    ) -> Dict[str, Any]:
+        """
+        Capture a snapshot from the most recent test run.
+
+        Requires that a test run has been completed. Saves the
+        complete results as a versioned JSON snapshot for future
+        A/B comparison.
+        """
+        if not app_state.snapshot_manager:
+            return JSONResponse(
+                status_code=503,
+                content={"error": "Snapshot manager not initialized"},
+            )
+
+        if not app_state.test_runner:
+            return JSONResponse(
+                status_code=503,
+                content={"error": "Test runner not initialized"},
+            )
+
+        # Get most recent test run
+        current_run = app_state.test_runner.get_current_run()
+        if not current_run:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": "No completed test run available to capture",
+                },
+            )
+
+        # We need an analysis result too - lazy import to avoid circular
+        from src.managers import create_result_analyzer_manager
+
+        analyzer = create_result_analyzer_manager(
+            config_manager=app_state.config_manager,
+            logging_manager=app_state.logging_manager,
+        )
+        analysis = analyzer.analyze(current_run)
+
+        # Capture the snapshot
+        filepath = app_state.snapshot_manager.capture_snapshot(
+            test_run_summary=current_run,
+            analysis_result=analysis,
+            label=label,
+            description=description,
+            nlp_version=nlp_version,
+            nlp_git_commit=nlp_git_commit,
+        )
+
+        return {
+            "status": "captured",
+            "filepath": filepath,
+            "label": label,
+            "overall_accuracy": current_run.overall_accuracy,
+            "total_phrases": current_run.total_tests,
+        }
+
+    # =================================================================
+    # Comparison Endpoints (Phase 6 - A/B Testing)
+    # =================================================================
+
+    @app.post("/comparisons/compare", tags=["A/B Testing"])
+    async def compare_snapshots(
+        baseline_path: str,
+        candidate_path: str,
+    ) -> Dict[str, Any]:
+        """
+        Compare two snapshots side-by-side (A/B analysis).
+
+        Loads the specified baseline and candidate snapshots, then
+        runs the comparison analyzer to produce per-category deltas,
+        per-phrase changes, latency comparison, and an overall verdict.
+        """
+        if not app_state.snapshot_manager:
+            return JSONResponse(
+                status_code=503,
+                content={"error": "Snapshot manager not initialized"},
+            )
+
+        if not app_state.comparison_analyzer:
+            return JSONResponse(
+                status_code=503,
+                content={"error": "Comparison analyzer not initialized"},
+            )
+
+        try:
+            baseline = app_state.snapshot_manager.load_snapshot(
+                baseline_path
+            )
+            candidate = app_state.snapshot_manager.load_snapshot(
+                candidate_path
+            )
+        except FileNotFoundError as e:
+            return JSONResponse(
+                status_code=404,
+                content={"error": str(e)},
+            )
+        except (ValueError, Exception) as e:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"Invalid snapshot: {e}"},
+            )
+
+        result = app_state.comparison_analyzer.compare(
+            baseline_snapshot=baseline,
+            candidate_snapshot=candidate,
+        )
+
+        return result.to_dict()
+
+    @app.get("/comparisons/thresholds", tags=["A/B Testing"])
+    async def get_comparison_thresholds() -> Dict[str, Any]:
+        """
+        Get current comparison verdict thresholds.
+
+        Returns the configured regression thresholds and critical
+        categories that determine PASS/WARN/FAIL verdicts.
+        """
+        if not app_state.comparison_analyzer:
+            return JSONResponse(
+                status_code=503,
+                content={"error": "Comparison analyzer not initialized"},
+            )
+
+        return app_state.comparison_analyzer.get_thresholds()
 
 
 # =============================================================================
