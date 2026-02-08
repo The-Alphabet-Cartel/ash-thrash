@@ -14,9 +14,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Main Entry Point for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-3-3.2-1
-LAST MODIFIED: 2026-01-20
-PHASE: Phase 3 - Analysis & Reporting
+FILE VERSION: v5.0-6-6.4-1
+LAST MODIFIED: 2026-02-07
+PHASE: Phase 6 - A/B Testing Infrastructure (v5.1 Migration Phase 2)
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -33,6 +33,12 @@ USAGE:
 
     # Run tests and save baseline
     python main.py --run-tests --save-baseline main
+
+    # Run tests and capture A/B snapshot
+    python main.py --run-tests --capture-snapshot v5.0_baseline
+
+    # Run tests, capture snapshot with description
+    python main.py --run-tests --capture-snapshot v5.0_baseline --snapshot-description "Pre-migration baseline"
 
     # Run tests and compare to baseline
     python main.py --run-tests --compare-baseline main
@@ -68,7 +74,7 @@ from typing import List, Optional
 import uvicorn
 
 # Module version
-__version__ = "v5.0-3-3.2-1"
+__version__ = "v5.0-6-6.4-1"
 
 # =============================================================================
 # Manager Imports
@@ -83,6 +89,7 @@ from src.managers import (
     create_test_runner_manager,
     create_result_analyzer_manager,
     create_report_manager,
+    create_snapshot_manager,
     ConfigManager,
     SecretsManager,
     LoggingConfigManager,
@@ -93,6 +100,7 @@ from src.managers import (
     ResultAnalyzerManager,
     ReportManager,
     AnalysisResult,
+    SnapshotManager,
 )
 
 from src.validators import (
@@ -152,6 +160,7 @@ class AshThrash:
         self.test_runner: Optional[TestRunnerManager] = None
         self.result_analyzer: Optional[ResultAnalyzerManager] = None
         self.report_manager: Optional[ReportManager] = None
+        self.snapshot_manager: Optional[SnapshotManager] = None
         self._logger = None
         self._shutdown_event = asyncio.Event()
 
@@ -225,6 +234,13 @@ class AshThrash:
                 logging_manager=self.logging_mgr,
             )
 
+            # Step 10: Snapshot Manager (Phase 6 - A/B Testing)
+            self._logger.info("Initializing snapshot manager...")
+            self.snapshot_manager = create_snapshot_manager(
+                config_manager=self.config,
+                logging_manager=self.logging_mgr,
+            )
+
             # Verify Ash-NLP connectivity
             self._logger.info("Checking Ash-NLP connectivity...")
             if await self.nlp_client.is_available():
@@ -240,6 +256,7 @@ class AshThrash:
             app_state.nlp_client = self.nlp_client
             app_state.phrase_loader = self.phrase_loader
             app_state.test_runner = self.test_runner
+            app_state.snapshot_manager = self.snapshot_manager
             app_state.is_ready = True
 
             # Print summary
@@ -291,6 +308,7 @@ class AshThrash:
                 nlp_client=self.nlp_client,
                 phrase_loader=self.phrase_loader,
                 test_runner=self.test_runner,
+                snapshot_manager=self.snapshot_manager,
             )
 
             self._logger.info(f"Starting API server on {host}:{port}")
@@ -327,6 +345,8 @@ class AshThrash:
         compare_baseline: Optional[str] = None,
         report_formats: Optional[List[str]] = None,
         send_discord: bool = False,
+        capture_snapshot: Optional[str] = None,
+        snapshot_description: str = "",
     ) -> int:
         """
         Run tests, analyze results, and generate reports.
@@ -338,6 +358,8 @@ class AshThrash:
             compare_baseline: Name of baseline to compare against
             report_formats: List of report formats to generate (json, html)
             send_discord: Whether to send Discord notification
+            capture_snapshot: Label for A/B snapshot capture (e.g., "v5.0_baseline")
+            snapshot_description: Description for the captured snapshot
 
         Returns:
             Exit code (0 if all pass, 1 if any fail)
@@ -477,6 +499,41 @@ class AshThrash:
                 self._logger.info(
                     f"  💾 Baseline '{save_baseline}' saved: {baseline_path}"
                 )
+
+            # Capture A/B snapshot (Phase 6 - v5.1 Migration)
+            if capture_snapshot and self.snapshot_manager:
+                self._logger.info("-" * 60)
+                self._logger.info(f"📸 Capturing A/B snapshot: {capture_snapshot}")
+
+                # Fetch model configuration from Ash-NLP /status endpoint
+                nlp_version = ""
+                nlp_git_commit = ""
+                model_configuration = {}
+                try:
+                    nlp_status = await self.nlp_client.get_status()
+                    nlp_version = nlp_status.get("version", "")
+                    nlp_git_commit = nlp_status.get("git_commit", "")
+                    model_configuration = nlp_status.get("models", nlp_status)
+                    self._logger.info(
+                        f"  Ash-NLP version: {nlp_version or 'unknown'}"
+                    )
+                except Exception as e:
+                    self._logger.warning(
+                        f"  ⚠️ Could not fetch Ash-NLP status: {e}"
+                    )
+
+                snapshot_path = self.snapshot_manager.capture_snapshot(
+                    test_run_summary=summary,
+                    analysis_result=analysis,
+                    label=capture_snapshot,
+                    description=snapshot_description
+                    or f"Snapshot captured via CLI --capture-snapshot",
+                    nlp_version=nlp_version,
+                    nlp_git_commit=nlp_git_commit,
+                    thrash_version=__version__,
+                    model_configuration=model_configuration,
+                )
+                self._logger.info(f"  📸 Snapshot saved: {snapshot_path}")
 
             # Discord notification (Phase 3)
             if send_discord:
@@ -756,6 +813,8 @@ Examples:
   python main.py --run-tests --compare-baseline main
   python main.py --run-tests --report-format html --report-format json
   python main.py --run-tests --send-discord
+  python main.py --run-tests --capture-snapshot v5.0_baseline
+  python main.py --run-tests --capture-snapshot v5.0_baseline --snapshot-description "Pre-migration"
   python main.py --run-vigil-eval         Run Ash-Vigil model evaluation
   python main.py --run-vigil-eval --save-baseline primary-model-v1
         """,
@@ -822,6 +881,19 @@ Examples:
         help="Send results to Discord webhook (requires configured webhook)",
     )
 
+    # Phase 6: A/B snapshot options
+    parser.add_argument(
+        "--capture-snapshot",
+        metavar="LABEL",
+        help="Capture A/B snapshot with given label (e.g., 'v5.0_baseline')",
+    )
+    parser.add_argument(
+        "--snapshot-description",
+        metavar="DESC",
+        default="",
+        help="Description for the captured snapshot",
+    )
+
     # Version
     parser.add_argument(
         "--version",
@@ -868,6 +940,8 @@ def main() -> int:
                     compare_baseline=args.compare_baseline,
                     report_formats=args.report_formats,
                     send_discord=args.send_discord,
+                    capture_snapshot=args.capture_snapshot,
+                    snapshot_description=args.snapshot_description,
                 )
             )
         else:
