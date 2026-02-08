@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Managers Package for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-3-3.2-1
-LAST MODIFIED: 2026-01-20
-PHASE: Phase 3 - Analysis & Reporting
+FILE VERSION: v5.0-6-6.3-3
+LAST MODIFIED: 2026-02-07
+PHASE: Phase 6 - A/B Testing Infrastructure (v5.1 Migration Phase 1)
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -36,6 +36,10 @@ MANAGERS (Phase 3 - Analysis & Reporting):
 - ResultAnalyzerManager: Metrics calculation and threshold comparison
 - ReportManager:         JSON/HTML reports, baselines, Discord notifications
 
+MANAGERS (Phase 6 - A/B Testing Infrastructure):
+- SnapshotManager:           Versioned test run snapshot capture and loading
+- ComparisonAnalyzerManager: Side-by-side snapshot comparison with verdicts
+
 USAGE:
     from src.managers import (
         create_config_manager,
@@ -46,6 +50,8 @@ USAGE:
         create_test_runner_manager,
         create_result_analyzer_manager,
         create_report_manager,
+        create_snapshot_manager,
+        create_comparison_analyzer_manager,
     )
     from src.validators import (
         create_classification_validator,
@@ -83,10 +89,23 @@ USAGE:
     reporter = create_report_manager(config_manager=config, secrets_manager=secrets, logging_manager=logging_mgr)
     json_path = reporter.generate_json_report(analysis)
     html_path = reporter.generate_html_report(analysis)
+    
+    # Capture snapshot for A/B comparison (Phase 6)
+    snapshot_mgr = create_snapshot_manager(config_manager=config, logging_manager=logging_mgr)
+    filepath = snapshot_mgr.capture_snapshot(
+        test_run_summary=summary, analysis_result=analysis, label="v5.0_baseline",
+    )
+    
+    # Compare two snapshots (Phase 6)
+    comparator = create_comparison_analyzer_manager(config_manager=config, logging_manager=logging_mgr)
+    baseline = snapshot_mgr.load_snapshot("snapshot_v5.0_baseline_20260206T120000.json")
+    candidate = snapshot_mgr.load_snapshot("snapshot_v5.1_candidate_20260207T120000.json")
+    comparison = comparator.compare(baseline, candidate)
+    print(f"Verdict: {comparison.overall_verdict}")
 """
 
 # Module version
-__version__ = "v5.0-3-3.2-1"
+__version__ = "v5.0-6-6.3-3"
 
 # =============================================================================
 # Configuration Manager
@@ -199,6 +218,34 @@ from .report_manager import (
 )
 
 # =============================================================================
+# Snapshot Manager (Phase 6 - A/B Testing)
+# =============================================================================
+
+from .snapshot_manager import (
+    SnapshotManager,
+    create_snapshot_manager,
+    Snapshot,
+    SnapshotMetadata,
+    SNAPSHOT_SCHEMA_VERSION,
+)
+
+# =============================================================================
+# Comparison Analyzer Manager (Phase 6 - A/B Testing)
+# =============================================================================
+
+from .comparison_analyzer_manager import (
+    ComparisonAnalyzerManager,
+    create_comparison_analyzer_manager,
+    ComparisonResult,
+    CategoryDelta,
+    PhraseChange,
+    LatencyDelta,
+    VERDICT_PASS,
+    VERDICT_WARN,
+    VERDICT_FAIL,
+)
+
+# =============================================================================
 # Public API
 # =============================================================================
 
@@ -266,4 +313,20 @@ __all__ = [
     "RegressionDetail",
     "ImprovementDetail",
     "ComparisonVerdict",
+    # Snapshot Manager (Phase 6)
+    "SnapshotManager",
+    "create_snapshot_manager",
+    "Snapshot",
+    "SnapshotMetadata",
+    "SNAPSHOT_SCHEMA_VERSION",
+    # Comparison Analyzer Manager (Phase 6)
+    "ComparisonAnalyzerManager",
+    "create_comparison_analyzer_manager",
+    "ComparisonResult",
+    "CategoryDelta",
+    "PhraseChange",
+    "LatencyDelta",
+    "VERDICT_PASS",
+    "VERDICT_WARN",
+    "VERDICT_FAIL",
 ]
