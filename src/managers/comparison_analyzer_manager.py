@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Comparison Analyzer Manager for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-6-6.2-1
+FILE VERSION: v5.0-6-6.2-2
 LAST MODIFIED: 2026-02-07
-PHASE: Phase 6 - A/B Testing Infrastructure (v5.1 Migration Phase 1)
+PHASE: Phase 6 - A/B Testing Infrastructure (v5.1 Migration Phase 2)
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -334,15 +334,15 @@ class ComparisonAnalyzerManager:
 
         # Load thresholds from config
         self._overall_fail = self._get_config_float(
-            "comparison", "regression_thresholds.overall_fail",
+            "comparison", "regression_overall_fail",
             DEFAULT_OVERALL_FAIL_THRESHOLD,
         )
         self._category_warn = self._get_config_float(
-            "comparison", "regression_thresholds.category_warn",
+            "comparison", "regression_category_warn",
             DEFAULT_CATEGORY_WARN_THRESHOLD,
         )
         self._critical_fail = self._get_config_float(
-            "comparison", "regression_thresholds.critical_category_fail",
+            "comparison", "regression_critical_category_fail",
             DEFAULT_CRITICAL_CATEGORY_FAIL_THRESHOLD,
         )
 

@@ -1,6 +1,6 @@
 {
 	"_metadata": {
-		"file_version": "v5.0-6-6.3-2",
+		"file_version": "v5.0-6-6.4-1",
 		"last_modified": "2026-02-07",
 		"clean_architecture": "Compliant",
 		"description": "Ash-Thrash v5.0 Default Configuration",
@@ -325,12 +325,9 @@
 		"comparison_dir": "${THRASH_COMPARISON_DIR}",
 		"template_dir": "${THRASH_COMPARISON_TEMPLATE_DIR}",
 		"critical_categories": "${THRASH_COMPARISON_CRITICAL_CATEGORIES}",
-		"regression_thresholds": {
-			"description": "Percentage point thresholds for verdict determination (negative = regression)",
-			"overall_fail": "${THRASH_COMPARISON_OVERALL_FAIL}",
-			"category_warn": "${THRASH_COMPARISON_CATEGORY_WARN}",
-			"critical_category_fail": "${THRASH_COMPARISON_CRITICAL_FAIL}"
-		},
+		"regression_overall_fail": "${THRASH_COMPARISON_OVERALL_FAIL}",
+		"regression_category_warn": "${THRASH_COMPARISON_CATEGORY_WARN}",
+		"regression_critical_category_fail": "${THRASH_COMPARISON_CRITICAL_FAIL}",
 		"defaults": {
 			"snapshot_dir": "/app/reports/snapshots",
 			"comparison_dir": "/app/reports/comparisons",
@@ -339,11 +336,9 @@
 				"specialty_lgbtqia",
 				"lgbtqia_specific"
 			],
-			"regression_thresholds": {
-				"overall_fail": -2.0,
-				"category_warn": -5.0,
-				"critical_category_fail": -3.0
-			}
+			"regression_overall_fail": -2.0,
+			"regression_category_warn": -5.0,
+			"regression_critical_category_fail": -3.0
 		},
 		"validation": {
 			"snapshot_dir": {
@@ -363,25 +358,23 @@
 				"required": false,
 				"description": "Categories where any regression triggers stricter thresholds"
 			},
-			"regression_thresholds": {
-				"overall_fail": {
-					"type": "float",
-					"range": [-50.0, 0.0],
-					"required": false,
-					"description": "Overall accuracy drop (pp) that triggers FAIL verdict"
-				},
-				"category_warn": {
-					"type": "float",
-					"range": [-50.0, 0.0],
-					"required": false,
-					"description": "Per-category accuracy drop (pp) that triggers WARN verdict"
-				},
-				"critical_category_fail": {
-					"type": "float",
-					"range": [-50.0, 0.0],
-					"required": false,
-					"description": "Critical category accuracy drop (pp) that triggers FAIL verdict"
-				}
+			"regression_overall_fail": {
+				"type": "float",
+				"range": [-50.0, 0.0],
+				"required": false,
+				"description": "Overall accuracy drop (pp) that triggers FAIL verdict"
+			},
+			"regression_category_warn": {
+				"type": "float",
+				"range": [-50.0, 0.0],
+				"required": false,
+				"description": "Per-category accuracy drop (pp) that triggers WARN verdict"
+			},
+			"regression_critical_category_fail": {
+				"type": "float",
+				"range": [-50.0, 0.0],
+				"required": false,
+				"description": "Critical category accuracy drop (pp) that triggers FAIL verdict"
 			}
 		}
 	}
