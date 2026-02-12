@@ -14,9 +14,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Main Entry Point for Ash-Thrash Service
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-6-6.4-1
-LAST MODIFIED: 2026-02-07
-PHASE: Phase 6 - A/B Testing Infrastructure (v5.1 Migration Phase 2)
+FILE VERSION: v5.1-1-1.4-2
+LAST MODIFIED: 2026-02-12
+PHASE: Phase 1 - Unified Vigil Evaluation
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -46,8 +46,11 @@ USAGE:
     # Generate HTML reports
     python main.py --run-tests --report-format html
 
-    # Run Ash-Vigil model evaluation
+    # Run Ash-Vigil model evaluation (all phrases by default)
     python main.py --run-vigil-eval
+
+    # Run Ash-Vigil evaluation for specialty phrases only (v5.0 behavior)
+    python main.py --run-vigil-eval --vigil-specialty-only
 
     # Run Ash-Vigil evaluation and save baseline
     python main.py --run-vigil-eval --save-baseline primary-model-v1
@@ -74,7 +77,7 @@ from typing import List, Optional
 import uvicorn
 
 # Module version
-__version__ = "v5.0-6-6.4-1"
+__version__ = "v5.1-1-1.4-2"
 
 # =============================================================================
 # Manager Imports
@@ -578,15 +581,20 @@ class AshThrash:
         verbose: bool = False,
         save_baseline: Optional[str] = None,
         report_formats: Optional[List[str]] = None,
+        specialty_only: bool = False,
     ) -> int:
         """
-        Run Ash-Vigil model evaluation against specialty phrases.
+        Run Ash-Vigil model evaluation against test phrases.
+
+        By default (v5.1+), evaluates ALL phrases (standard + edge case + specialty).
+        Use specialty_only=True for the original v5.0 behavior of specialty phrases only.
 
         Args:
-            categories: Optional list of specialty categories to test
+            categories: Optional list of specific categories to test
             verbose: Whether to show verbose output
             save_baseline: Name to save results as baseline
             report_formats: List of report formats to generate (json, html)
+            specialty_only: If True, evaluate only specialty phrases (v5.0 behavior)
 
         Returns:
             Exit code (0 for success, non-zero for failure)
@@ -609,10 +617,15 @@ class AshThrash:
         vigil_host = os.environ.get("THRASH_VIGIL_HOST", "10.20.30.14")
         vigil_port = int(os.environ.get("THRASH_VIGIL_PORT", "30882"))
 
+        # Determine phrase set
+        phrase_set = "specialty" if specialty_only else "all"
+        phrase_set_label = "Specialty Only" if specialty_only else "All Phrases (Standard + Edge Case + Specialty)"
+
         self._logger.info("=" * 60)
         self._logger.info("🔍 ASH-VIGIL MODEL EVALUATION")
         self._logger.info("=" * 60)
         self._logger.info(f"Target: Ash-Vigil at {vigil_host}:{vigil_port}")
+        self._logger.info(f"Phrase Set: {phrase_set_label}")
 
         try:
             # Create evaluator
@@ -640,9 +653,39 @@ class AshThrash:
 
                 # Run evaluation
                 self._logger.info("-" * 60)
-                self._logger.info("Running evaluation (this may take 1-2 minutes)...")
+                duration_hint = "3-5 minutes" if phrase_set == "all" else "1-2 minutes"
+                self._logger.info(f"Running evaluation (this may take {duration_hint})...")
 
-                result = await evaluator.evaluate_model(categories=categories)
+                # Progress callback for verbose output
+                def vigil_progress_callback(current: int, total: int, phrase_result):
+                    if verbose:
+                        from src.evaluators.vigil_evaluator import PassStatus
+                        if phrase_result.status == PassStatus.PASS:
+                            status_icon = "✅"
+                        elif phrase_result.status == PassStatus.ESCALATED:
+                            status_icon = "⬆️"
+                        elif phrase_result.status == PassStatus.FAIL:
+                            status_icon = "❌"
+                        else:
+                            status_icon = "⚠️"
+
+                        detail = ""
+                        if phrase_result.status == PassStatus.FAIL:
+                            detail = (
+                                f" (expected: {', '.join(phrase_result.expected_risk_levels)}"
+                                f", got: {phrase_result.vigil_risk_level})"
+                            )
+
+                        self._logger.info(
+                            f"[{current}/{total}] {status_icon} "
+                            f"{phrase_result.category}/{phrase_result.subcategory}{detail}"
+                        )
+
+                result = await evaluator.evaluate_model(
+                    categories=categories,
+                    phrase_set=phrase_set,
+                    progress_callback=vigil_progress_callback if verbose else None,
+                )
 
                 # Print results
                 self._logger.info("=" * 60)
@@ -660,16 +703,39 @@ class AshThrash:
 
                 self._logger.info("-" * 60)
                 self._logger.info("Per-Category Results:")
-                for cat_name, cat_acc in result.category_accuracies.items():
-                    status_icon = (
-                        "✅" if cat_acc.accuracy >= 70
-                        else "⚠️" if cat_acc.accuracy >= 50
-                        else "❌"
-                    )
-                    self._logger.info(
-                        f"  {status_icon} {cat_name}: {cat_acc.accuracy:.1f}% "
-                        f"({cat_acc.passed + cat_acc.escalated}/{cat_acc.total_phrases})"
-                    )
+
+                # Group categories by type for organized output
+                from src.evaluators.vigil_evaluator import (
+                    STANDARD_PHRASE_FILES,
+                    EDGE_CASE_PHRASE_FILES,
+                    SPECIALTY_PHRASE_FILES,
+                )
+
+                category_groups = [
+                    ("📋 Standard (Definite)", STANDARD_PHRASE_FILES),
+                    ("🔀 Edge Cases (Ambiguous)", EDGE_CASE_PHRASE_FILES),
+                    ("⚡ Specialty", SPECIALTY_PHRASE_FILES),
+                ]
+
+                for group_label, group_files in category_groups:
+                    group_cats = {
+                        k: v for k, v in result.category_accuracies.items()
+                        if k in group_files
+                    }
+                    if not group_cats:
+                        continue
+
+                    self._logger.info(f"  {group_label}:")
+                    for cat_name, cat_acc in group_cats.items():
+                        status_icon = (
+                            "✅" if cat_acc.accuracy >= 70
+                            else "⚠️" if cat_acc.accuracy >= 50
+                            else "❌"
+                        )
+                        self._logger.info(
+                            f"    {status_icon} {cat_name}: {cat_acc.accuracy:.1f}% "
+                            f"({cat_acc.passed + cat_acc.escalated}/{cat_acc.total_phrases})"
+                        )
 
             # Generate reports
             self._logger.info("=" * 60)
@@ -698,34 +764,58 @@ class AshThrash:
             self._logger.info("-" * 60)
 
             targets = {
-                "specialty_lgbtqia": {"min": 50, "target": 70},
-                "specialty_gaming": {"min": 70, "target": 90},
-                "specialty_slang": {"min": 40, "target": 60},
-                "specialty_irony": {"min": 30, "target": 50},
-                "specialty_multilang": {"min": 30, "target": 50},
-                "specialty_quotes": {"min": 40, "target": 60},
+                # Standard categories (definite classifications)
+                "definite_high": {"min": 50, "target": 75, "group": "standard"},
+                "definite_medium": {"min": 50, "target": 70, "group": "standard"},
+                "definite_low": {"min": 60, "target": 80, "group": "standard"},
+                "definite_none": {"min": 70, "target": 90, "group": "standard"},
+                # Edge case categories (ambiguous classifications)
+                "maybe_high_medium": {"min": 40, "target": 60, "group": "edge_case"},
+                "maybe_medium_low": {"min": 40, "target": 60, "group": "edge_case"},
+                "maybe_low_none": {"min": 50, "target": 70, "group": "edge_case"},
+                # Specialty categories (existing from v5.0)
+                "specialty_lgbtqia": {"min": 50, "target": 70, "group": "specialty"},
+                "specialty_gaming": {"min": 70, "target": 90, "group": "specialty"},
+                "specialty_slang": {"min": 40, "target": 60, "group": "specialty"},
+                "specialty_irony": {"min": 30, "target": 50, "group": "specialty"},
+                "specialty_multilang": {"min": 30, "target": 50, "group": "specialty"},
+                "specialty_quotes": {"min": 40, "target": 60, "group": "specialty"},
             }
 
             all_minimum_met = True
+            group_labels = {
+                "standard": "📋 Standard",
+                "edge_case": "🔀 Edge Cases",
+                "specialty": "⚡ Specialty",
+            }
+            current_group = None
+
             for cat_name, thresholds in targets.items():
-                if cat_name in result.category_accuracies:
-                    acc = result.category_accuracies[cat_name].accuracy
-                    meets_min = acc >= thresholds["min"]
-                    meets_target = acc >= thresholds["target"]
+                if cat_name not in result.category_accuracies:
+                    continue
 
-                    if meets_target:
-                        status = "✅ TARGET MET"
-                    elif meets_min:
-                        status = "⚠️ MINIMUM MET"
-                    else:
-                        status = "❌ BELOW MINIMUM"
-                        all_minimum_met = False
+                # Print group header on group change
+                if thresholds["group"] != current_group:
+                    current_group = thresholds["group"]
+                    self._logger.info(f"  {group_labels.get(current_group, current_group)}:")
 
-                    self._logger.info(
-                        f"  {cat_name}: {acc:.1f}% "
-                        f"(min: {thresholds['min']}%, target: {thresholds['target']}%) "
-                        f"→ {status}"
-                    )
+                acc = result.category_accuracies[cat_name].accuracy
+                meets_min = acc >= thresholds["min"]
+                meets_target = acc >= thresholds["target"]
+
+                if meets_target:
+                    status = "✅ TARGET MET"
+                elif meets_min:
+                    status = "⚠️ MINIMUM MET"
+                else:
+                    status = "❌ BELOW MINIMUM"
+                    all_minimum_met = False
+
+                self._logger.info(
+                    f"    {cat_name}: {acc:.1f}% "
+                    f"(min: {thresholds['min']}%, target: {thresholds['target']}%) "
+                    f"→ {status}"
+                )
 
             self._logger.info("=" * 60)
             if all_minimum_met:
@@ -815,7 +905,8 @@ Examples:
   python main.py --run-tests --send-discord
   python main.py --run-tests --capture-snapshot v5.0_baseline
   python main.py --run-tests --capture-snapshot v5.0_baseline --snapshot-description "Pre-migration"
-  python main.py --run-vigil-eval         Run Ash-Vigil model evaluation
+  python main.py --run-vigil-eval         Run Ash-Vigil model evaluation (all phrases)
+  python main.py --run-vigil-eval --vigil-specialty-only  Specialty phrases only
   python main.py --run-vigil-eval --save-baseline primary-model-v1
         """,
     )
@@ -842,7 +933,12 @@ Examples:
     parser.add_argument(
         "--run-vigil-eval",
         action="store_true",
-        help="Run Ash-Vigil model evaluation against specialty phrases",
+        help="Run Ash-Vigil model evaluation (all phrases by default, see --vigil-specialty-only)",
+    )
+    parser.add_argument(
+        "--vigil-specialty-only",
+        action="store_true",
+        help="Only evaluate specialty phrases in Vigil eval (skip standard and edge case phrases)",
     )
     parser.add_argument(
         "--category",
@@ -928,6 +1024,7 @@ def main() -> int:
                     verbose=args.verbose,
                     save_baseline=args.save_baseline,
                     report_formats=args.report_formats,
+                    specialty_only=args.vigil_specialty_only,
                 )
             )
         elif args.run_tests:

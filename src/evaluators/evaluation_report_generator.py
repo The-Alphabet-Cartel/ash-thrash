@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Evaluation Report Generator - Model Comparison Reports for Ash-Vigil
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-2-2.4-1
-LAST MODIFIED: 2026-01-26
-PHASE: Phase 2 - Ash-Thrash Evaluation Infrastructure
+FILE VERSION: v5.1-1-1.7-1
+LAST MODIFIED: 2026-02-12
+PHASE: Phase 1 - Unified Vigil Evaluation
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -72,7 +72,7 @@ from .vigil_evaluator import (
 )
 
 # Module version
-__version__ = "v5.0-2-2.4-1"
+__version__ = "v5.1-1-1.7-1"
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -397,6 +397,30 @@ class EvaluationReportGenerator:
             template = self._jinja_env.from_string(self._get_embedded_evaluation_template())
         
         # Prepare template context
+        # Build category groups for organized display in template
+        from src.evaluators.vigil_evaluator import (
+            STANDARD_PHRASE_FILES,
+            EDGE_CASE_PHRASE_FILES,
+            SPECIALTY_PHRASE_FILES,
+        )
+        category_groups = [
+            {
+                "label": "Standard (Definite Classifications)",
+                "icon": "📋",
+                "categories": list(STANDARD_PHRASE_FILES.keys()),
+            },
+            {
+                "label": "Edge Cases (Ambiguous Classifications)",
+                "icon": "🔀",
+                "categories": list(EDGE_CASE_PHRASE_FILES.keys()),
+            },
+            {
+                "label": "Specialty",
+                "icon": "⚡",
+                "categories": list(SPECIALTY_PHRASE_FILES.keys()),
+            },
+        ]
+
         context = {
             "evaluation": evaluation,
             "comparison": comparison,
@@ -405,6 +429,7 @@ class EvaluationReportGenerator:
             "failed_phrases": evaluation.failed_phrase_results[:50],
             "show_more_failures": len(evaluation.failed_phrase_results) > 50,
             "total_failures": len(evaluation.failed_phrase_results),
+            "category_groups": category_groups,
         }
         
         # Render template

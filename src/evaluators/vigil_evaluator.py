@@ -13,25 +13,27 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Vigil Evaluator - Model Evaluation via Ash-Vigil /evaluate Endpoint
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-2-2.2-1
-LAST MODIFIED: 2026-01-26
-PHASE: Phase 2 - Ash-Thrash Evaluation Infrastructure
+FILE VERSION: v5.1-1-1.2-2
+LAST MODIFIED: 2026-02-12
+PHASE: Phase 1 - Unified Vigil Evaluation
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
 
 RESPONSIBILITIES:
 - Connect to Ash-Vigil's /evaluate endpoint for batch phrase evaluation
-- Load test phrases from Ash-Thrash specialty phrase files
-- Calculate per-category accuracy metrics
+- Load test phrases from ALL Ash-Thrash phrase files (standard, edge case, specialty)
+- Calculate per-category accuracy metrics with category type grouping
 - Support configurable model selection via environment variable
 - Track timing metrics for performance comparison
+- Support phrase_set selection for targeted evaluation
 
 DESIGN NOTE:
 Ash-Vigil is an AMPLIFIER for specialty edge cases, not a standalone classifier.
 This evaluator tests Ash-Vigil's ability to detect risk patterns that generic
 models miss - specifically LGBTQIA+ minority stress, gaming false positives,
-and planning signals.
+and planning signals. As of v5.1, the evaluator also tests Ash-Vigil against
+the full standard phrase library to provide comprehensive performance data.
 
 ENDPOINTS USED:
 - GET  /health    - Verify Ash-Vigil availability
@@ -42,8 +44,11 @@ USAGE:
     
     evaluator = create_vigil_evaluator(config_manager=config)
     
-    # Evaluate current model against specialty phrases
+    # Evaluate current model against ALL phrases (default in v5.1+)
     result = await evaluator.evaluate_model()
+    
+    # Evaluate specialty phrases only (v5.0 behavior)
+    result = await evaluator.evaluate_model(phrase_set="specialty")
     
     # Evaluate specific categories only
     result = await evaluator.evaluate_model(
@@ -64,7 +69,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import httpx
 
 # Module version
-__version__ = "v5.0-2-2.2-1"
+__version__ = "v5.1-1-1.2-2"
 
 # Initialize logger (will be replaced by LoggingConfigManager logger)
 logger = logging.getLogger(__name__)
@@ -87,6 +92,22 @@ ENDPOINT_HEALTH = "/health"
 ENDPOINT_EVALUATE = "/evaluate"
 
 # Phrase file paths (relative to Ash-Thrash src/config/phrases/)
+# Standard definite classification phrase files
+STANDARD_PHRASE_FILES = {
+    "definite_high": "critical_high_priority.json",
+    "definite_medium": "medium_priority.json",
+    "definite_low": "low_priority.json",
+    "definite_none": "none_priority.json",
+}
+
+# Edge case (ambiguous) phrase files
+EDGE_CASE_PHRASE_FILES = {
+    "maybe_high_medium": "edge_cases/maybe_high_medium.json",
+    "maybe_medium_low": "edge_cases/maybe_medium_low.json",
+    "maybe_low_none": "edge_cases/maybe_low_none.json",
+}
+
+# Specialty phrase files (LGBTQIA+, gaming, slang, etc.)
 SPECIALTY_PHRASE_FILES = {
     "specialty_lgbtqia": "specialty/lgbtqia_specific.json",
     "specialty_gaming": "specialty/gaming_context.json",
@@ -94,6 +115,21 @@ SPECIALTY_PHRASE_FILES = {
     "specialty_irony": "specialty/irony_sarcasm.json",
     "specialty_multilang": "specialty/language_hints.json",
     "specialty_quotes": "specialty/songs_quotes.json",
+}
+
+# Combined phrase file registry - all phrase files across all types
+ALL_PHRASE_FILES = {
+    **STANDARD_PHRASE_FILES,
+    **EDGE_CASE_PHRASE_FILES,
+    **SPECIALTY_PHRASE_FILES,
+}
+
+# Valid phrase_set values for load_phrases()
+VALID_PHRASE_SETS = {
+    "all": ALL_PHRASE_FILES,
+    "standard": STANDARD_PHRASE_FILES,
+    "edge_case": EDGE_CASE_PHRASE_FILES,
+    "specialty": SPECIALTY_PHRASE_FILES,
 }
 
 # Risk level mapping from Ash-Vigil labels
@@ -679,30 +715,58 @@ class VigilEvaluator:
     def load_phrases(
         self,
         categories: Optional[List[str]] = None,
+        phrase_set: str = "all",
     ) -> Dict[str, List[TestPhrase]]:
         """
         Load test phrases for evaluation.
         
         Args:
-            categories: List of category names to load (default: all specialty)
+            categories: List of specific category names to load (overrides phrase_set)
+            phrase_set: Which phrase set to load when categories is None.
+                        Valid values: "all", "standard", "edge_case", "specialty"
+                        Default: "all" (loads standard + edge case + specialty)
         
         Returns:
             Dictionary mapping category names to phrase lists
+        
+        Example:
+            >>> # Load all phrases (v5.1 default)
+            >>> phrases = evaluator.load_phrases()
+            
+            >>> # Load only specialty phrases (v5.0 behavior)
+            >>> phrases = evaluator.load_phrases(phrase_set="specialty")
+            
+            >>> # Load specific categories
+            >>> phrases = evaluator.load_phrases(categories=["definite_high", "specialty_lgbtqia"])
         """
-        # Default to all specialty categories
-        if categories is None:
-            categories = list(SPECIALTY_PHRASE_FILES.keys())
+        # Resolve the file registry to use
+        if categories is not None:
+            # Explicit categories override phrase_set - look up in ALL_PHRASE_FILES
+            file_registry = ALL_PHRASE_FILES
+            target_categories = categories
+        else:
+            # Use phrase_set to determine which files to load
+            file_registry = VALID_PHRASE_SETS.get(phrase_set)
+            if file_registry is None:
+                self._logger.warning(
+                    f"⚠️ Unknown phrase_set '{phrase_set}', falling back to 'all'"
+                )
+                file_registry = ALL_PHRASE_FILES
+            target_categories = list(file_registry.keys())
         
         result = {}
         
-        for category in categories:
+        for category in target_categories:
             # Check cache first
             if category in self._phrase_cache:
                 result[category] = self._phrase_cache[category]
                 continue
             
             # Load from file
-            filepath = SPECIALTY_PHRASE_FILES.get(category)
+            filepath = file_registry.get(category)
+            if not filepath:
+                # Category not in the selected file registry - try ALL as fallback
+                filepath = ALL_PHRASE_FILES.get(category)
             if not filepath:
                 self._logger.warning(f"⚠️ Unknown category: {category}")
                 continue
@@ -934,19 +998,37 @@ class VigilEvaluator:
         self,
         model_name: Optional[str] = None,
         categories: Optional[List[str]] = None,
+        phrase_set: str = "all",
+        progress_callback: Optional[callable] = None,
     ) -> EvaluationResult:
         """
         Run a full model evaluation.
         
         Args:
             model_name: Model name for identification (default: fetch from Vigil)
-            categories: List of categories to evaluate (default: all specialty)
+            categories: List of categories to evaluate (overrides phrase_set)
+            phrase_set: Which phrase set to load when categories is None.
+                        Valid values: "all", "standard", "edge_case", "specialty"
+                        Default: "all" (loads standard + edge case + specialty)
+            progress_callback: Optional callback for verbose progress reporting.
+                        Called as progress_callback(current, total, phrase_result)
+                        after each phrase is evaluated.
         
         Returns:
             EvaluationResult with complete metrics
         
         Example:
+            >>> # Evaluate all phrases (v5.1 default)
             >>> result = await evaluator.evaluate_model()
+            
+            >>> # Evaluate specialty only (v5.0 behavior)
+            >>> result = await evaluator.evaluate_model(phrase_set="specialty")
+            
+            >>> # Evaluate with progress reporting
+            >>> def on_progress(current, total, phrase_result):
+            ...     print(f"[{current}/{total}] {phrase_result.status.value}")
+            >>> result = await evaluator.evaluate_model(progress_callback=on_progress)
+            
             >>> print(f"Overall accuracy: {result.overall_accuracy}%")
             >>> for cat, acc in result.category_accuracies.items():
             ...     print(f"  {cat}: {acc.accuracy}%")
@@ -978,7 +1060,7 @@ class VigilEvaluator:
         
         try:
             # Load phrases
-            phrases_by_category = self.load_phrases(categories)
+            phrases_by_category = self.load_phrases(categories, phrase_set=phrase_set)
             
             if not phrases_by_category:
                 result.status = EvaluationStatus.FAILED
@@ -986,6 +1068,10 @@ class VigilEvaluator:
                 return result
             
             all_results: List[PhraseResult] = []
+            
+            # Calculate total phrase count for progress reporting
+            total_phrase_count = sum(len(p) for p in phrases_by_category.values())
+            completed_count = 0
             
             # Evaluate each category
             for category, phrases in phrases_by_category.items():
@@ -996,6 +1082,14 @@ class VigilEvaluator:
                     batch = phrases[i:i + self.batch_size]
                     batch_results = await self._evaluate_batch(batch)
                     all_results.extend(batch_results)
+                    
+                    # Invoke progress callback for each result in batch
+                    if progress_callback:
+                        for batch_result in batch_results:
+                            completed_count += 1
+                            progress_callback(completed_count, total_phrase_count, batch_result)
+                    else:
+                        completed_count += len(batch_results)
                     
                     # Log progress
                     progress = min(i + self.batch_size, len(phrases))
@@ -1272,4 +1366,10 @@ __all__ = [
     "VigilConnectionError",
     "VigilTimeoutError",
     "VigilResponseError",
+    # Phrase file registries
+    "STANDARD_PHRASE_FILES",
+    "EDGE_CASE_PHRASE_FILES",
+    "SPECIALTY_PHRASE_FILES",
+    "ALL_PHRASE_FILES",
+    "VALID_PHRASE_SETS",
 ]

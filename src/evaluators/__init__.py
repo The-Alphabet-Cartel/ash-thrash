@@ -13,9 +13,9 @@ MISSION - NEVER TO BE VIOLATED:
 ============================================================================
 Evaluators Module - Model Evaluation Framework for Ash-Vigil
 ----------------------------------------------------------------------------
-FILE VERSION: v5.0-2-2.1-1
-LAST MODIFIED: 2026-01-26
-PHASE: Phase 2 - Ash-Thrash Evaluation Infrastructure
+FILE VERSION: v5.1-1-1.8-1
+LAST MODIFIED: 2026-02-12
+PHASE: Phase 1 - Unified Vigil Evaluation
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -38,7 +38,7 @@ USAGE:
 """
 
 # Module version
-__version__ = "v5.0-2-2.1-1"
+__version__ = "v5.1-1-1.8-1"
 
 # Import public interfaces (will be added as files are created)
 from .vigil_evaluator import (
@@ -50,6 +50,11 @@ from .vigil_evaluator import (
     VigilEvaluatorError,
     VigilConnectionError,
     VigilTimeoutError,
+    STANDARD_PHRASE_FILES,
+    EDGE_CASE_PHRASE_FILES,
+    SPECIALTY_PHRASE_FILES,
+    ALL_PHRASE_FILES,
+    VALID_PHRASE_SETS,
 )
 
 from .evaluation_report_generator import (
@@ -74,4 +79,10 @@ __all__ = [
     "VigilEvaluatorError",
     "VigilConnectionError",
     "VigilTimeoutError",
+    # Phrase file registries
+    "STANDARD_PHRASE_FILES",
+    "EDGE_CASE_PHRASE_FILES",
+    "SPECIALTY_PHRASE_FILES",
+    "ALL_PHRASE_FILES",
+    "VALID_PHRASE_SETS",
 ]

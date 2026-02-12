@@ -4,9 +4,9 @@
 Ash-Thrash: Discord Crisis Detection Testing Suite
 The Alphabet Cartel - https://discord.gg/alphabetcartel | alphabetcartel.org
 ============================================================================
-FILE VERSION: v5.0-2-2.4-1
-LAST MODIFIED: 2026-01-26
-PHASE: Phase 2 - Ash-Thrash Evaluation Infrastructure
+FILE VERSION: v5.1-1-1.7-1
+LAST MODIFIED: 2026-02-12
+PHASE: Phase 1 - Unified Vigil Evaluation
 CLEAN ARCHITECTURE: Compliant
 Repository: https://github.com/the-alphabet-cartel/ash-thrash
 ============================================================================
@@ -219,6 +219,22 @@ Vigil Model Evaluation Report Template
             font-size: 1.2rem;
         }
 
+        .group-header td {
+            background: rgba(52, 152, 219, 0.15);
+            font-weight: 700;
+            font-size: 1.05rem;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 2px solid var(--color-info);
+            color: var(--color-info);
+        }
+
+        .group-summary td {
+            background: rgba(255,255,255,0.04);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
         @media (max-width: 768px) {
             body { padding: 1rem; }
             .stat-box .value { font-size: 1.5rem; }
@@ -311,7 +327,20 @@ Vigil Model Evaluation Report Template
                     </tr>
                 </thead>
                 <tbody>
-                    {% for name, cat in evaluation.category_accuracies.items() %}
+                    {# Group categories by type using category_groups passed from generator #}
+                    {% for group in category_groups %}
+                    {% set group_cats = [] %}
+                    {% for cat_key in group.categories %}
+                        {% if cat_key in evaluation.category_accuracies %}
+                            {% if group_cats.append(cat_key) %}{% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if group_cats|length > 0 %}
+                    <tr class="group-header">
+                        <td colspan="7">{{ group.icon }} {{ group.label }} ({{ group_cats|length }} categories)</td>
+                    </tr>
+                    {% for name in group_cats %}
+                    {% set cat = evaluation.category_accuracies[name] %}
                     <tr>
                         <td>
                             <strong>{{ name }}</strong>
@@ -355,6 +384,8 @@ Vigil Model Evaluation Report Template
                             </details>
                         </td>
                     </tr>
+                    {% endif %}
+                    {% endfor %}
                     {% endif %}
                     {% endfor %}
                 </tbody>
